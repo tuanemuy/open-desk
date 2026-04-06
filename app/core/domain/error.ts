@@ -1,13 +1,30 @@
-// import { ${Domain}ErrorCode } from "./${domain}/errorCode";
-
 import { AnyError } from "@/lib/error";
-
-export const BusinessRuleErrorCode = {
-  // ...${Domain}ErrorCode,
-};
+import type { AccessControlErrorCode } from "./access-control/errorCode";
+import type { AppErrorCode } from "./app/errorCode";
+import type { BookmarkErrorCode } from "./bookmark/errorCode";
+import type { FileErrorCode } from "./file/errorCode";
+import type { IdentityErrorCode } from "./identity/errorCode";
+import type { MessageErrorCode } from "./message/errorCode";
+import type { NotificationErrorCode } from "./notification/errorCode";
+import type { PeopleErrorCode } from "./people/errorCode";
+import type { PortalErrorCode } from "./portal/errorCode";
+import type { RecordErrorCode } from "./record/errorCode";
+import type { SearchErrorCode } from "./search/errorCode";
+import type { SpaceErrorCode } from "./space/errorCode";
 
 export type BusinessRuleErrorCode =
-  (typeof BusinessRuleErrorCode)[keyof typeof BusinessRuleErrorCode];
+  | AccessControlErrorCode
+  | AppErrorCode
+  | BookmarkErrorCode
+  | FileErrorCode
+  | IdentityErrorCode
+  | MessageErrorCode
+  | NotificationErrorCode
+  | PeopleErrorCode
+  | PortalErrorCode
+  | RecordErrorCode
+  | SearchErrorCode
+  | SpaceErrorCode;
 
 /**
  * Domain Layer - Business Rule Error
