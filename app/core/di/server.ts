@@ -8,6 +8,19 @@
 import { getDatabase } from "@/core/adapters/drizzleSqlite/client";
 import { ScryptPasswordHasher } from "@/core/adapters/drizzleSqlite/repositories/passwordHasher";
 import { DrizzleSqliteUnitOfWorkProvider } from "@/core/adapters/drizzleSqlite/unitOfWork";
+import { StubAppCreationService } from "@/core/adapters/stub/appCreationService";
+import { StubAppDeploymentService } from "@/core/adapters/stub/appDeploymentService";
+import { StubAuthenticationProvider } from "@/core/adapters/stub/authenticationProvider";
+import { StubCsvImportService } from "@/core/adapters/stub/csvImportService";
+import { StubDesktopNotificationPublisher } from "@/core/adapters/stub/desktopNotificationPublisher";
+import { StubEmailNotificationSender } from "@/core/adapters/stub/emailNotificationSender";
+import { StubFileStorageProvider } from "@/core/adapters/stub/fileStorageProvider";
+import { StubFilterCondEvaluator } from "@/core/adapters/stub/filterCondEvaluator";
+import { StubNotificationSourceResolver } from "@/core/adapters/stub/notificationSourceResolver";
+import { StubProcessExecutionService } from "@/core/adapters/stub/processExecutionService";
+import { StubRecordQueryService } from "@/core/adapters/stub/recordQueryService";
+import { StubRecordValidationService } from "@/core/adapters/stub/recordValidationService";
+import { StubSearchIndexProvider } from "@/core/adapters/stub/searchIndexProvider";
 import type { Container } from "@/core/application/container/server";
 
 /**
@@ -55,9 +68,26 @@ export function createContainer(config: ServerConfig): Container {
       appUrl: config.appUrl,
       sessionTimeoutHours: config.sessionTimeoutHours,
       maxSessionsPerUser: config.maxSessionsPerUser,
+      features: {
+        peopleAndMessageEnabled:
+          process.env.PEOPLE_AND_MESSAGE_ENABLED !== "false",
+      },
     },
     unitOfWorkProvider,
     passwordHasher: new ScryptPasswordHasher(),
+    authenticationProvider: new StubAuthenticationProvider(),
+    fileStorageProvider: new StubFileStorageProvider(),
+    searchIndexProvider: new StubSearchIndexProvider(),
+    recordValidationService: new StubRecordValidationService(),
+    processExecutionService: new StubProcessExecutionService(),
+    recordQueryService: new StubRecordQueryService(),
+    csvImportService: new StubCsvImportService(),
+    filterCondEvaluator: new StubFilterCondEvaluator(),
+    emailNotificationSender: new StubEmailNotificationSender(),
+    desktopNotificationPublisher: new StubDesktopNotificationPublisher(),
+    notificationSourceResolver: new StubNotificationSourceResolver(),
+    appCreationService: new StubAppCreationService(),
+    appDeploymentService: new StubAppDeploymentService(),
   };
 }
 

@@ -237,6 +237,28 @@ export class DrizzleSqliteUserRepository implements UserRepository {
     }
   }
 
+  async savePassword(
+    userId: UserIdType,
+    hashedPassword: HashedPasswordType,
+  ): Promise<void> {
+    try {
+      await this.executor
+        .update(users)
+        .set({
+          passwordHash: hashedPassword.value,
+          passwordAlgorithm: hashedPassword.algorithm,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      throw new SystemError(
+        SystemErrorCode.DatabaseError,
+        "Failed to save password",
+        error,
+      );
+    }
+  }
+
   async delete(userId: UserIdType): Promise<void> {
     try {
       await this.executor.delete(users).where(eq(users.id, userId));

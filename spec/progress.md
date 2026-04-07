@@ -18,18 +18,18 @@
 - [x] drizzleSqlite（スキーマ + リポジトリ）
 
 ## ユースケース
-- [ ] Identity
-- [ ] App
-- [ ] Record
-- [ ] AccessControl
-- [ ] Space
-- [ ] Notification
-- [ ] Portal
-- [ ] People
-- [ ] Message
-- [ ] File
-- [ ] Search
-- [ ] Bookmark
+- [x] Identity
+- [x] App
+- [x] Record
+- [x] AccessControl
+- [x] Space
+- [x] Notification
+- [x] Portal
+- [x] People
+- [x] Message
+- [x] File
+- [x] Search
+- [x] Bookmark
 
 ## テスト
 - [ ] Identity

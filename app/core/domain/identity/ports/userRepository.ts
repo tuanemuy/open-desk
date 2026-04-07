@@ -78,6 +78,14 @@ export interface UserRepository {
   save(user: User): Promise<void>;
 
   /**
+   * Save (insert or update) a user's hashed password.
+   */
+  savePassword(
+    userId: UserIdType,
+    hashedPassword: HashedPasswordType,
+  ): Promise<void>;
+
+  /**
    * Delete a user by their unique identifier.
    */
   delete(userId: UserIdType): Promise<void>;

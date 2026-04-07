@@ -12,6 +12,19 @@ import { afterEach, beforeEach } from "vitest";
 import { ScryptPasswordHasher } from "@/core/adapters/drizzleSqlite/repositories/passwordHasher";
 import * as schema from "@/core/adapters/drizzleSqlite/schema";
 import { DrizzleSqliteUnitOfWorkProvider } from "@/core/adapters/drizzleSqlite/unitOfWork";
+import { StubAppCreationService } from "@/core/adapters/stub/appCreationService";
+import { StubAppDeploymentService } from "@/core/adapters/stub/appDeploymentService";
+import { StubAuthenticationProvider } from "@/core/adapters/stub/authenticationProvider";
+import { StubCsvImportService } from "@/core/adapters/stub/csvImportService";
+import { StubDesktopNotificationPublisher } from "@/core/adapters/stub/desktopNotificationPublisher";
+import { StubEmailNotificationSender } from "@/core/adapters/stub/emailNotificationSender";
+import { StubFileStorageProvider } from "@/core/adapters/stub/fileStorageProvider";
+import { StubFilterCondEvaluator } from "@/core/adapters/stub/filterCondEvaluator";
+import { StubNotificationSourceResolver } from "@/core/adapters/stub/notificationSourceResolver";
+import { StubProcessExecutionService } from "@/core/adapters/stub/processExecutionService";
+import { StubRecordQueryService } from "@/core/adapters/stub/recordQueryService";
+import { StubRecordValidationService } from "@/core/adapters/stub/recordValidationService";
+import { StubSearchIndexProvider } from "@/core/adapters/stub/searchIndexProvider";
 import type { Container } from "@/core/application/container/server";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -117,10 +130,26 @@ export async function createTestContainer(
       appUrl: "http://localhost:3000",
       sessionTimeoutHours: 24,
       maxSessionsPerUser: 3,
+      features: {
+        peopleAndMessageEnabled: true,
+      },
       ...options.config,
     },
     unitOfWorkProvider: new DrizzleSqliteUnitOfWorkProvider(dbWithCleanup.db),
     passwordHasher: new ScryptPasswordHasher(),
+    authenticationProvider: new StubAuthenticationProvider(),
+    fileStorageProvider: new StubFileStorageProvider(),
+    searchIndexProvider: new StubSearchIndexProvider(),
+    recordValidationService: new StubRecordValidationService(),
+    processExecutionService: new StubProcessExecutionService(),
+    recordQueryService: new StubRecordQueryService(),
+    csvImportService: new StubCsvImportService(),
+    filterCondEvaluator: new StubFilterCondEvaluator(),
+    emailNotificationSender: new StubEmailNotificationSender(),
+    desktopNotificationPublisher: new StubDesktopNotificationPublisher(),
+    notificationSourceResolver: new StubNotificationSourceResolver(),
+    appCreationService: new StubAppCreationService(),
+    appDeploymentService: new StubAppDeploymentService(),
     // Test utilities
     db: dbWithCleanup.db,
     cleanup: async () => {
