@@ -46,14 +46,14 @@
 - [x] Bookmark
 
 ## フロントエンド
-- [ ] Portal
-- [ ] People
-- [ ] Message
-- [ ] Space
-- [ ] App
-- [ ] Record
-- [ ] Search
-- [ ] Bookmark
-- [ ] Notification
-- [ ] Admin
-- [ ] PersonalSettings
+- [x] Portal
+- [x] People
+- [x] Message
+- [x] Space
+- [x] App
+- [x] Record
+- [x] Search
+- [ ] Bookmark（デザインなし）
+- [x] Notification
+- [ ] Admin（デザインなし）
+- [x] PersonalSettings
