@@ -9,6 +9,7 @@ import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
 import { afterEach, beforeEach } from "vitest";
+import { ScryptPasswordHasher } from "@/core/adapters/drizzleSqlite/repositories/passwordHasher";
 import * as schema from "@/core/adapters/drizzleSqlite/schema";
 import { DrizzleSqliteUnitOfWorkProvider } from "@/core/adapters/drizzleSqlite/unitOfWork";
 import type { Container } from "@/core/application/container/server";
@@ -119,7 +120,7 @@ export async function createTestContainer(
       ...options.config,
     },
     unitOfWorkProvider: new DrizzleSqliteUnitOfWorkProvider(dbWithCleanup.db),
-    // ... other adapters and services would be initialized here
+    passwordHasher: new ScryptPasswordHasher(),
     // Test utilities
     db: dbWithCleanup.db,
     cleanup: async () => {

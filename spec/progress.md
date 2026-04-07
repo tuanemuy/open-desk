@@ -15,7 +15,7 @@
 - [x] Bookmark
 
 ## アダプター
-- [ ] drizzleSqlite（スキーマ + リポジトリ）
+- [x] drizzleSqlite（スキーマ + リポジトリ）
 
 ## ユースケース
 - [ ] Identity

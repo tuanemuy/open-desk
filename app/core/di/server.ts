@@ -6,6 +6,7 @@
  */
 
 import { getDatabase } from "@/core/adapters/drizzleSqlite/client";
+import { ScryptPasswordHasher } from "@/core/adapters/drizzleSqlite/repositories/passwordHasher";
 import { DrizzleSqliteUnitOfWorkProvider } from "@/core/adapters/drizzleSqlite/unitOfWork";
 import type { Container } from "@/core/application/container/server";
 
@@ -15,6 +16,8 @@ import type { Container } from "@/core/application/container/server";
 export type ServerConfig = {
   databaseUrl: string;
   appUrl: string;
+  sessionTimeoutHours: number;
+  maxSessionsPerUser: number;
 };
 
 /**
@@ -35,6 +38,8 @@ function getServerConfig(): ServerConfig {
   return {
     databaseUrl,
     appUrl,
+    sessionTimeoutHours: Number(process.env.SESSION_TIMEOUT_HOURS ?? "24"),
+    maxSessionsPerUser: Number(process.env.MAX_SESSIONS_PER_USER ?? "3"),
   };
 }
 
@@ -48,9 +53,11 @@ export function createContainer(config: ServerConfig): Container {
   return {
     config: {
       appUrl: config.appUrl,
+      sessionTimeoutHours: config.sessionTimeoutHours,
+      maxSessionsPerUser: config.maxSessionsPerUser,
     },
     unitOfWorkProvider,
-    // ... other dependencies can be added here
+    passwordHasher: new ScryptPasswordHasher(),
   };
 }
 

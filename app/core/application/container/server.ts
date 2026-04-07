@@ -1,3 +1,4 @@
+import type { PasswordHasher } from "@/core/domain/identity/ports/passwordHasher";
 import type { UnitOfWorkProvider } from "../unitOfWork";
 
 /**
@@ -5,6 +6,8 @@ import type { UnitOfWorkProvider } from "../unitOfWork";
  */
 export type AppConfig = {
   appUrl: string;
+  sessionTimeoutHours: number;
+  maxSessionsPerUser: number;
 };
 
 /**
@@ -13,5 +16,5 @@ export type AppConfig = {
 export type Container = {
   config: AppConfig;
   unitOfWorkProvider: UnitOfWorkProvider;
-  // ... other dependencies
+  passwordHasher: PasswordHasher;
 };

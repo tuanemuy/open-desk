@@ -4,9 +4,66 @@ import type {
   UnitOfWorkProvider,
 } from "@/core/application/unitOfWork";
 import type { Database, Executor } from "./client";
-
-// import { DrizzleSqliteOutboxRepository } from "./repositories/outboxRepository";
-// import { DrizzleSqlite${Entity}Repository } from "./repositories/${entity}Repository";
+// app
+import { DrizzleSqliteApiTokenConfigRepository } from "./repositories/apiTokenConfigRepository";
+// access-control
+import { DrizzleSqliteAppAclRepository } from "./repositories/appAclRepository";
+import { DrizzleSqliteAppActionRepository } from "./repositories/appActionRepository";
+import { DrizzleSqliteAppCategoryRepository } from "./repositories/appCategoryRepository";
+import { DrizzleSqliteAppCustomizationRepository } from "./repositories/appCustomizationRepository";
+import { DrizzleSqliteAppI18nConfigRepository } from "./repositories/appI18nConfigRepository";
+import { DrizzleSqliteAppNotificationConfigRepository } from "./repositories/appNotificationConfigRepository";
+import { DrizzleSqliteAppRepository } from "./repositories/appRepository";
+// bookmark
+import { DrizzleSqliteBookmarkRepository } from "./repositories/bookmarkRepository";
+// space
+import { DrizzleSqliteCommentLikeRepository } from "./repositories/commentLikeRepository";
+// record
+import { DrizzleSqliteCsvExportJobRepository } from "./repositories/csvExportJobRepository";
+import { DrizzleSqliteCsvImportJobRepository } from "./repositories/csvImportJobRepository";
+// message
+import { DrizzleSqliteDirectMessageRepository } from "./repositories/directMessageRepository";
+import { DrizzleSqliteFieldAclRepository } from "./repositories/fieldAclRepository";
+import { DrizzleSqliteFieldRepository } from "./repositories/fieldRepository";
+// file
+import { DrizzleSqliteFileRepository } from "./repositories/fileRepository";
+// people
+import { DrizzleSqliteFollowRepository } from "./repositories/followRepository";
+import { DrizzleSqliteFormLayoutRepository } from "./repositories/formLayoutRepository";
+// identity
+import { DrizzleSqliteGroupRepository } from "./repositories/groupRepository";
+import { DrizzleSqliteMembershipRepository } from "./repositories/membershipRepository";
+import { DrizzleSqliteMessageThreadRepository } from "./repositories/messageThreadRepository";
+// notification
+import { DrizzleSqliteNotificationFilterRepository } from "./repositories/notificationFilterRepository";
+import { DrizzleSqliteNotificationPreferenceRepository } from "./repositories/notificationPreferenceRepository";
+import { DrizzleSqliteNotificationRepository } from "./repositories/notificationRepository";
+import { DrizzleSqliteOrganizationRepository } from "./repositories/organizationRepository";
+import { DrizzleSqlitePluginConfigRepository } from "./repositories/pluginConfigRepository";
+// portal
+import { DrizzleSqlitePortalAnnouncementRepository } from "./repositories/portalAnnouncementRepository";
+import { DrizzleSqlitePostRepository } from "./repositories/postRepository";
+import { DrizzleSqliteProcessDefinitionRepository } from "./repositories/processDefinitionRepository";
+import { DrizzleSqliteProfileRepository } from "./repositories/profileRepository";
+import { DrizzleSqliteRecordAclRepository } from "./repositories/recordAclRepository";
+import { DrizzleSqliteRecordCommentRepository } from "./repositories/recordCommentRepository";
+import { DrizzleSqliteRecordCursorRepository } from "./repositories/recordCursorRepository";
+import { DrizzleSqliteRecordHistoryRepository } from "./repositories/recordHistoryRepository";
+import { DrizzleSqliteRecordRepository } from "./repositories/recordRepository";
+import { DrizzleSqliteRelatedLinkRepository } from "./repositories/relatedLinkRepository";
+import { DrizzleSqliteReportRepository } from "./repositories/reportRepository";
+import { DrizzleSqliteSessionRepository } from "./repositories/sessionRepository";
+import { DrizzleSqliteSpaceAnnouncementRepository } from "./repositories/spaceAnnouncementRepository";
+import { DrizzleSqliteSpaceMemberRepository } from "./repositories/spaceMemberRepository";
+import { DrizzleSqliteSpaceRepository } from "./repositories/spaceRepository";
+import { DrizzleSqliteSpaceTemplateRepository } from "./repositories/spaceTemplateRepository";
+import { DrizzleSqliteSystemPermissionRepository } from "./repositories/systemPermissionRepository";
+import { DrizzleSqliteThreadCommentRepository } from "./repositories/threadCommentRepository";
+import { DrizzleSqliteThreadFollowRepository } from "./repositories/threadFollowRepository";
+import { DrizzleSqliteThreadRepository } from "./repositories/threadRepository";
+import { DrizzleSqliteUserRepository } from "./repositories/userRepository";
+import { DrizzleSqliteViewRepository } from "./repositories/viewRepository";
+import { DrizzleSqliteWebhookConfigRepository } from "./repositories/webhookConfigRepository";
 
 /**
  * Configuration for transaction retry behavior
@@ -117,7 +174,75 @@ export class DrizzleSqliteUnitOfWorkProvider implements UnitOfWorkProvider {
  */
 function createRepositories(db: Executor): Repositories {
   return {
-    // outboxRepository: new DrizzleSqliteOutboxRepository(db),
-    // ${entity}Repository: new DrizzleSqlite${Entity}Repository(db),
+    // access-control
+    appAclRepository: new DrizzleSqliteAppAclRepository(db),
+    fieldAclRepository: new DrizzleSqliteFieldAclRepository(db),
+    recordAclRepository: new DrizzleSqliteRecordAclRepository(db),
+    systemPermissionRepository: new DrizzleSqliteSystemPermissionRepository(db),
+    // app
+    apiTokenConfigRepository: new DrizzleSqliteApiTokenConfigRepository(db),
+    appActionRepository: new DrizzleSqliteAppActionRepository(db),
+    appCategoryRepository: new DrizzleSqliteAppCategoryRepository(db),
+    appCustomizationRepository: new DrizzleSqliteAppCustomizationRepository(db),
+    appI18nConfigRepository: new DrizzleSqliteAppI18nConfigRepository(db),
+    appNotificationConfigRepository:
+      new DrizzleSqliteAppNotificationConfigRepository(db),
+    appRepository: new DrizzleSqliteAppRepository(db),
+    fieldRepository: new DrizzleSqliteFieldRepository(db),
+    formLayoutRepository: new DrizzleSqliteFormLayoutRepository(db),
+    pluginConfigRepository: new DrizzleSqlitePluginConfigRepository(db),
+    processDefinitionRepository: new DrizzleSqliteProcessDefinitionRepository(
+      db,
+    ),
+    reportRepository: new DrizzleSqliteReportRepository(db),
+    viewRepository: new DrizzleSqliteViewRepository(db),
+    webhookConfigRepository: new DrizzleSqliteWebhookConfigRepository(db),
+    // bookmark
+    bookmarkRepository: new DrizzleSqliteBookmarkRepository(db),
+    // file
+    fileRepository: new DrizzleSqliteFileRepository(db),
+    // identity
+    groupRepository: new DrizzleSqliteGroupRepository(db),
+    membershipRepository: new DrizzleSqliteMembershipRepository(db),
+    organizationRepository: new DrizzleSqliteOrganizationRepository(db),
+    sessionRepository: new DrizzleSqliteSessionRepository(db),
+    userRepository: new DrizzleSqliteUserRepository(db),
+    // message
+    directMessageRepository: new DrizzleSqliteDirectMessageRepository(db),
+    messageThreadRepository: new DrizzleSqliteMessageThreadRepository(db),
+    // notification
+    notificationFilterRepository: new DrizzleSqliteNotificationFilterRepository(
+      db,
+    ),
+    notificationPreferenceRepository:
+      new DrizzleSqliteNotificationPreferenceRepository(db),
+    notificationRepository: new DrizzleSqliteNotificationRepository(db),
+    // people
+    followRepository: new DrizzleSqliteFollowRepository(db),
+    postRepository: new DrizzleSqlitePostRepository(db),
+    profileRepository: new DrizzleSqliteProfileRepository(db),
+    // portal
+    portalAnnouncementRepository: new DrizzleSqlitePortalAnnouncementRepository(
+      db,
+    ),
+    // record
+    csvExportJobRepository: new DrizzleSqliteCsvExportJobRepository(db),
+    csvImportJobRepository: new DrizzleSqliteCsvImportJobRepository(db),
+    recordCommentRepository: new DrizzleSqliteRecordCommentRepository(db),
+    recordCursorRepository: new DrizzleSqliteRecordCursorRepository(db),
+    recordHistoryRepository: new DrizzleSqliteRecordHistoryRepository(db),
+    recordRepository: new DrizzleSqliteRecordRepository(db),
+    // space
+    commentLikeRepository: new DrizzleSqliteCommentLikeRepository(db),
+    relatedLinkRepository: new DrizzleSqliteRelatedLinkRepository(db),
+    spaceAnnouncementRepository: new DrizzleSqliteSpaceAnnouncementRepository(
+      db,
+    ),
+    spaceMemberRepository: new DrizzleSqliteSpaceMemberRepository(db),
+    spaceRepository: new DrizzleSqliteSpaceRepository(db),
+    spaceTemplateRepository: new DrizzleSqliteSpaceTemplateRepository(db),
+    threadCommentRepository: new DrizzleSqliteThreadCommentRepository(db),
+    threadFollowRepository: new DrizzleSqliteThreadFollowRepository(db),
+    threadRepository: new DrizzleSqliteThreadRepository(db),
   };
 }
