@@ -80,6 +80,10 @@ const updatePermissionSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === "on"),
+  includeSubs: z
+    .string()
+    .optional()
+    .transform((v) => v === "on"),
 });
 
 const deletePermissionSchema = z.object({
