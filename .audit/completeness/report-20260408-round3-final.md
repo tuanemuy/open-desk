@@ -18,6 +18,13 @@
 | 不完全な制御フロー | 1 | 0 | 0 | 1 |
 | spec 未実装 | 4 | 0 | 0 | 4 |
 
+**Info 内訳:**
+
+| 分類 | 件数 | 意味 |
+|------|------|------|
+| Info (actionable) | 3 | いずれ実装が必要。デザイン確定やフェーズ進行に伴い対応する |
+| Info (accepted) | 2 | 意図的な設計判断。現時点で対応不要 |
+
 **ラウンド推移:**
 
 | ラウンド | Critical | Warning | Info | Total |
@@ -40,32 +47,39 @@
 
 ---
 
-## Info（要確認）
-
-### [I-001] ルートindex.tsxが return null のリダイレクト専用ページ
-- **ファイル:** `app/routes/index.tsx:7-9`
-- **カテゴリ:** 不完全な制御フロー
-- **根拠:** loaderでリダイレクトするため通常到達しないが、フォールバックUIがない。React Router v7の仕様上意図的な設計として許容される。
+## Info — actionable（いずれ対応が必要）
 
 ### [I-002] 通知・検索ページのフィルタリングがクライアントサイドのみ
 - **ファイル:** `app/routes/notifications/index.tsx`, `app/routes/search/index.tsx`
 - **カテゴリ:** 不完全な制御フロー
 - **根拠:** フィルターUIはReact stateで管理されているが、サーバーへのクエリパラメータ送信やloader再呼び出しが未実装。
+- **対応タイミング:** フィルタリング機能の本実装時
 
 ### [I-003] 管理系画面が完全に未実装（デザイン待ち）
 - **ファイル:** ルートなし
 - **カテゴリ:** spec 未実装
 - **根拠:** `spec/progress.md` で「デザインなし」とマーク。デザイン確定待ち。
-
-### [I-004] DB CHECK制約が未実装（アプリケーション層で検証する設計判断）
-- **ファイル:** `app/core/adapters/drizzleSqlite/schema.ts`
-- **カテゴリ:** spec 未実装
-- **根拠:** Drizzle ORM + SQLiteの制約上、アプリケーション層での検証に委譲。意図的な設計判断。
+- **対応タイミング:** デザイン確定後
 
 ### [I-005] portal/loader.ts の SpaceItem.description が常に空文字
 - **ファイル:** `app/routes/portal/loader.ts`
 - **カテゴリ:** 要確認
 - **根拠:** Space エンティティに description プロパティが存在しない。型定義の見直しが望ましい。
+- **対応タイミング:** ポータル画面の改善時
+
+---
+
+## Info — accepted（意図的な設計判断、対応不要）
+
+### [I-001] ルートindex.tsxが return null のリダイレクト専用ページ
+- **ファイル:** `app/routes/index.tsx:7-9`
+- **カテゴリ:** 不完全な制御フロー
+- **根拠:** loaderでリダイレクトするため通常到達しない。React Router v7の仕様上意図的な設計として許容される。
+
+### [I-004] DB CHECK制約が未実装（アプリケーション層で検証する設計判断）
+- **ファイル:** `app/core/adapters/drizzleSqlite/schema.ts`
+- **カテゴリ:** spec 未実装
+- **根拠:** Drizzle ORM + SQLiteの制約上、アプリケーション層での検証に委譲。意図的な設計判断。
 
 ---
 
