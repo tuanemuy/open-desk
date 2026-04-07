@@ -53,7 +53,7 @@
 - [x] App
 - [x] Record
 - [x] Search
-- [ ] Bookmark（デザインなし）
+- [x] Bookmark
 - [x] Notification
-- [ ] Admin（デザインなし）
+- [x] Admin
 - [x] PersonalSettings

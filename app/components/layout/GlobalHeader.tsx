@@ -1,4 +1,6 @@
 import { Link, useLocation } from "react-router";
+import type { BookmarkListByCategoryOutput } from "@/core/application/bookmark/dto";
+import { BookmarkPanel } from "./BookmarkPanel";
 
 const navItems = [
   { label: "Portal", to: "/portal" },
@@ -8,9 +10,10 @@ const navItems = [
 
 type GlobalHeaderProps = {
   displayName?: string;
+  bookmarks?: BookmarkListByCategoryOutput;
 };
 
-export function GlobalHeader({ displayName }: GlobalHeaderProps) {
+export function GlobalHeader({ displayName, bookmarks }: GlobalHeaderProps) {
   const location = useLocation();
   const initial = displayName?.charAt(0) ?? "?";
 
@@ -44,6 +47,8 @@ export function GlobalHeader({ displayName }: GlobalHeaderProps) {
               </Link>
             );
           })}
+
+          {bookmarks && <BookmarkPanel bookmarks={bookmarks} />}
         </nav>
 
         <div className="ml-auto flex items-center gap-md">
