@@ -1,3 +1,12 @@
+import { data } from "react-router";
+import { container } from "@/core/application/container/server.instance";
+import { getComments } from "@/core/application/record/getComments";
+import { getHistory } from "@/core/application/record/getHistory";
+import { getRecord } from "@/core/application/record/getRecord";
+import { AppId } from "@/core/domain/app/valueObject";
+import type { SpaceId } from "@/core/domain/space/valueObject";
+import { handleUseCase } from "@/lib/handleUseCase";
+import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
 type FieldValue = {
@@ -28,114 +37,215 @@ type AppInfo = {
   spaceId: string;
 };
 
+type HistoryFieldChange = {
+  fieldCode: string;
+  oldValue: string;
+  newValue: string;
+};
+
+type HistoryItem = {
+  id: string;
+  version: number;
+  modifier: string;
+  modifiedAt: string;
+  changes: HistoryFieldChange[];
+};
+
 export type RecordDetailLoaderData = {
   app: AppInfo;
   recordId: string;
   rows: RecordRow[];
   comments: CommentItem[];
+  histories: HistoryItem[];
 };
 
 export async function loader({
   params,
+  request,
 }: Route.LoaderArgs): Promise<RecordDetailLoaderData> {
+  await requireAuth(request, container);
+
   const appId = params.appId;
   const recordId = params.recordId;
 
+  const { appEntity, fields } = await container.unitOfWorkProvider.transaction(
+    async (ctx) => {
+      const found = await ctx.appRepository.findById(AppId.create(appId));
+      const fieldList = await ctx.fieldRepository.findByAppId(
+        AppId.create(appId),
+      );
+      return { appEntity: found, fields: fieldList };
+    },
+  );
+
+  if (!appEntity) {
+    throw data({ message: "App not found" }, { status: 404 });
+  }
+
+  let spaceName = "";
+  if (appEntity.spaceId) {
+    const space = await container.unitOfWorkProvider.transaction(async (ctx) =>
+      ctx.spaceRepository.findById(appEntity.spaceId as unknown as SpaceId),
+    );
+    if (space) {
+      spaceName = space.name as string;
+    }
+  }
+
   const app: AppInfo = {
-    id: appId,
-    name: "Customer List",
-    spaceName: "Your Team Communication Space",
-    spaceId: "1",
+    id: appEntity.appId as string,
+    name: appEntity.name as string,
+    spaceName,
+    spaceId: (appEntity.spaceId as string) ?? "",
   };
 
-  const rows: RecordRow[] = [
-    {
-      id: "row-record-no",
-      fields: [{ label: "Record No.", value: "1", type: "text" }],
-    },
-    {
-      id: "row-company",
-      fields: [
-        { label: "Company", value: "Yamada Trading Co., Ltd.", type: "text" },
-        { label: "Department", value: "Sales", type: "text" },
-        { label: "Contact", value: "Taro Tanaka", type: "text" },
-      ],
-    },
-    {
-      id: "row-contact",
-      fields: [
-        { label: "Postal Code", value: "1000001", type: "text" },
-        { label: "TEL", value: "0312345678", type: "text" },
-        { label: "FAX", value: "0312345679", type: "text" },
-      ],
-    },
-    {
-      id: "row-address",
-      fields: [
-        {
-          label: "Address",
-          value: "1-1-1 Marunouchi, Chiyoda-ku, Tokyo",
-          type: "text",
-        },
-        { label: "Customer Rank", value: "A", type: "badge" },
-      ],
-      flex: [2, 1],
-    },
-    {
-      id: "row-email",
-      fields: [
-        {
-          label: "Email",
-          value: "tanaka@yamada-shoji.co.jp",
-          type: "email",
-        },
-        { label: "Company Logo", value: "150 x 100", type: "image" },
-      ],
-    },
-    {
-      id: "row-notes",
-      fields: [
-        {
-          label: "Notes",
-          value:
-            "New business started in April 2024. Primarily handles wholesale of electronic components.\nRegular meetings held on the second Tuesday of each month.\nNext quote submission deadline is end of June 2024. Mr. Tanaka prefers morning communication.",
-          type: "text",
-        },
-      ],
-    },
-  ];
+  const fieldLabelMap = new Map<string, string>();
+  const fieldTypeMap = new Map<string, string>();
+  for (const f of fields) {
+    fieldLabelMap.set(f.fieldCode as string, f.label);
+    fieldTypeMap.set(f.fieldCode as string, f.fieldType as string);
+  }
 
-  const comments: CommentItem[] = [
-    {
-      id: "1",
-      author: "Jiro Yamada",
-      initial: "Y",
-      avatarColor: "blue",
-      time: "2024/05/15 10:32",
-      text: "Sent the new catalog to Mr. Tanaka. Will check the response at next week's regular meeting.",
+  const recordResult = await handleUseCase(() =>
+    getRecord({
+      container,
+      headers: request.headers,
+      input: { appId, recordId },
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
     },
-    {
-      id: "2",
-      author: "Keiko Sato",
-      initial: "S",
-      avatarColor: "green",
-      time: "2024/05/14 15:48",
-      text: "Received an additional order inquiry from the client. Will create a quote and share it. Desired delivery is the second week of June.",
+  );
+
+  const rows: RecordRow[] = [];
+  for (const [code, val] of recordResult.record.fieldValues) {
+    const codeStr = code as string;
+    const label = fieldLabelMap.get(codeStr) ?? codeStr;
+    const rawType = fieldTypeMap.get(codeStr) ?? "";
+    let displayType: FieldValue["type"] = "text";
+    if (rawType === "LINK" && codeStr.toLowerCase().includes("email")) {
+      displayType = "email";
+    } else if (rawType === "FILE") {
+      displayType = "image";
+    } else if (rawType === "DROP_DOWN") {
+      displayType = "badge";
+    }
+    const displayValue =
+      "value" in val
+        ? Array.isArray(val.value)
+          ? (val.value as string[]).join(", ")
+          : String(val.value)
+        : "";
+    rows.push({
+      id: `row-${codeStr}`,
+      fields: [{ label, value: displayValue, type: displayType }],
+    });
+  }
+
+  const commentsResult = await handleUseCase(() =>
+    getComments({
+      container,
+      headers: request.headers,
+      input: { appId, recordId },
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
     },
-    {
-      id: "3",
-      author: "Jiro Yamada",
-      initial: "Y",
-      avatarColor: "blue",
-      time: "2024/05/10 09:15",
-      text: "Changed customer rank from B to A. Based on transaction record over the past 3 months.",
-    },
-  ];
+  );
+
+  const avatarColors: ("blue" | "green")[] = ["blue", "green"];
+  const authorColorMap = new Map<string, "blue" | "green">();
+  let colorIndex = 0;
+
+  const comments: CommentItem[] = await Promise.all(
+    commentsResult.comments.map(async (c) => {
+      let authorName = c.creatorId as string;
+      const user = await container.unitOfWorkProvider.transaction(async (ctx) =>
+        ctx.userRepository.findById(
+          c.creatorId as import("@/core/domain/identity/valueObject").UserId,
+        ),
+      );
+      if (user) {
+        authorName = user.displayName as string;
+      }
+
+      if (!authorColorMap.has(authorName)) {
+        authorColorMap.set(
+          authorName,
+          avatarColors[colorIndex % avatarColors.length] as "blue" | "green",
+        );
+        colorIndex++;
+      }
+
+      return {
+        id: c.commentId as string,
+        author: authorName,
+        initial: authorName.charAt(0).toUpperCase(),
+        avatarColor: authorColorMap.get(authorName) as "blue" | "green",
+        time: formatDate(c.createdAt),
+        text: c.text,
+      };
+    }),
+  );
+
+  const historyResult = await handleUseCase(() =>
+    getHistory({
+      container,
+      headers: request.headers,
+      input: { appId, recordId },
+    }),
+  ).match(
+    (result) => result,
+    () => ({
+      histories:
+        [] as import("@/core/application/record/dto").RecordHistoryDto[],
+    }),
+  );
+
+  const histories: HistoryItem[] = await Promise.all(
+    historyResult.histories.map(async (h) => {
+      let modifierName = h.modifierId as string;
+      const user = await container.unitOfWorkProvider.transaction(async (ctx) =>
+        ctx.userRepository.findById(
+          h.modifierId as import("@/core/domain/identity/valueObject").UserId,
+        ),
+      );
+      if (user) {
+        modifierName = user.displayName as string;
+      }
+
+      return {
+        id: h.historyId as string,
+        version: h.version,
+        modifier: modifierName,
+        modifiedAt: formatDate(h.modifiedAt),
+        changes: h.changedFields.map((diff) => ({
+          fieldCode: diff.fieldCode as string,
+          oldValue: diff.oldValue,
+          newValue: diff.newValue,
+        })),
+      };
+    }),
+  );
 
   return {
     app,
     recordId,
     rows,
     comments,
+    histories,
   };
+}
+
+function formatDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const h = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+  return `${y}/${m}/${d} ${h}:${min}`;
 }

@@ -1,3 +1,9 @@
+import { data } from "react-router";
+import { container } from "@/core/application/container/server.instance";
+import { listNotifications } from "@/core/application/notification/listNotifications";
+import { getPortalView } from "@/core/application/portal/getPortalView";
+import { handleUseCase } from "@/lib/handleUseCase";
+import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
 type NotificationItem = {
@@ -38,102 +44,161 @@ export type PortalLoaderData = {
   apps: AppItem[];
 };
 
-export async function loader(
-  _args: Route.LoaderArgs,
-): Promise<PortalLoaderData> {
-  // Static data for the portal page.
-  // Will be replaced with real data fetching when backend is wired up.
-  const announcement: Announcement = {
-    title: "Welcome to OpenDesk",
-    bodyHtml: [
-      "<p>OpenDesk is a cloud platform that centralizes your team's information and streamlines operations. Follow the steps below to create your first app.</p>",
-      '<div class="announcement-image-placeholder">App creation steps screenshot</div>',
-      "<ol>",
-      '<li>Select "Create App" from the "Options" button at the top of the screen.</li>',
-      '<li>Choose a template or build a custom app from scratch with "Create from Scratch".</li>',
-      "<li>Drag and drop fields to configure your form layout.</li>",
-      '<li>Click "Publish" to make the app available to your team members.</li>',
-      "</ol>",
-      '<p>For detailed instructions, visit the <a href="#">Help Center</a>. If you have questions, feel free to ask in the <a href="#">Support Channel</a>.</p>',
-    ].join(""),
-    author: "Taro Yamada",
-    date: "2026/4/1 9:30",
-  };
+/**
+ * Format a Date to a relative time-ago string in Japanese.
+ */
+function formatTimeAgo(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
-  const notifications: NotificationItem[] = [
-    {
-      id: "1",
-      appName: "Customer List",
-      message: "Hanako Suzuki commented on a record",
-      timeAgo: "10 min ago",
-      author: "Hanako Suzuki",
-      unread: true,
-    },
-    {
-      id: "2",
-      appName: "Project Management",
-      message: 'Task "Create API design doc" completed',
-      timeAgo: "30 min ago",
-      author: "Ichiro Sato",
-      unread: true,
-    },
-    {
-      id: "3",
-      appName: "File Management",
-      message: '"2026 Budget.xlsx" was uploaded',
-      timeAgo: "1 hour ago",
-      author: "Misaki Tanaka",
-      unread: true,
-    },
-    {
-      id: "4",
-      appName: "Attendance",
-      message: "This month's attendance was approved",
-      timeAgo: "3 hours ago",
-      author: "Kenta Takahashi",
-      unread: false,
-    },
-  ];
+  if (diffMinutes < 1) return "たった今";
+  if (diffMinutes < 60) return `${diffMinutes}分前`;
 
-  const spaces: SpaceItem[] = [
-    {
-      id: "1",
-      name: "Development Team",
-      initial: "D",
-      color: "var(--color-primary)",
-      description: "Product development information sharing space",
-    },
-    {
-      id: "2",
-      name: "Sales",
-      initial: "S",
-      color: "var(--color-success)",
-      description: "Sales activity management and information sharing",
-    },
-    {
-      id: "3",
-      name: "General Affairs",
-      initial: "G",
-      color: "var(--color-warning)",
-      description: "Internal policies and procedures space",
-    },
-  ];
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}時間前`;
 
-  const apps: AppItem[] = [
-    {
-      id: "1",
-      name: "File Management",
-      spaceName: "Development Team",
-      icon: "file",
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays}日前`;
+
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  return `${y}/${m}/${d} ${hh}:${mm}`;
+}
+
+/**
+ * Format a Date as "YYYY/M/D H:mm".
+ */
+function formatDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  const hh = date.getHours();
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  return `${y}/${m}/${d} ${hh}:${mm}`;
+}
+
+/**
+ * Map a SourceType to a human-readable app name for display.
+ */
+function sourceTypeToAppName(sourceType: string, title: string): string {
+  switch (sourceType) {
+    case "RECORD":
+      return "Record";
+    case "COMMENT":
+      return "Comment";
+    case "THREAD":
+      return "Thread";
+    default:
+      return title.split(" ")[0] ?? "Notification";
+  }
+}
+
+const DEFAULT_ANNOUNCEMENT: Announcement = {
+  title: "Welcome to OpenDesk",
+  bodyHtml:
+    "<p>No announcements yet. Check back later for updates from your team.</p>",
+  author: "System",
+  date: formatDate(new Date()),
+};
+
+export async function loader({
+  request,
+}: Route.LoaderArgs): Promise<PortalLoaderData> {
+  const auth = await requireAuth(request, container);
+
+  // Fetch announcement
+  const portalView = await handleUseCase(() =>
+    getPortalView({
+      container,
+      headers: request.headers,
+      input: { operatorId: auth.userId },
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
     },
-    { id: "2", name: "Customer List", spaceName: "Sales", icon: "people" },
-    {
-      id: "3",
-      name: "Attendance",
-      spaceName: "General Affairs",
-      icon: "calendar",
+  );
+
+  const announcement: Announcement = portalView.announcement
+    ? {
+        title: portalView.announcement.title,
+        bodyHtml: portalView.announcement.body as string,
+        author: portalView.announcement.lastUpdatedBy as string,
+        date: formatDate(portalView.announcement.updatedAt),
+      }
+    : DEFAULT_ANNOUNCEMENT;
+
+  // Fetch notifications (limit: 4)
+  const notificationResult = await handleUseCase(() =>
+    listNotifications({
+      container,
+      headers: request.headers,
+      input: { operatorId: auth.userId, limit: 4 },
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
     },
-  ];
+  );
+
+  const notifications: NotificationItem[] =
+    notificationResult.notifications.map((n) => ({
+      id: n.notificationId,
+      appName: sourceTypeToAppName(n.sourceType, n.title),
+      message: n.title,
+      timeAgo: formatTimeAgo(n.createdAt),
+      author: n.senderId ?? "System",
+      unread: !n.isRead,
+    }));
+
+  // Fetch spaces from DB (use repository directly)
+  const spaces: SpaceItem[] = await container.unitOfWorkProvider.transaction(
+    async (ctx) => {
+      const spaceList = await ctx.spaceRepository.list({}, 0, 10);
+      const SPACE_COLORS = [
+        "var(--color-primary)",
+        "var(--color-success)",
+        "var(--color-warning)",
+        "var(--color-info)",
+        "var(--color-danger)",
+      ];
+      return spaceList.map((s, i) => ({
+        id: s.spaceId as string,
+        name: s.name as string,
+        initial: (s.name as string).charAt(0),
+        color: SPACE_COLORS[i % SPACE_COLORS.length] as string,
+        description: "",
+      }));
+    },
+  );
+
+  // Fetch apps from DB (use repository directly)
+  const apps: AppItem[] = await container.unitOfWorkProvider.transaction(
+    async (ctx) => {
+      const appList = await ctx.appRepository.list({}, 0, 10);
+      const results: AppItem[] = [];
+      for (const a of appList) {
+        let spaceName = "";
+        if (a.spaceId) {
+          const space = await ctx.spaceRepository.findById(a.spaceId);
+          spaceName = space ? (space.name as string) : "";
+        }
+        results.push({
+          id: a.appId as string,
+          name: a.name as string,
+          spaceName,
+          icon: "file",
+        });
+      }
+      return results;
+    },
+  );
 
   return {
     announcement,

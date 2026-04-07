@@ -1,3 +1,9 @@
+import { data } from "react-router";
+import { container } from "@/core/application/container/server.instance";
+import { SpaceId as AppSpaceId } from "@/core/domain/app/valueObject";
+import type { UserId } from "@/core/domain/identity/valueObject";
+import type { SpaceId, ThreadId } from "@/core/domain/space/valueObject";
+import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
 type SidebarThread = {
@@ -47,100 +53,178 @@ export type ThreadLoaderData = {
   comments: Comment[];
 };
 
+function formatDateTime(date: Date): string {
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  return `${y}年${m}月${d}日 ${hh}:${mm}`;
+}
+
+const COLOR_INDICES: readonly (1 | 2 | 3 | 4)[] = [1, 2, 3, 4];
+
 export async function loader({
+  request,
   params,
 }: Route.LoaderArgs): Promise<ThreadLoaderData> {
-  const _spaceId = params.spaceId;
-  const _threadId = params.threadId;
+  await requireAuth(request, container);
+  const spaceId = params.spaceId as SpaceId;
+  const threadId = params.threadId as ThreadId;
 
-  const space = {
-    id: _spaceId,
-    name: "製品開発チーム",
+  const result = await container.unitOfWorkProvider.transaction(async (ctx) => {
+    // Fetch the space
+    const space = await ctx.spaceRepository.findById(spaceId);
+    if (!space) {
+      throw data({ message: "スペースが見つかりません" }, { status: 404 });
+    }
+
+    // Fetch the thread
+    const thread = await ctx.threadRepository.findById(threadId);
+    if (!thread) {
+      throw data({ message: "スレッドが見つかりません" }, { status: 404 });
+    }
+
+    // Fetch comments for this thread
+    const commentResult = await ctx.threadCommentRepository.findByThreadId(
+      threadId,
+      0,
+      100,
+    );
+
+    // Fetch all threads in this space for the sidebar
+    const allThreads = await ctx.threadRepository.findBySpaceId(spaceId);
+
+    // Fetch apps in this space for the sidebar
+    const apps = await ctx.appRepository.findBySpaceId(
+      AppSpaceId.create(spaceId as string),
+      0,
+      100,
+    );
+
+    // Fetch members for the sidebar
+    const members = await ctx.spaceMemberRepository.findBySpaceId(spaceId);
+
+    // Collect all user IDs that need name resolution
+    const userIdsToResolve = new Set<string>();
+    userIdsToResolve.add(thread.creatorId as string);
+    for (const c of commentResult.comments) {
+      userIdsToResolve.add(c.creatorId as string);
+    }
+    for (const m of members) {
+      if (m.entity.type === "USER") {
+        userIdsToResolve.add(m.entity.id as string);
+      }
+    }
+
+    // Resolve user names
+    const userNameMap = new Map<string, string>();
+    for (const uid of userIdsToResolve) {
+      const user = await ctx.userRepository.findById(uid as UserId);
+      if (user) {
+        userNameMap.set(uid, user.displayName as string);
+      }
+    }
+
+    // Count comments per thread for sidebar
+    const threadCommentCounts = new Map<string, number>();
+    for (const t of allThreads) {
+      const countResult = await ctx.threadCommentRepository.findByThreadId(
+        t.threadId,
+        0,
+        1,
+      );
+      threadCommentCounts.set(t.threadId as string, countResult.totalCount);
+    }
+
+    return {
+      space,
+      thread,
+      commentResult,
+      allThreads,
+      apps,
+      members,
+      userNameMap,
+      threadCommentCounts,
+    };
+  });
+
+  const {
+    space: spaceEntity,
+    thread: threadEntity,
+    commentResult,
+    allThreads,
+    apps,
+    members,
+    userNameMap,
+    threadCommentCounts,
+  } = result;
+
+  const threadAuthor =
+    userNameMap.get(threadEntity.creatorId as string) ?? "不明";
+
+  // Parse thread body into paragraphs and list items
+  const bodyText = threadEntity.body ?? "";
+  const bodyParagraphs =
+    bodyText.length > 0 ? bodyText.split("\n").filter((l) => l.length > 0) : [];
+
+  const threadData = {
+    id: threadEntity.threadId as string,
+    title: threadEntity.title as string,
+    author: threadAuthor,
+    createdAt: formatDateTime(threadEntity.createdAt),
+    body: bodyParagraphs,
+    listItems: [] as string[],
   };
 
-  const thread = {
-    id: _threadId,
-    title: "v2.5 リリース計画について",
-    author: "大田部 晃",
-    createdAt: "2026年4月5日 10:30",
-    body: [
-      "v2.5 リリースに向けた計画を共有します。以下のスケジュールで進めていきたいと考えています。",
-      "各チームは4月11日までに担当機能の開発を完了させてください。テスト項目のレビューは来週の水曜ミーティングで行います。",
-    ],
-    listItems: [
-      "4月11日: フィーチャーフリーズ",
-      "4月14日 - 4月18日: QAテスト期間",
-      "4月21日: リリース候補版の確定",
-      "4月25日: 本番リリース",
-    ],
-  };
+  // Build sidebar threads
+  const sidebarThreads: SidebarThread[] = allThreads.map((t) => ({
+    id: t.threadId as string,
+    title: t.title as string,
+    commentCount: threadCommentCounts.get(t.threadId as string) ?? 0,
+  }));
 
-  const sidebarThreads: SidebarThread[] = [
-    { id: "1", title: "v2.5 リリース計画について", commentCount: 3 },
-    { id: "2", title: "デザインシステムの刷新", commentCount: 8 },
-    { id: "3", title: "新人オンボーディング資料", commentCount: 2 },
-    { id: "4", title: "Q3 目標と KPI 設定", commentCount: 5 },
-    { id: "5", title: "開発環境の改善提案", commentCount: 1 },
-  ];
+  // Build sidebar apps
+  const sidebarApps: SidebarApp[] = apps.map((a) => ({
+    id: a.appId as string,
+    name: a.name as string,
+    kind: "file" as const,
+  }));
 
-  const sidebarApps: SidebarApp[] = [
-    { id: "1", name: "ファイル管理", kind: "file" },
-    { id: "2", name: "顧客リスト", kind: "customer" },
-  ];
+  // Build sidebar members
+  const sidebarMembers: SidebarMember[] = members.map((m, i) => {
+    const entityId = m.entity.id as string;
+    const name =
+      m.entity.type === "USER"
+        ? (userNameMap.get(entityId) ?? m.entity.code)
+        : m.entity.code;
+    return {
+      id: entityId,
+      name,
+      initial: name.charAt(0),
+      colorIndex: COLOR_INDICES[i % COLOR_INDICES.length],
+    };
+  });
 
-  const sidebarMembers: SidebarMember[] = [
-    { id: "1", name: "大田部 晃", initial: "大", colorIndex: 1 },
-    { id: "2", name: "田中 太郎", initial: "田", colorIndex: 2 },
-    { id: "3", name: "佐藤 花子", initial: "佐", colorIndex: 3 },
-    { id: "4", name: "鈴木 一郎", initial: "鈴", colorIndex: 4 },
-  ];
-
-  const comments: Comment[] = [
-    {
-      id: "1",
-      author: "田中 太郎",
-      initial: "田",
-      colorIndex: 2,
-      time: "2026年4月5日 11:15",
-      body: [
-        "スケジュール確認しました。フロントエンドチームは予定通り進められそうです。テスト項目のドラフトは今週中に共有します。",
-      ],
-    },
-    {
-      id: "2",
-      author: "佐藤 花子",
-      initial: "佐",
-      colorIndex: 3,
-      time: "2026年4月5日 13:42",
-      body: [
-        "デザインチームからの確認です。新しいダッシュボード画面のデザインは完了済みですが、モバイル対応の調整がもう少しかかりそうです。4月9日までには仕上げます。",
-      ],
-    },
-    {
-      id: "3",
-      author: "鈴木 一郎",
-      initial: "鈴",
-      colorIndex: 4,
-      time: "2026年4月5日 14:20",
-      body: [
-        "バックエンドのAPI変更について、互換性の確認が必要な箇所があります。明日のスタンドアップで詳細を共有させてください。",
-      ],
-    },
-    {
-      id: "4",
-      author: "大田部 晃",
-      initial: "大",
-      colorIndex: 1,
-      time: "2026年4月5日 15:05",
-      body: [
-        "皆さん、ご確認ありがとうございます。佐藤さん、モバイル対応は4月9日で問題ありません。鈴木さん、明日のスタンドアップで共有お願いします。",
-      ],
-    },
-  ];
+  // Build comments
+  const comments: Comment[] = commentResult.comments.map((c, i) => {
+    const authorName = userNameMap.get(c.creatorId as string) ?? "不明";
+    return {
+      id: c.commentId as string,
+      author: authorName,
+      initial: authorName.charAt(0),
+      colorIndex: COLOR_INDICES[i % COLOR_INDICES.length],
+      time: formatDateTime(c.createdAt),
+      body: c.text ? c.text.split("\n").filter((l) => l.length > 0) : [],
+    };
+  });
 
   return {
-    space,
-    thread,
+    space: {
+      id: spaceEntity.spaceId as string,
+      name: spaceEntity.name as string,
+    },
+    thread: threadData,
     sidebarThreads,
     sidebarApps,
     sidebarMembers,

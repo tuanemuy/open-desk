@@ -1,3 +1,6 @@
+import { container } from "@/core/application/container/server.instance";
+import type { SpaceId } from "@/core/domain/space/valueObject";
+import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
 type AppListItem = {
@@ -13,49 +16,56 @@ export type AppsLoaderData = {
   apps: AppListItem[];
 };
 
-export async function loader(_args: Route.LoaderArgs): Promise<AppsLoaderData> {
-  const apps: AppListItem[] = [
-    {
-      id: "1",
-      name: "File Management",
-      spaceName: "Development Team",
-      spaceId: "1",
-      recordCount: 42,
-      updatedAt: "2026/04/05 14:30",
-    },
-    {
-      id: "2",
-      name: "Customer List",
-      spaceName: "Sales",
-      spaceId: "2",
-      recordCount: 24,
-      updatedAt: "2026/04/04 10:15",
-    },
-    {
-      id: "3",
-      name: "Attendance",
-      spaceName: "General Affairs",
-      spaceId: "3",
-      recordCount: 156,
-      updatedAt: "2026/04/06 09:00",
-    },
-    {
-      id: "4",
-      name: "Project Management",
-      spaceName: "Development Team",
-      spaceId: "1",
-      recordCount: 89,
-      updatedAt: "2026/04/05 16:45",
-    },
-    {
-      id: "5",
-      name: "Inventory",
-      spaceName: "Operations",
-      spaceId: "4",
-      recordCount: 312,
-      updatedAt: "2026/04/03 11:20",
-    },
-  ];
+export async function loader(args: Route.LoaderArgs): Promise<AppsLoaderData> {
+  await requireAuth(args.request, container);
+
+  const apps = await container.unitOfWorkProvider.transaction(async (ctx) => {
+    const allApps = await ctx.appRepository.list({}, 0, 1000);
+
+    const spaceIds = [
+      ...new Set(
+        allApps
+          .filter((a) => a.spaceId !== null)
+          .map((a) => a.spaceId as string),
+      ),
+    ];
+    const spaces = await Promise.all(
+      spaceIds.map((id) => ctx.spaceRepository.findById(id as SpaceId)),
+    );
+    const spaceNameMap = new Map<string, string>();
+    for (const space of spaces) {
+      if (space) {
+        spaceNameMap.set(space.spaceId as string, space.name as string);
+      }
+    }
+
+    const appCounts = await Promise.all(
+      allApps.map((a) => ctx.recordRepository.count(a.appId).catch(() => 0)),
+    );
+
+    const items: AppListItem[] = allApps.map((app, i) => {
+      const spaceId = (app.spaceId as string) ?? "";
+      return {
+        id: app.appId as string,
+        name: app.name as string,
+        spaceName: spaceNameMap.get(spaceId) ?? "",
+        spaceId,
+        recordCount: appCounts[i] ?? 0,
+        updatedAt: formatDate(app.updatedAt),
+      };
+    });
+
+    return items;
+  });
 
   return { apps };
+}
+
+function formatDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const h = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+  return `${y}/${m}/${d} ${h}:${min}`;
 }

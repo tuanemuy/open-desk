@@ -1,3 +1,9 @@
+import { data } from "react-router";
+import { container } from "@/core/application/container/server.instance";
+import { queryRecords } from "@/core/application/record/queryRecords";
+import { AppId } from "@/core/domain/app/valueObject";
+import type { SpaceId } from "@/core/domain/space/valueObject";
+import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
 type RecordItem = {
@@ -32,111 +38,103 @@ export type AppDetailLoaderData = {
 
 export async function loader({
   params,
+  request,
 }: Route.LoaderArgs): Promise<AppDetailLoaderData> {
+  const auth = await requireAuth(request, container);
+
   const appId = params.appId;
+  const pageSize = 10;
+  const currentPage = 1;
+
+  const appEntity = await container.unitOfWorkProvider.transaction(
+    async (ctx) => ctx.appRepository.findById(AppId.create(appId)),
+  );
+  if (!appEntity) {
+    throw data({ message: "App not found" }, { status: 404 });
+  }
+
+  let spaceName = "";
+  if (appEntity.spaceId) {
+    const space = await container.unitOfWorkProvider.transaction(async (ctx) =>
+      ctx.spaceRepository.findById(appEntity.spaceId as unknown as SpaceId),
+    );
+    if (space) {
+      spaceName = space.name as string;
+    }
+  }
 
   const app: AppInfo = {
-    id: appId,
-    name: "Customer List",
-    spaceName: "Your Team Communication Space",
-    spaceId: "1",
+    id: appEntity.appId as string,
+    name: appEntity.name as string,
+    spaceName,
+    spaceId: (appEntity.spaceId as string) ?? "",
   };
 
-  const records: RecordItem[] = [
-    {
-      id: "1",
-      recordNo: 1,
-      company: "Yamada Trading Co., Ltd.",
-      department: "Sales",
-      person: "Taro Tanaka",
-      address: "1-1-1 Marunouchi, Chiyoda-ku, Tokyo",
-    },
-    {
-      id: "2",
-      recordNo: 2,
-      company: "Tokyo Electronics Co., Ltd.",
-      department: "Engineering",
-      person: "Ichiro Suzuki",
-      address: "3-2-1 Roppongi, Minato-ku, Tokyo",
-    },
-    {
-      id: "3",
-      recordNo: 3,
-      company: "Kansai Goods Co., Ltd.",
-      department: "General Affairs",
-      person: "Hanako Sato",
-      address: "2-5-10 Umeda, Kita-ku, Osaka",
-    },
-    {
-      id: "4",
-      recordNo: 4,
-      company: "Chuo Construction Co., Ltd.",
-      department: "Administration",
-      person: "Kenji Takahashi",
-      address: "4-8-15 Sakae, Naka-ku, Nagoya, Aichi",
-    },
-    {
-      id: "5",
-      recordNo: 5,
-      company: "Kyushu Foods Co., Ltd.",
-      department: "Sales Planning",
-      person: "Misaki Watanabe",
-      address: "1-3-7 Hakata Ekimae, Hakata-ku, Fukuoka",
-    },
-    {
-      id: "6",
-      recordNo: 6,
-      company: "Hokkaido Transport Co., Ltd.",
-      department: "Logistics",
-      person: "Daisuke Ito",
-      address: "Kita-1-Nishi-5-2, Chuo-ku, Sapporo, Hokkaido",
-    },
-    {
-      id: "7",
-      recordNo: 7,
-      company: "Yokohama Precision Co., Ltd.",
-      department: "Manufacturing",
-      person: "Kazuya Kobayashi",
-      address: "2-1-1 Minatomirai, Nishi-ku, Yokohama, Kanagawa",
-    },
-    {
-      id: "8",
-      recordNo: 8,
-      company: "West Japan Telecom Co., Ltd.",
-      department: "IT Systems",
-      person: "Yuko Yamamoto",
-      address: "1-6-3 Kamiyacho, Naka-ku, Hiroshima",
-    },
-    {
-      id: "9",
-      recordNo: 9,
-      company: "Sendai Chemical Co., Ltd.",
-      department: "R&D",
-      person: "Makoto Nakamura",
-      address: "3-7-1 Ichibancho, Aoba-ku, Sendai, Miyagi",
-    },
-    {
-      id: "10",
-      recordNo: 10,
-      company: "Shikoku Trading Co., Ltd.",
-      department: "Accounting",
-      person: "Eri Matsuda",
-      address: "8-12 Marugamemachi, Takamatsu, Kagawa",
-    },
-  ];
+  let records: RecordItem[] = [];
+  let totalCount = 0;
+  try {
+    const queryResult = await queryRecords({
+      container,
+      headers: request.headers,
+      input: {
+        appId,
+        totalCount: true,
+        executionContext: {
+          loginUserId: auth.userId as string,
+          loginUserCode: auth.user.loginName as string,
+          primaryOrganizationCode:
+            (auth.user.primaryOrganizationId as string) ?? null,
+          now: new Date(),
+        },
+      },
+    });
+    totalCount = queryResult.totalCount ?? 0;
+    records = queryResult.records.map((r, index) => {
+      const fv = r.fieldValues;
+      const getText = (code: string): string => {
+        for (const [key, val] of fv) {
+          if ((key as string) === code && "value" in val) {
+            return String(val.value);
+          }
+        }
+        return "";
+      };
+      return {
+        id: r.recordId as string,
+        recordNo: index + 1,
+        company: getText("company"),
+        department: getText("department"),
+        person: getText("person"),
+        address: getText("address"),
+      };
+    });
+  } catch (e) {
+    if (e instanceof Error && e.message === "Not implemented") {
+      records = [];
+      totalCount = 0;
+    } else {
+      throw e;
+    }
+  }
 
-  const views: ViewOption[] = [
-    { id: "1", name: "Customer List" },
-    { id: "2", name: "Customer Rank A" },
-    { id: "3", name: "(All)" },
-  ];
+  const views = await container.unitOfWorkProvider.transaction(async (ctx) => {
+    const viewEntities = await ctx.viewRepository.findByAppId(
+      AppId.create(appId),
+    );
+    return viewEntities.map(
+      (v): ViewOption => ({
+        id: v.viewId as string,
+        name: v.viewName,
+      }),
+    );
+  });
 
   return {
     app,
     records,
     views,
-    totalCount: 24,
-    currentPage: 1,
-    pageSize: 10,
+    totalCount,
+    currentPage,
+    pageSize,
   };
 }

@@ -1,3 +1,5 @@
+import { container } from "@/core/application/container/server.instance";
+import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
 type UserProfile = {
@@ -12,39 +14,28 @@ export type PeopleLoaderData = {
   users: UserProfile[];
 };
 
-export async function loader(
-  _args: Route.LoaderArgs,
-): Promise<PeopleLoaderData> {
-  const users: UserProfile[] = [
-    {
-      id: "1",
-      name: "大田部 晃",
-      initial: "大",
-      email: "otabe.akira@example.com",
-      isSelf: true,
+export async function loader({
+  request,
+}: Route.LoaderArgs): Promise<PeopleLoaderData> {
+  const auth = await requireAuth(request, container);
+
+  const userList = await container.unitOfWorkProvider.transaction(
+    async (ctx) => {
+      return ctx.userRepository.list({
+        offset: 0,
+        limit: 100,
+        filter: { isActive: true },
+      });
     },
-    {
-      id: "2",
-      name: "田中 太郎",
-      initial: "田",
-      email: "tanaka.taro@example.com",
-      isSelf: false,
-    },
-    {
-      id: "3",
-      name: "佐藤 花子",
-      initial: "佐",
-      email: "sato.hanako@example.com",
-      isSelf: false,
-    },
-    {
-      id: "4",
-      name: "鈴木 一郎",
-      initial: "鈴",
-      email: "suzuki.ichiro@example.com",
-      isSelf: false,
-    },
-  ];
+  );
+
+  const users: UserProfile[] = userList.users.map((u) => ({
+    id: u.userId as string,
+    name: u.displayName as string,
+    initial: (u.displayName as string).charAt(0),
+    email: u.email as string,
+    isSelf: u.userId === auth.userId,
+  }));
 
   return { users };
 }
