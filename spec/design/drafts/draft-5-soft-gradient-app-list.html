@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk - 顧客リスト | Soft Gradient</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    min-width: 1200px;
+    background: linear-gradient(135deg, #F3E8FF 0%, #EDE9FE 30%, #DBEAFE 70%, #E0F2FE 100%);
+    min-height: 100vh;
+    color: #1E1B4B;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========== Header ========== */
+  .header {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 40%, #4F46E5 70%, #3B82F6 100%);
+    padding: 0 40px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(124, 58, 237, 0.25);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    backdrop-filter: blur(4px);
+  }
+
+  .nav {
+    display: flex;
+    gap: 6px;
+  }
+
+  .nav-item {
+    padding: 7px 18px;
+    border-radius: 100px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+  }
+
+  .nav-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+    backdrop-filter: blur(4px);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .search-input {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 100px;
+    padding: 8px 16px 8px 38px;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    width: 260px;
+    outline: none;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+  }
+
+  .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .search-input:focus {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    width: 300px;
+  }
+
+  .search-wrapper {
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+  }
+
+  .header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .header-icon:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+  }
+
+  .notification-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background: #F472B6;
+    border-radius: 50%;
+    border: 2px solid #7C3AED;
+  }
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E9D5FF, #BFDBFE);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6D28D9;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  /* ========== Page ========== */
+  .page {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 28px 40px 60px;
+  }
+
+  /* ========== Breadcrumb ========== */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+
+  .breadcrumb a {
+    color: #7C3AED;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+
+  .breadcrumb a:hover {
+    color: #6D28D9;
+  }
+
+  .breadcrumb-sep {
+    color: #C4B5FD;
+    font-size: 11px;
+  }
+
+  .breadcrumb-current {
+    color: #6B7280;
+    font-weight: 500;
+  }
+
+  /* ========== App Title Bar ========== */
+  .app-title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .app-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1E1B4B;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .app-title-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #7C3AED, #3B82F6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  }
+
+  .app-title-count {
+    font-size: 14px;
+    font-weight: 500;
+    color: #7C3AED;
+    background: #F3E8FF;
+    padding: 4px 14px;
+    border-radius: 100px;
+    margin-left: 4px;
+  }
+
+  /* ========== Toolbar ========== */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 16px;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 20px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #3B82F6 100%);
+    color: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 6px 24px rgba(124, 58, 237, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: #FFFFFF;
+    color: #374151;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.06);
+  }
+
+  .btn-secondary:hover {
+    background: #F9FAFB;
+    border-color: #D1D5DB;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: #6B7280;
+    padding: 9px 14px;
+  }
+
+  .btn-ghost:hover {
+    background: rgba(124, 58, 237, 0.06);
+    color: #7C3AED;
+  }
+
+  .toolbar-search {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 9px 14px 9px 36px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: #1E1B4B;
+    outline: none;
+    width: 240px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.06);
+  }
+
+  .toolbar-search:focus {
+    border-color: #C4B5FD;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  }
+
+  .toolbar-search::placeholder {
+    color: #9CA3AF;
+  }
+
+  .toolbar-search-wrapper {
+    position: relative;
+  }
+
+  .toolbar-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    font-size: 14px;
+  }
+
+  /* ========== Table Card ========== */
+  .table-card {
+    background: #FFFFFF;
+    border-radius: 18px;
+    box-shadow:
+      0 1px 3px rgba(124, 58, 237, 0.06),
+      0 8px 24px rgba(124, 58, 237, 0.08),
+      0 20px 48px rgba(59, 130, 246, 0.04);
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    background: linear-gradient(135deg, #F5F3FF 0%, #EEF2FF 100%);
+    padding: 14px 20px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #6D28D9;
+    text-align: left;
+    border-bottom: 1px solid #EDE9FE;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+
+  thead th:first-child {
+    padding-left: 24px;
+  }
+
+  thead th:last-child {
+    padding-right: 24px;
+  }
+
+  tbody td {
+    padding: 14px 20px;
+    font-size: 13.5px;
+    color: #374151;
+    border-bottom: 1px solid #F5F3FF;
+    vertical-align: middle;
+  }
+
+  tbody td:first-child {
+    padding-left: 24px;
+  }
+
+  tbody td:last-child {
+    padding-right: 24px;
+  }
+
+  tbody tr {
+    transition: background 0.15s ease;
+  }
+
+  tbody tr:hover {
+    background: #FAFAFF;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .record-number {
+    font-weight: 600;
+    color: #7C3AED;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .company-name {
+    font-weight: 600;
+    color: #1E1B4B;
+  }
+
+  .checkbox-cell {
+    width: 44px;
+  }
+
+  .custom-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #D1D5DB;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFFFFF;
+  }
+
+  .custom-checkbox:hover {
+    border-color: #7C3AED;
+  }
+
+  .custom-checkbox.checked {
+    background: linear-gradient(135deg, #7C3AED, #3B82F6);
+    border-color: transparent;
+  }
+
+  /* ========== Table Footer ========== */
+  .table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-top: 1px solid #F5F3FF;
+  }
+
+  .table-info {
+    font-size: 13px;
+    color: #6B7280;
+  }
+
+  .table-info strong {
+    color: #1E1B4B;
+    font-weight: 600;
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .page-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6B7280;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .page-btn:hover {
+    background: #F5F3FF;
+    color: #7C3AED;
+  }
+
+  .page-btn.active {
+    background: linear-gradient(135deg, #7C3AED, #3B82F6);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+  }
+
+  .page-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ========== View Tabs ========== */
+  .view-tabs {
+    display: flex;
+    gap: 2px;
+    background: #F3F0FF;
+    border-radius: 10px;
+    padding: 3px;
+  }
+
+  .view-tab {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #6B7280;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .view-tab:hover {
+    color: #7C3AED;
+  }
+
+  .view-tab.active {
+    background: #FFFFFF;
+    color: #7C3AED;
+    box-shadow: 0 1px 4px rgba(124, 58, 237, 0.1);
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== Header ========== -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">
+      <div class="logo-icon">&#9671;</div>
+      OpenDesk
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="#">ポータル</a>
+      <a class="nav-item" href="#">スペース</a>
+      <a class="nav-item active" href="#">アプリ</a>
+      <a class="nav-item" href="#">管理</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div class="search-wrapper">
+      <span class="search-icon">&#128269;</span>
+      <input class="search-input" type="text" placeholder="検索...">
+    </div>
+    <div class="header-icon">
+      &#128276;
+      <span class="notification-dot"></span>
+    </div>
+    <div class="header-icon">&#9881;</div>
+    <div class="avatar">田中</div>
+  </div>
+</header>
+
+<!-- ========== Page Content ========== -->
+<main class="page">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="#">ポータル</a>
+    <span class="breadcrumb-sep">&#9656;</span>
+    <a href="#">アプリ</a>
+    <span class="breadcrumb-sep">&#9656;</span>
+    <span class="breadcrumb-current">顧客管理</span>
+  </div>
+
+  <!-- App Title -->
+  <div class="app-title-bar">
+    <div class="app-title">
+      <div class="app-title-icon">&#128203;</div>
+      顧客リスト
+      <span class="app-title-count">48件</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <button class="btn btn-primary">&#43; レコード追加</button>
+      <button class="btn btn-secondary">&#128229; インポート</button>
+      <button class="btn btn-secondary">&#128228; エクスポート</button>
+      <div class="view-tabs">
+        <button class="view-tab active">一覧</button>
+        <button class="view-tab">カレンダー</button>
+        <button class="view-tab">グラフ</button>
+      </div>
+    </div>
+    <div class="toolbar-right">
+      <div class="toolbar-search-wrapper">
+        <span class="toolbar-search-icon">&#128269;</span>
+        <input class="toolbar-search" type="text" placeholder="顧客を検索...">
+      </div>
+      <button class="btn btn-ghost">&#9776; 絞り込み</button>
+      <button class="btn btn-ghost">&#8693; 並び替え</button>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th class="checkbox-cell">
+            <div class="custom-checkbox"></div>
+          </th>
+          <th>レコード番号</th>
+          <th>会社名</th>
+          <th>部署名</th>
+          <th>担当者名</th>
+          <th>住所</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="checkbox-cell"><div class="custom-checkbox"></div></td>
+          <td><span class="record-number">001</span></td>
+          <td><span class="company-name">東京テクノロジー株式会社</span></td>
+          <td>営業本部</td>
+          <td>佐藤 太郎</td>
+          <td>東京都千代田区丸の内1-1-1</td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><div class="custom-checkbox"></div></td>
+          <td><span class="record-number">002</span></td>
+          <td><span class="company-name">大阪デジタルソリューションズ株式会社</span></td>
+          <td>情報システム部</td>
+          <td>山田 花子</td>
+          <td>大阪府大阪市北区梅田2-5-10</td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><div class="custom-checkbox"></div></td>
+          <td><span class="record-number">003</span></td>
+          <td><span class="company-name">名古屋クリエイティブ合同会社</span></td>
+          <td>マーケティング部</td>
+          <td>鈴木 一郎</td>
+          <td>愛知県名古屋市中区栄3-8-21</td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><div class="custom-checkbox"></div></td>
+          <td><span class="record-number">004</span></td>
+          <td><span class="company-name">株式会社福岡イノベーション</span></td>
+          <td>経営企画室</td>
+          <td>高橋 亮太</td>
+          <td>福岡県福岡市博多区博多駅前4-2-1</td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><div class="custom-checkbox"></div></td>
+          <td><span class="record-number">005</span></td>
+          <td><span class="company-name">横浜グローバルトレード株式会社</span></td>
+          <td>海外事業部</td>
+          <td>中村 美咲</td>
+          <td>神奈川県横浜市西区みなとみらい2-3-5</td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><div class="custom-checkbox"></div></td>
+          <td><span class="record-number">006</span></td>
+          <td><span class="company-name">札幌データサービス株式会社</span></td>
+          <td>技術開発部</td>
+          <td>田中 誠</td>
+          <td>北海道札幌市中央区北5条西6-1-23</td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><div class="custom-checkbox"></div></td>
+          <td><span class="record-number">007</span></td>
+          <td><span class="company-name">京都伝統工芸株式会社</span></td>
+          <td>総務部</td>
+          <td>伊藤 裕子</td>
+          <td>京都府京都市下京区四条通烏丸東入長刀鉾町8</td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><div class="custom-checkbox"></div></td>
+          <td><span class="record-number">008</span></td>
+          <td><span class="company-name">仙台フューチャーラボ株式会社</span></td>
+          <td>研究開発部</td>
+          <td>渡辺 健一</td>
+          <td>宮城県仙台市青葉区中央1-3-1</td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><div class="custom-checkbox"></div></td>
+          <td><span class="record-number">009</span></td>
+          <td><span class="company-name">広島ネクストシステムズ株式会社</span></td>
+          <td>カスタマーサポート部</td>
+          <td>小林 さくら</td>
+          <td>広島県広島市中区紙屋町2-1-22</td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><div class="custom-checkbox"></div></td>
+          <td><span class="record-number">010</span></td>
+          <td><span class="company-name">神戸マリンコンサルティング株式会社</span></td>
+          <td>人事部</td>
+          <td>加藤 大輔</td>
+          <td>兵庫県神戸市中央区三宮町1-9-1</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="table-footer">
+      <div class="table-info">全 <strong>48</strong> 件中 <strong>1 - 10</strong> 件を表示</div>
+      <div class="pagination">
+        <button class="page-btn disabled">&lsaquo;</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">5</button>
+        <button class="page-btn">&rsaquo;</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

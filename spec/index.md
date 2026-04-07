@@ -89,6 +89,34 @@ Cybozu OpenDesk のクローンプロジェクトの設計ドキュメント。
 
 検証レポート: [review/cross-phase/](review/cross-phase/)
 
+## デザイン ✅
+
+| 成果物 | パス | 概要 |
+|--------|------|------|
+| デザイン方針 | [design/index.md](design/index.md) | Clean Neutral 方向性、レイアウト原則、コンポーネント方針 |
+| デザイントークン | [design/tokens.md](design/tokens.md) | カラー、タイポグラフィ、スペーシング、CSS カスタムプロパティ |
+| ドラフト | [design/drafts/](design/drafts/) | 5方向性 × 3画面 = 15ファイル |
+| デザイン（全画面） | [design/pages/](design/pages/) | 13画面のHTMLデザイン |
+| レビュー記録 | [design/review/](design/review/) | 5ラウンド（#001 critique, #002 polish+audit, #003 critique, #004 polish, #005 audit） |
+
+### デザイン対象画面
+
+| 画面 | ファイル |
+|------|---------|
+| ログイン | [design/pages/login.html](design/pages/login.html) |
+| ポータル | [design/pages/portal.html](design/pages/portal.html) |
+| 通知一覧 | [design/pages/notifications.html](design/pages/notifications.html) |
+| アプリ一覧 | [design/pages/app-list.html](design/pages/app-list.html) |
+| レコード詳細 | [design/pages/record-detail.html](design/pages/record-detail.html) |
+| レコード追加/編集 | [design/pages/record-form.html](design/pages/record-form.html) |
+| スペース | [design/pages/space.html](design/pages/space.html) |
+| スレッド詳細 | [design/pages/space-thread.html](design/pages/space-thread.html) |
+| ピープル | [design/pages/people.html](design/pages/people.html) |
+| メッセージ | [design/pages/message.html](design/pages/message.html) |
+| 検索結果 | [design/pages/search.html](design/pages/search.html) |
+| アプリ設定 | [design/pages/app-settings.html](design/pages/app-settings.html) |
+| 個人設定 | [design/pages/personal-settings.html](design/pages/personal-settings.html) |
+
 ## ADR
 
 | # | タイトル | パス |
@@ -103,3 +131,4 @@ Cybozu OpenDesk のクローンプロジェクトの設計ドキュメント。
 | ユースケース設計 | [usecases/review/](usecases/review/) | 1 |
 | DB設計 | [database/review/](database/review/) | 1 |
 | クロスフェーズ検証 | [review/cross-phase/](review/cross-phase/) | 1 |
+| デザイン | [design/review/](design/review/) | 5 |

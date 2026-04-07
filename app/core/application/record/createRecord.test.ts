@@ -5,6 +5,7 @@ import {
   setupTestContainer,
 } from "@/core/application/__tests__/helpers";
 import { BusinessRuleError } from "@/core/domain/error";
+import type { FieldValue } from "@/core/domain/record/valueObject";
 import { createRecord } from "./createRecord";
 
 const getContainer = setupTestContainer();
@@ -46,7 +47,7 @@ describe("createRecord", () => {
       "validateFieldValues",
     ).mockResolvedValue();
     const fieldValues = new Map([
-      ["text_field", { type: "SINGLE_LINE_TEXT", value: "Hello" }],
+      ["text_field", { type: "SINGLE_LINE_TEXT" as const, value: "Hello" }],
     ]);
     const result = await createRecord({
       container,
@@ -65,9 +66,9 @@ describe("createRecord", () => {
       container.recordValidationService,
       "validateFieldValues",
     ).mockResolvedValue();
-    const fieldValues = new Map([
-      ["text_field", { type: "SINGLE_LINE_TEXT", value: "Hello" }],
-      ["number_field", { type: "NUMBER", value: 42 }],
+    const fieldValues = new Map<string, FieldValue>([
+      ["text_field", { type: "SINGLE_LINE_TEXT" as const, value: "Hello" }],
+      ["number_field", { type: "NUMBER" as const, value: "42" }],
     ]);
     const result = await createRecord({
       container,
@@ -109,7 +110,7 @@ describe("createRecord", () => {
       "validateFieldValues",
     ).mockResolvedValue();
     const fieldValues = new Map([
-      ["status_field", { type: "STATUS", value: "Active" }],
+      ["status_field", { type: "STATUS" as const, value: "Active" }],
     ]);
     await expect(
       createRecord({

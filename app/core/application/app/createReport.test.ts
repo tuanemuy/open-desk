@@ -4,12 +4,15 @@ import {
   createMockHeaders,
   setupTestContainer,
 } from "@/core/application/__tests__/helpers";
+import { FieldCode as FieldCodeVO } from "@/core/domain/app/valueObject";
 import { BusinessRuleError } from "@/core/domain/error";
 import { NotFoundError } from "../error";
 import { createReport } from "./createReport";
 
 const getContainer = setupTestContainer();
 const headers = () => createMockHeaders();
+
+const fc = (code: string) => FieldCodeVO.create(code);
 
 async function seedUser(
   db: ReturnType<typeof getContainer>["db"],
@@ -42,8 +45,8 @@ const baseInput = {
   reportName: "Report",
   chartType: "BAR" as const,
   chartSubType: null,
-  groups: [{ fieldCode: "field_a", sortDirection: "ASC" as const }],
-  aggregations: [{ fieldCode: "field_b", method: "COUNT" as const }],
+  groups: [{ fieldCode: fc("field_a"), timeUnit: null }],
+  aggregations: [{ fieldCode: fc("field_b"), method: "COUNT" as const }],
   filterCondition: null,
   sort: null,
   creatorId: "user-1",
@@ -75,10 +78,10 @@ describe("createReport", () => {
         ...baseInput,
         chartType: "PIVOT_TABLE" as const,
         groups: [
-          { fieldCode: "major", sortDirection: "ASC" as const },
-          { fieldCode: "minor", sortDirection: "ASC" as const },
+          { fieldCode: fc("major"), timeUnit: null },
+          { fieldCode: fc("minor"), timeUnit: null },
         ],
-        aggregations: [{ fieldCode: "f", method: "COUNT" as const }],
+        aggregations: [{ fieldCode: fc("f"), method: "COUNT" as const }],
       },
     });
     expect(result.chartType).toBe("PIVOT_TABLE");
@@ -140,8 +143,8 @@ describe("createReport", () => {
         input: {
           ...baseInput,
           groups: Array.from({ length: 4 }, (_, i) => ({
-            fieldCode: `f${i}`,
-            sortDirection: "ASC" as const,
+            fieldCode: fc(`f${i}`),
+            timeUnit: null,
           })),
         },
       }),
@@ -158,8 +161,8 @@ describe("createReport", () => {
       input: {
         ...baseInput,
         groups: Array.from({ length: 3 }, (_, i) => ({
-          fieldCode: `f${i}`,
-          sortDirection: "ASC" as const,
+          fieldCode: fc(`f${i}`),
+          timeUnit: null,
         })),
       },
     });

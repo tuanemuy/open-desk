@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk — スペース (Dense Productive)</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #1A1A1A;
+  background: #FAFAFA;
+  min-width: 1200px;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: #fff;
+  border-bottom: 1px solid #E5E5E5;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-logo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-right: 20px;
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+
+.header-logo span {
+  color: #0D9488;
+}
+
+.header-nav {
+  display: flex;
+  gap: 2px;
+  margin-right: auto;
+}
+
+.header-nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  transition: background 0.1s;
+}
+
+.header-nav a:hover {
+  background: #F0F0F0;
+  color: #1A1A1A;
+}
+
+.header-nav a.active {
+  background: #0D9488;
+  color: #fff;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-search {
+  position: relative;
+}
+
+.header-search input {
+  width: 200px;
+  height: 26px;
+  border: 1px solid #E5E5E5;
+  border-radius: 3px;
+  padding: 0 8px 0 26px;
+  font-size: 12px;
+  font-family: inherit;
+  background: #FAFAFA;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.header-search input:focus {
+  border-color: #0D9488;
+  background: #fff;
+}
+
+.header-search::before {
+  content: "⌕";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: #999;
+}
+
+.header-user {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0D9488;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.header-bell {
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  position: relative;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  width: 14px;
+  height: 14px;
+  background: #DC2626;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== SPACE HEADER ===== */
+.space-header {
+  background: #fff;
+  border-bottom: 1px solid #E5E5E5;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.space-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: #0D9488;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.space-meta {
+  flex: 1;
+}
+
+.space-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  line-height: 1.2;
+}
+
+.space-desc {
+  font-size: 11px;
+  color: #888;
+}
+
+.space-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.space-actions button {
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid #E5E5E5;
+  background: #fff;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.space-actions button:hover {
+  background: #F5F5F5;
+}
+
+.space-tabs {
+  display: flex;
+  gap: 0;
+  margin-left: 38px;
+  margin-top: 4px;
+}
+
+.space-tabs a {
+  text-decoration: none;
+  font-size: 11px;
+  color: #666;
+  padding: 4px 12px;
+  border-bottom: 2px solid transparent;
+}
+
+.space-tabs a:hover {
+  color: #1A1A1A;
+}
+
+.space-tabs a.active {
+  color: #0D9488;
+  border-bottom-color: #0D9488;
+  font-weight: 500;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px 16px;
+}
+
+.space-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 10px;
+}
+
+/* ===== PANEL ===== */
+.panel {
+  background: #fff;
+  border: 1px solid #E5E5E5;
+  border-radius: 3px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid #E5E5E5;
+  background: #FAFAFA;
+}
+
+.panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.panel-action {
+  font-size: 11px;
+  color: #0D9488;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.panel-action:hover {
+  text-decoration: underline;
+}
+
+.panel-footer {
+  padding: 4px 10px;
+  border-top: 1px solid #E5E5E5;
+  background: #FAFAFA;
+  text-align: center;
+}
+
+.panel-footer a {
+  font-size: 11px;
+  color: #0D9488;
+  text-decoration: none;
+}
+
+.panel-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ===== ANNOUNCEMENTS ===== */
+.announce-item {
+  padding: 5px 10px;
+  border-bottom: 1px solid #F0F0F0;
+  cursor: pointer;
+  transition: background 0.08s;
+}
+
+.announce-item:hover {
+  background: #F8FFFE;
+}
+
+.announce-item:last-child {
+  border-bottom: none;
+}
+
+.announce-meta {
+  font-size: 10px;
+  color: #999;
+  margin-bottom: 1px;
+}
+
+.announce-text {
+  font-size: 12px;
+  color: #1A1A1A;
+  line-height: 1.3;
+}
+
+/* ===== THREADS ===== */
+.left-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.thread-item {
+  padding: 6px 10px;
+  border-bottom: 1px solid #F0F0F0;
+  cursor: pointer;
+  transition: background 0.08s;
+}
+
+.thread-item:hover {
+  background: #F8FFFE;
+}
+
+.thread-item:last-child {
+  border-bottom: none;
+}
+
+.thread-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.thread-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #fff;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.thread-author {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1A1A1A;
+}
+
+.thread-time {
+  font-size: 10px;
+  color: #999;
+  margin-left: auto;
+}
+
+.thread-title {
+  font-size: 12px;
+  color: #1A1A1A;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+
+.thread-body {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.thread-stats {
+  display: flex;
+  gap: 10px;
+  margin-top: 3px;
+  font-size: 10px;
+  color: #999;
+}
+
+.thread-stats span {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Recent Threads in Sidebar */
+.sidebar-thread-item {
+  padding: 5px 10px;
+  border-bottom: 1px solid #F0F0F0;
+  cursor: pointer;
+  transition: background 0.08s;
+}
+
+.sidebar-thread-item:hover {
+  background: #F8FFFE;
+}
+
+.sidebar-thread-item:last-child {
+  border-bottom: none;
+}
+
+.sidebar-thread-title {
+  font-size: 11px;
+  color: #1A1A1A;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-thread-meta {
+  font-size: 10px;
+  color: #999;
+  display: flex;
+  gap: 8px;
+}
+
+/* Apps */
+.app-item {
+  padding: 4px 10px;
+  border-bottom: 1px solid #F0F0F0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.08s;
+}
+
+.app-item:hover {
+  background: #F8FFFE;
+}
+
+.app-item:last-child {
+  border-bottom: none;
+}
+
+.app-icon-sm {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.app-name {
+  font-size: 11px;
+  color: #1A1A1A;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-count {
+  font-size: 10px;
+  color: #999;
+}
+
+/* Members */
+.member-list {
+  padding: 6px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.member-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.1s;
+}
+
+.member-avatar:hover {
+  opacity: 0.8;
+}
+
+.member-more {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #E5E5E5;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo"><span>Open</span>Desk</div>
+  <nav class="header-nav">
+    <a href="#">ポータル</a>
+    <a href="#" class="active">スペース</a>
+    <a href="#">アプリ</a>
+    <a href="#">ユーザー管理</a>
+    <a href="#">システム管理</a>
+  </nav>
+  <div class="header-right">
+    <div class="header-search">
+      <input type="text" placeholder="検索... ⌘K">
+    </div>
+    <span class="header-bell">🔔<span class="badge">3</span></span>
+    <div class="header-user">田</div>
+  </div>
+</header>
+
+<!-- SPACE HEADER -->
+<div class="space-header">
+  <div class="space-icon">営</div>
+  <div class="space-meta">
+    <div class="space-title">営業部</div>
+    <div class="space-desc">営業部門の情報共有・コミュニケーションスペース — メンバー 24人</div>
+    <div class="space-tabs">
+      <a href="#" class="active">スレッド</a>
+      <a href="#">アプリ</a>
+      <a href="#">メンバー</a>
+      <a href="#">設定</a>
+    </div>
+  </div>
+  <div class="space-actions">
+    <button>+ スレッド作成</button>
+    <button>⚙ 設定</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="space-grid">
+    <!-- LEFT -->
+    <div class="left-stack">
+      <!-- ANNOUNCEMENTS -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">お知らせ</span>
+          <a class="panel-action">+ 投稿</a>
+        </div>
+        <div class="announce-item">
+          <div class="announce-meta">04/07 · 部長 田中</div>
+          <div class="announce-text">4月の営業目標について ー 第1四半期の振り返りと新期の方針を共有します。各チームの目標数値は添付資料を確認してください。</div>
+        </div>
+        <div class="announce-item">
+          <div class="announce-meta">04/04 · マネージャー 山本</div>
+          <div class="announce-text">新規顧客リスト更新のお知らせ ー 展示会で獲得したリード情報をアプリに登録しました。担当割振りを確認ください。</div>
+        </div>
+        <div class="announce-item">
+          <div class="announce-meta">04/02 · 部長 田中</div>
+          <div class="announce-text">来週の営業戦略会議のアジェンダを共有します。各自の進捗報告資料を事前に準備してください。</div>
+        </div>
+      </div>
+
+      <!-- THREADS -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">最近のスレッド</span>
+          <a class="panel-action">すべて表示 (156)</a>
+        </div>
+
+        <div class="thread-item">
+          <div class="thread-header">
+            <div class="thread-avatar" style="background:#0D9488;">佐</div>
+            <span class="thread-author">佐藤 太郎</span>
+            <span class="thread-time">10分前</span>
+          </div>
+          <div class="thread-title">テクノフューチャー社との商談進捗</div>
+          <div class="thread-body">先方のCTOとの面談が完了しました。導入に前向きで、来週中にPoC環境の提供を依頼されています。技術チームとの連携が必要です。</div>
+          <div class="thread-stats">
+            <span>💬 8件の返信</span>
+            <span>👍 3</span>
+          </div>
+        </div>
+
+        <div class="thread-item">
+          <div class="thread-header">
+            <div class="thread-avatar" style="background:#6366F1;">鈴</div>
+            <span class="thread-author">鈴木 花子</span>
+            <span class="thread-time">45分前</span>
+          </div>
+          <div class="thread-title">Q1 営業成績の集計結果</div>
+          <div class="thread-body">第1四半期の営業成績をまとめました。全体目標達成率は108%で、特にエンタープライズ領域が好調でした。詳細はアプリのレポートを参照。</div>
+          <div class="thread-stats">
+            <span>💬 12件の返信</span>
+            <span>👍 7</span>
+          </div>
+        </div>
+
+        <div class="thread-item">
+          <div class="thread-header">
+            <div class="thread-avatar" style="background:#F59E0B;">高</div>
+            <span class="thread-author">高橋 美咲</span>
+            <span class="thread-time">2時間前</span>
+          </div>
+          <div class="thread-title">競合分析レポート共有</div>
+          <div class="thread-body">主要競合3社の最新動向をまとめました。A社が新プランを発表しており、価格面での差別化ポイントの見直しが必要かもしれません。</div>
+          <div class="thread-stats">
+            <span>💬 5件の返信</span>
+            <span>👍 4</span>
+          </div>
+        </div>
+
+        <div class="thread-item">
+          <div class="thread-header">
+            <div class="thread-avatar" style="background:#EC4899;">中</div>
+            <span class="thread-author">中村 健一</span>
+            <span class="thread-time">3時間前</span>
+          </div>
+          <div class="thread-title">展示会ブース設計の相談</div>
+          <div class="thread-body">来月のIT展示会のブースデザイン案ができました。フィードバックをお願いします。予算内でインパクトのある展示を目指しています。</div>
+          <div class="thread-stats">
+            <span>💬 3件の返信</span>
+            <span>👍 2</span>
+          </div>
+        </div>
+
+        <div class="thread-item">
+          <div class="thread-header">
+            <div class="thread-avatar" style="background:#8B5CF6;">伊</div>
+            <span class="thread-author">伊藤 直人</span>
+            <span class="thread-time">5時間前</span>
+          </div>
+          <div class="thread-title">新規提案書テンプレート</div>
+          <div class="thread-body">提案書のテンプレートを刷新しました。新しいブランドガイドラインに沿ったデザインです。フィードバック歓迎します。</div>
+          <div class="thread-stats">
+            <span>💬 6件の返信</span>
+            <span>👍 5</span>
+          </div>
+        </div>
+
+        <div class="thread-item">
+          <div class="thread-header">
+            <div class="thread-avatar" style="background:#14B8A6;">渡</div>
+            <span class="thread-author">渡辺 真理</span>
+            <span class="thread-time">昨日</span>
+          </div>
+          <div class="thread-title">オーシャントレード社 契約更新について</div>
+          <div class="thread-body">契約更新の交渉が難航しています。先方から値下げ要求があり、対応方針について相談させてください。</div>
+          <div class="thread-stats">
+            <span>💬 15件の返信</span>
+            <span>👍 1</span>
+          </div>
+        </div>
+
+        <div class="thread-item">
+          <div class="thread-header">
+            <div class="thread-avatar" style="background:#F97316;">小</div>
+            <span class="thread-author">小林 由美</span>
+            <span class="thread-time">昨日</span>
+          </div>
+          <div class="thread-title">マーケティング施策の効果測定</div>
+          <div class="thread-body">3月に実施したWebセミナーのリード獲得状況を報告します。参加者142名、うち商談化見込み23社です。</div>
+          <div class="thread-stats">
+            <span>💬 4件の返信</span>
+            <span>👍 6</span>
+          </div>
+        </div>
+
+        <div class="thread-item">
+          <div class="thread-header">
+            <div class="thread-avatar" style="background:#EF4444;">加</div>
+            <span class="thread-author">加藤 修平</span>
+            <span class="thread-time">2日前</span>
+          </div>
+          <div class="thread-title">CRMデータクレンジングの依頼</div>
+          <div class="thread-body">顧客データに重複が多く発生しています。今週中にデータクレンジングを実施したいので、各自担当顧客の情報を確認ください。</div>
+          <div class="thread-stats">
+            <span>💬 9件の返信</span>
+            <span>👍 2</span>
+          </div>
+        </div>
+
+        <div class="panel-footer">
+          <a href="#">すべてのスレッドを表示 →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="sidebar-stack">
+
+      <!-- RECENT THREADS -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">更新スレッド</span>
+        </div>
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-title">テクノフューチャー社との商談進捗</div>
+          <div class="sidebar-thread-meta">
+            <span>佐藤 · 10分前</span>
+            <span>💬 8</span>
+          </div>
+        </div>
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-title">Q1 営業成績の集計結果</div>
+          <div class="sidebar-thread-meta">
+            <span>鈴木 · 45分前</span>
+            <span>💬 12</span>
+          </div>
+        </div>
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-title">競合分析レポート共有</div>
+          <div class="sidebar-thread-meta">
+            <span>高橋 · 2時間前</span>
+            <span>💬 5</span>
+          </div>
+        </div>
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-title">展示会ブース設計の相談</div>
+          <div class="sidebar-thread-meta">
+            <span>中村 · 3時間前</span>
+            <span>💬 3</span>
+          </div>
+        </div>
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-title">オーシャントレード社 契約更新について</div>
+          <div class="sidebar-thread-meta">
+            <span>渡辺 · 昨日</span>
+            <span>💬 15</span>
+          </div>
+        </div>
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-title">CRMデータクレンジングの依頼</div>
+          <div class="sidebar-thread-meta">
+            <span>加藤 · 2日前</span>
+            <span>💬 9</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPS -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">アプリ</span>
+          <a class="panel-action">すべて</a>
+        </div>
+        <div class="app-item">
+          <div class="app-icon-sm" style="background:#E0F2FE; color:#0284C7;">📋</div>
+          <span class="app-name">顧客管理</span>
+          <span class="app-count">1,248件</span>
+        </div>
+        <div class="app-item">
+          <div class="app-icon-sm" style="background:#FEF3C7; color:#D97706;">📊</div>
+          <span class="app-name">案件管理</span>
+          <span class="app-count">523件</span>
+        </div>
+        <div class="app-item">
+          <div class="app-icon-sm" style="background:#F0FDF4; color:#16A34A;">📝</div>
+          <span class="app-name">営業日報</span>
+          <span class="app-count">3,891件</span>
+        </div>
+        <div class="app-item">
+          <div class="app-icon-sm" style="background:#FDF2F8; color:#DB2777;">📑</div>
+          <span class="app-name">見積管理</span>
+          <span class="app-count">312件</span>
+        </div>
+        <div class="app-item">
+          <div class="app-icon-sm" style="background:#F5F3FF; color:#7C3AED;">📈</div>
+          <span class="app-name">売上レポート</span>
+          <span class="app-count">48件</span>
+        </div>
+      </div>
+
+      <!-- MEMBERS -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">メンバー (24)</span>
+          <a class="panel-action">管理</a>
+        </div>
+        <div class="member-list">
+          <div class="member-avatar" style="background:#0D9488;" title="田中 部長">田</div>
+          <div class="member-avatar" style="background:#6366F1;" title="佐藤 太郎">佐</div>
+          <div class="member-avatar" style="background:#F59E0B;" title="鈴木 花子">鈴</div>
+          <div class="member-avatar" style="background:#EC4899;" title="高橋 美咲">高</div>
+          <div class="member-avatar" style="background:#8B5CF6;" title="中村 健一">中</div>
+          <div class="member-avatar" style="background:#14B8A6;" title="伊藤 直人">伊</div>
+          <div class="member-avatar" style="background:#F97316;" title="渡辺 真理">渡</div>
+          <div class="member-avatar" style="background:#EF4444;" title="小林 由美">小</div>
+          <div class="member-avatar" style="background:#3B82F6;" title="加藤 修平">加</div>
+          <div class="member-avatar" style="background:#A855F7;" title="山本 マネージャー">山</div>
+          <div class="member-avatar" style="background:#10B981;" title="吉田 裕子">吉</div>
+          <div class="member-avatar" style="background:#F43F5E;" title="松本 一郎">松</div>
+          <div class="member-avatar" style="background:#0EA5E9;" title="井上 恵美">井</div>
+          <div class="member-avatar" style="background:#D946EF;" title="木村 大輔">木</div>
+          <div class="member-avatar" style="background:#84CC16;" title="林 美奈子">林</div>
+          <div class="member-avatar" style="background:#F59E0B;" title="斉藤 雄太">斉</div>
+          <div class="member-more" title="他8人">+8</div>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">スペース統計</span>
+        </div>
+        <div style="padding: 6px 10px; font-size: 11px; color: #555;">
+          <div style="display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #F0F0F0;">
+            <span>スレッド数</span>
+            <span style="font-weight: 500; color: #1A1A1A;">156</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #F0F0F0;">
+            <span>今週の投稿</span>
+            <span style="font-weight: 500; color: #1A1A1A;">23</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #F0F0F0;">
+            <span>アクティブメンバー</span>
+            <span style="font-weight: 500; color: #1A1A1A;">18 / 24</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 3px 0;">
+            <span>アプリ数</span>
+            <span style="font-weight: 500; color: #1A1A1A;">5</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

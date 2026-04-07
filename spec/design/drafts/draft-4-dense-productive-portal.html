@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk — ポータル (Dense Productive)</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #1A1A1A;
+  background: #FAFAFA;
+  min-width: 1200px;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: #fff;
+  border-bottom: 1px solid #E5E5E5;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-logo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-right: 20px;
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+
+.header-logo span {
+  color: #0D9488;
+}
+
+.header-nav {
+  display: flex;
+  gap: 2px;
+  margin-right: auto;
+}
+
+.header-nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  transition: background 0.1s;
+}
+
+.header-nav a:hover {
+  background: #F0F0F0;
+  color: #1A1A1A;
+}
+
+.header-nav a.active {
+  background: #0D9488;
+  color: #fff;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-search {
+  position: relative;
+}
+
+.header-search input {
+  width: 200px;
+  height: 26px;
+  border: 1px solid #E5E5E5;
+  border-radius: 3px;
+  padding: 0 8px 0 26px;
+  font-size: 12px;
+  font-family: inherit;
+  background: #FAFAFA;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.header-search input:focus {
+  border-color: #0D9488;
+  background: #fff;
+}
+
+.header-search::before {
+  content: "⌕";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: #999;
+}
+
+.header-user {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0D9488;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.header-bell {
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  position: relative;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  width: 14px;
+  height: 14px;
+  background: #DC2626;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px 16px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.page-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.page-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.page-actions button {
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid #E5E5E5;
+  background: #fff;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #555;
+  cursor: pointer;
+}
+
+.page-actions button:hover {
+  background: #F5F5F5;
+}
+
+/* ===== TWO COLUMN LAYOUT ===== */
+.portal-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 10px;
+}
+
+/* ===== PANEL ===== */
+.panel {
+  background: #fff;
+  border: 1px solid #E5E5E5;
+  border-radius: 3px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid #E5E5E5;
+  background: #FAFAFA;
+}
+
+.panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.panel-action {
+  font-size: 11px;
+  color: #0D9488;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.panel-action:hover {
+  text-decoration: underline;
+}
+
+/* ===== ANNOUNCEMENTS ===== */
+.announcement-list {
+  list-style: none;
+}
+
+.announcement-item {
+  padding: 6px 10px;
+  border-bottom: 1px solid #F0F0F0;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.announcement-item:hover {
+  background: #F8FFFE;
+}
+
+.announcement-item:last-child {
+  border-bottom: none;
+}
+
+.announcement-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.announcement-date {
+  font-size: 11px;
+  color: #888;
+}
+
+.announcement-category {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.cat-important {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+.cat-general {
+  background: #F0FDFA;
+  color: #0D9488;
+}
+
+.cat-hr {
+  background: #FFF7ED;
+  color: #C2410C;
+}
+
+.cat-system {
+  background: #F0F4FF;
+  color: #4338CA;
+}
+
+.announcement-title {
+  font-size: 13px;
+  color: #1A1A1A;
+  line-height: 1.3;
+}
+
+.announcement-author {
+  font-size: 11px;
+  color: #999;
+  margin-top: 1px;
+}
+
+/* ===== RIGHT SIDEBAR WIDGETS ===== */
+.sidebar-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ===== NOTIFICATIONS ===== */
+.notif-list {
+  list-style: none;
+}
+
+.notif-item {
+  padding: 5px 10px;
+  border-bottom: 1px solid #F0F0F0;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.notif-item:hover {
+  background: #F8FFFE;
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0D9488;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.notif-dot.read {
+  background: #D4D4D4;
+}
+
+.notif-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-text {
+  font-size: 12px;
+  color: #333;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notif-time {
+  font-size: 10px;
+  color: #999;
+}
+
+/* ===== SPACE LIST ===== */
+.space-list {
+  list-style: none;
+}
+
+.space-item {
+  padding: 5px 10px;
+  border-bottom: 1px solid #F0F0F0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.space-item:hover {
+  background: #F8FFFE;
+}
+
+.space-item:last-child {
+  border-bottom: none;
+}
+
+.space-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #fff;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.space-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.space-name {
+  font-size: 12px;
+  color: #1A1A1A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.space-count {
+  font-size: 10px;
+  color: #999;
+}
+
+/* ===== APP LIST ===== */
+.app-list {
+  list-style: none;
+}
+
+.app-item {
+  padding: 5px 10px;
+  border-bottom: 1px solid #F0F0F0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.app-item:hover {
+  background: #F8FFFE;
+}
+
+.app-item:last-child {
+  border-bottom: none;
+}
+
+.app-icon-small {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.app-name {
+  font-size: 12px;
+  color: #1A1A1A;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-records {
+  font-size: 10px;
+  color: #999;
+  flex-shrink: 0;
+}
+
+/* ===== FOOTER BAR ===== */
+.panel-footer {
+  padding: 4px 10px;
+  border-top: 1px solid #E5E5E5;
+  background: #FAFAFA;
+  text-align: center;
+}
+
+.panel-footer a {
+  font-size: 11px;
+  color: #0D9488;
+  text-decoration: none;
+}
+
+.panel-footer a:hover {
+  text-decoration: underline;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo"><span>Open</span>Desk</div>
+  <nav class="header-nav">
+    <a href="#" class="active">ポータル</a>
+    <a href="#">スペース</a>
+    <a href="#">アプリ</a>
+    <a href="#">ユーザー管理</a>
+    <a href="#">システム管理</a>
+  </nav>
+  <div class="header-right">
+    <div class="header-search">
+      <input type="text" placeholder="検索... ⌘K">
+    </div>
+    <span class="header-bell">🔔<span class="badge">3</span></span>
+    <div class="header-user">田</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="page-header">
+    <h1 class="page-title">ポータル</h1>
+    <div class="page-actions">
+      <button>⚙ カスタマイズ</button>
+    </div>
+  </div>
+
+  <div class="portal-grid">
+    <!-- LEFT: ANNOUNCEMENTS -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">お知らせ掲示板</span>
+        <a class="panel-action">+ 新規投稿</a>
+      </div>
+      <ul class="announcement-list">
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-date">04/07 09:15</span>
+            <span class="announcement-category cat-important">重要</span>
+          </div>
+          <div class="announcement-title">【重要】4月度 全社セキュリティ研修の実施について（受講期限：4/20）</div>
+          <div class="announcement-author">情報システム部 佐藤</div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-date">04/06 17:30</span>
+            <span class="announcement-category cat-general">全社</span>
+          </div>
+          <div class="announcement-title">2026年度 第1四半期 全社方針説明会のご案内（4/15 14:00〜）</div>
+          <div class="announcement-author">経営企画部 山田</div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-date">04/06 14:00</span>
+            <span class="announcement-category cat-system">システム</span>
+          </div>
+          <div class="announcement-title">システムメンテナンスのお知らせ（4/12 22:00〜翌2:00）</div>
+          <div class="announcement-author">情報システム部 鈴木</div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-date">04/05 11:45</span>
+            <span class="announcement-category cat-hr">人事</span>
+          </div>
+          <div class="announcement-title">新入社員配属先のご案内 ー 各部署の受け入れ準備をお願いします</div>
+          <div class="announcement-author">人事部 高橋</div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-date">04/04 16:20</span>
+            <span class="announcement-category cat-general">全社</span>
+          </div>
+          <div class="announcement-title">社内カフェテリアのリニューアルオープンについて（4/8〜）</div>
+          <div class="announcement-author">総務部 中村</div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-date">04/04 10:00</span>
+            <span class="announcement-category cat-important">重要</span>
+          </div>
+          <div class="announcement-title">個人情報保護方針の改訂について ー 全社員の確認・同意が必要です</div>
+          <div class="announcement-author">法務部 伊藤</div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-date">04/03 15:30</span>
+            <span class="announcement-category cat-general">全社</span>
+          </div>
+          <div class="announcement-title">GW期間中の勤怠管理および緊急連絡先の提出について</div>
+          <div class="announcement-author">人事部 渡辺</div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-date">04/03 09:00</span>
+            <span class="announcement-category cat-system">システム</span>
+          </div>
+          <div class="announcement-title">VPN接続設定の変更手順について（対象：全リモートワーク社員）</div>
+          <div class="announcement-author">情報システム部 木村</div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-date">04/02 13:00</span>
+            <span class="announcement-category cat-hr">人事</span>
+          </div>
+          <div class="announcement-title">健康診断の日程確定 ー 対象者は必ずスケジュールを確認してください</div>
+          <div class="announcement-author">人事部 小林</div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-date">04/01 17:00</span>
+            <span class="announcement-category cat-general">全社</span>
+          </div>
+          <div class="announcement-title">2026年度 組織改編に伴う部署名変更のお知らせ</div>
+          <div class="announcement-author">経営企画部 松本</div>
+        </li>
+      </ul>
+      <div class="panel-footer">
+        <a href="#">すべてのお知らせを表示 →</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: WIDGETS -->
+    <div class="sidebar-stack">
+
+      <!-- NOTIFICATIONS -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">通知</span>
+          <a class="panel-action">すべて既読</a>
+        </div>
+        <ul class="notif-list">
+          <li class="notif-item">
+            <span class="notif-dot"></span>
+            <div class="notif-content">
+              <div class="notif-text">田中さんが「Q1売上レポート」にコメントしました</div>
+              <div class="notif-time">5分前</div>
+            </div>
+          </li>
+          <li class="notif-item">
+            <span class="notif-dot"></span>
+            <div class="notif-content">
+              <div class="notif-text">「顧客管理」アプリで新規レコードが登録されました</div>
+              <div class="notif-time">12分前</div>
+            </div>
+          </li>
+          <li class="notif-item">
+            <span class="notif-dot"></span>
+            <div class="notif-content">
+              <div class="notif-text">山田さんがあなたをスレッド「新製品企画会議」にメンションしました</div>
+              <div class="notif-time">30分前</div>
+            </div>
+          </li>
+          <li class="notif-item">
+            <span class="notif-dot read"></span>
+            <div class="notif-content">
+              <div class="notif-text">「経費精算」アプリのワークフローが承認されました</div>
+              <div class="notif-time">1時間前</div>
+            </div>
+          </li>
+          <li class="notif-item">
+            <span class="notif-dot read"></span>
+            <div class="notif-content">
+              <div class="notif-text">佐藤さんが「営業日報」を更新しました</div>
+              <div class="notif-time">2時間前</div>
+            </div>
+          </li>
+          <li class="notif-item">
+            <span class="notif-dot read"></span>
+            <div class="notif-content">
+              <div class="notif-text">「プロジェクト管理」のタスク期限が近づいています</div>
+              <div class="notif-time">3時間前</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-footer">
+          <a href="#">通知一覧を開く →</a>
+        </div>
+      </div>
+
+      <!-- SPACES -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">スペース</span>
+          <a class="panel-action">すべて表示</a>
+        </div>
+        <ul class="space-list">
+          <li class="space-item">
+            <div class="space-icon" style="background:#0D9488;">営</div>
+            <div class="space-info">
+              <div class="space-name">営業部</div>
+              <div class="space-count">メンバー 24人 · スレッド 156</div>
+            </div>
+          </li>
+          <li class="space-item">
+            <div class="space-icon" style="background:#6366F1;">開</div>
+            <div class="space-info">
+              <div class="space-name">開発チーム</div>
+              <div class="space-count">メンバー 18人 · スレッド 203</div>
+            </div>
+          </li>
+          <li class="space-item">
+            <div class="space-icon" style="background:#F59E0B;">総</div>
+            <div class="space-info">
+              <div class="space-name">総務部</div>
+              <div class="space-count">メンバー 12人 · スレッド 89</div>
+            </div>
+          </li>
+          <li class="space-item">
+            <div class="space-icon" style="background:#EC4899;">企</div>
+            <div class="space-info">
+              <div class="space-name">企画部</div>
+              <div class="space-count">メンバー 15人 · スレッド 112</div>
+            </div>
+          </li>
+          <li class="space-item">
+            <div class="space-icon" style="background:#8B5CF6;">人</div>
+            <div class="space-info">
+              <div class="space-name">人事部</div>
+              <div class="space-count">メンバー 8人 · スレッド 67</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- APPS -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">よく使うアプリ</span>
+          <a class="panel-action">すべて表示</a>
+        </div>
+        <ul class="app-list">
+          <li class="app-item">
+            <div class="app-icon-small" style="background:#E0F2FE; color:#0284C7;">📋</div>
+            <span class="app-name">顧客管理</span>
+            <span class="app-records">1,248件</span>
+          </li>
+          <li class="app-item">
+            <div class="app-icon-small" style="background:#FEF3C7; color:#D97706;">📊</div>
+            <span class="app-name">案件管理</span>
+            <span class="app-records">523件</span>
+          </li>
+          <li class="app-item">
+            <div class="app-icon-small" style="background:#F0FDF4; color:#16A34A;">📝</div>
+            <span class="app-name">営業日報</span>
+            <span class="app-records">3,891件</span>
+          </li>
+          <li class="app-item">
+            <div class="app-icon-small" style="background:#FDF2F8; color:#DB2777;">💰</div>
+            <span class="app-name">経費精算</span>
+            <span class="app-records">892件</span>
+          </li>
+          <li class="app-item">
+            <div class="app-icon-small" style="background:#F5F3FF; color:#7C3AED;">📁</div>
+            <span class="app-name">プロジェクト管理</span>
+            <span class="app-records">147件</span>
+          </li>
+          <li class="app-item">
+            <div class="app-icon-small" style="background:#ECFDF5; color:#059669;">✅</div>
+            <span class="app-name">タスク管理</span>
+            <span class="app-records">2,034件</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

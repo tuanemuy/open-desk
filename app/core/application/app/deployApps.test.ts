@@ -4,6 +4,7 @@ import {
   createMockHeaders,
   setupTestContainer,
 } from "@/core/application/__tests__/helpers";
+import { AppId } from "@/core/domain/app/valueObject";
 import { ValidationError } from "../error";
 import { deployApps } from "./deployApps";
 
@@ -44,10 +45,13 @@ function mockDeploySuccess(
   vi.spyOn(
     container.appDeploymentService,
     "validateForDeployment",
-  ).mockResolvedValue({ isValid: true, errors: [] });
+  ).mockResolvedValue({ appId: AppId.create(""), isValid: true, errors: [] });
   vi.spyOn(container.appDeploymentService, "deployBatch").mockResolvedValue();
   vi.spyOn(container.appDeploymentService, "getDeployStatus").mockResolvedValue(
-    appIds.map((id) => ({ appId: id, status: "SUCCESS" as const })),
+    appIds.map((id) => ({
+      appId: AppId.create(id),
+      status: "SUCCESS" as const,
+    })),
   );
 }
 
@@ -147,13 +151,23 @@ describe("deployApps", () => {
     await seedApp(container.db, { id: "app-1", status: "PREVIEW" });
     await seedApp(container.db, { id: "app-2", status: "PREVIEW" });
     vi.spyOn(container.appDeploymentService, "validateForDeployment")
-      .mockResolvedValueOnce({ isValid: true, errors: [] })
-      .mockResolvedValueOnce({ isValid: false, errors: ["form error"] });
+      .mockResolvedValueOnce({
+        appId: AppId.create("app-1"),
+        isValid: true,
+        errors: [],
+      })
+      .mockResolvedValueOnce({
+        appId: AppId.create("app-2"),
+        isValid: false,
+        errors: ["form error"],
+      });
     vi.spyOn(container.appDeploymentService, "deployBatch").mockResolvedValue();
     vi.spyOn(
       container.appDeploymentService,
       "getDeployStatus",
-    ).mockResolvedValue([{ appId: "app-1", status: "SUCCESS" as const }]);
+    ).mockResolvedValue([
+      { appId: AppId.create("app-1"), status: "SUCCESS" as const },
+    ]);
     const result = await deployApps({
       container,
       headers: headers(),

@@ -49,8 +49,10 @@ describe("configureNotifications", () => {
         appId: "app-1",
         generalNotifications: [
           {
-            recipients: [{ type: "CREATOR" }],
-            events: ["RECORD_CREATED"],
+            recipients: [
+              { type: "CREATOR" as const, code: null, fieldCode: null },
+            ],
+            events: ["ADD_RECORD" as const],
             enableCommentTracking: false,
           },
         ],
@@ -76,7 +78,9 @@ describe("configureNotifications", () => {
         perRecordNotifications: [
           {
             filterCondition: 'field_a = "test"',
-            recipients: [{ type: "CREATOR" }],
+            recipients: [
+              { type: "CREATOR" as const, code: null, fieldCode: null },
+            ],
           },
         ],
         reminderNotifications: null,
@@ -136,8 +140,10 @@ describe("configureNotifications", () => {
         appId: "app-1",
         generalNotifications: [
           {
-            recipients: [{ type: "CREATOR" }],
-            events: ["RECORD_CREATED"],
+            recipients: [
+              { type: "CREATOR" as const, code: null, fieldCode: null },
+            ],
+            events: ["ADD_RECORD" as const],
             enableCommentTracking: false,
           },
         ],

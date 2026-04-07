@@ -42,7 +42,7 @@ const baseInput = {
   webhookId: null as string | null,
   url: "https://example.com/hook",
   description: "Test webhook",
-  events: ["RECORD_CREATED" as const],
+  events: ["ADD_RECORD" as const],
   isActive: true,
   executorId: "user-1",
 };

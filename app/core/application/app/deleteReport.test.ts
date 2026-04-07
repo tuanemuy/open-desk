@@ -4,10 +4,13 @@ import {
   createMockHeaders,
   setupTestContainer,
 } from "@/core/application/__tests__/helpers";
+import { FieldCode as FieldCodeVO } from "@/core/domain/app/valueObject";
 import { BusinessRuleError } from "@/core/domain/error";
 import { NotFoundError } from "../error";
 import { createReport } from "./createReport";
 import { deleteReport } from "./deleteReport";
+
+const fc = (code: string) => FieldCodeVO.create(code);
 
 const getContainer = setupTestContainer();
 const headers = () => createMockHeaders();
@@ -51,8 +54,8 @@ describe("deleteReport", () => {
         reportName: "R1",
         chartType: "BAR",
         chartSubType: null,
-        groups: [{ fieldCode: "f", sortDirection: "ASC" }],
-        aggregations: [{ fieldCode: "f", method: "COUNT" }],
+        groups: [{ fieldCode: fc("f"), timeUnit: null }],
+        aggregations: [{ fieldCode: fc("f"), method: "COUNT" as const }],
         filterCondition: null,
         sort: null,
         creatorId: "user-1",

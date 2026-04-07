@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenDesk — ポータル</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #F8F9FA;
+      color: #333;
+      font-size: 14px;
+      line-height: 1.6;
+      min-width: 1200px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Global Header */
+    .global-header {
+      background: #FFFFFF;
+      border-bottom: 1px solid #E8EAED;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .global-header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .logo span {
+      color: #4A90D9;
+    }
+
+    .global-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .global-nav a {
+      text-decoration: none;
+      color: #666;
+      font-size: 13px;
+      font-weight: 400;
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .global-nav a:hover {
+      color: #333;
+      background: #F3F4F6;
+    }
+
+    .global-nav a.active {
+      color: #4A90D9;
+      background: #EBF2FA;
+      font-weight: 500;
+    }
+
+    .header-spacer {
+      flex: 1;
+    }
+
+    .header-search {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .header-search input {
+      width: 260px;
+      height: 36px;
+      border: 1px solid #E0E3E8;
+      border-radius: 8px;
+      padding: 0 12px 0 36px;
+      font-size: 13px;
+      font-family: inherit;
+      background: #F8F9FA;
+      color: #333;
+      transition: all 0.15s ease;
+    }
+
+    .header-search input::placeholder {
+      color: #999;
+    }
+
+    .header-search input:focus {
+      outline: none;
+      border-color: #4A90D9;
+      background: #FFF;
+      box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+    }
+
+    .header-search .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 14px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #E0E3E8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .user-avatar:hover {
+      background: #D0D3D8;
+    }
+
+    /* Page Title Bar */
+    .page-title-bar {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 32px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .page-title-bar h1 {
+      font-size: 22px;
+      font-weight: 300;
+      color: #333;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-option {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 400;
+      color: #666;
+      background: #FFF;
+      border: 1px solid #E0E3E8;
+      border-radius: 6px;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-option:hover {
+      border-color: #CCC;
+      color: #333;
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 32px 60px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+    }
+
+    /* Card Base */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E8EAED;
+      border-radius: 10px;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #F0F1F3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-header h2 {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      letter-spacing: 0;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    /* Announcement Board */
+    .announcement-card {
+      align-self: start;
+    }
+
+    .announcement-content h3 {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 16px;
+    }
+
+    .announcement-content p {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+
+    .announcement-content ol {
+      margin: 0 0 18px 20px;
+      color: #555;
+      line-height: 1.8;
+    }
+
+    .announcement-content li {
+      margin-bottom: 6px;
+    }
+
+    .announcement-content a {
+      color: #4A90D9;
+      text-decoration: none;
+    }
+
+    .announcement-content a:hover {
+      text-decoration: underline;
+    }
+
+    .announcement-content .highlight-box {
+      background: #F8F9FA;
+      border-left: 3px solid #4A90D9;
+      padding: 14px 18px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      font-size: 13px;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    .announcement-meta {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #F0F1F3;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .announcement-meta .author {
+      color: #666;
+      font-weight: 500;
+    }
+
+    /* Right Sidebar Widgets */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .widget-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .widget-select {
+      font-family: inherit;
+      font-size: 12px;
+      color: #666;
+      border: 1px solid #E0E3E8;
+      border-radius: 5px;
+      padding: 3px 8px;
+      background: #FFF;
+      cursor: pointer;
+    }
+
+    .toggle-tabs {
+      display: flex;
+      border: 1px solid #E0E3E8;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .toggle-tabs button {
+      font-family: inherit;
+      font-size: 11px;
+      padding: 3px 10px;
+      border: none;
+      background: #FFF;
+      color: #999;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .toggle-tabs button.active {
+      background: #4A90D9;
+      color: #FFF;
+    }
+
+    .toggle-tabs button:not(:last-child) {
+      border-right: 1px solid #E0E3E8;
+    }
+
+    /* Notification Items */
+    .notification-list {
+      list-style: none;
+    }
+
+    .notification-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #F5F5F5;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .notification-item:first-child {
+      padding-top: 0;
+    }
+
+    .notif-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #4A90D9;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .notif-dot.read {
+      background: #DDD;
+    }
+
+    .notif-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .notif-text {
+      font-size: 13px;
+      color: #333;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .notif-time {
+      font-size: 11px;
+      color: #999;
+      margin-top: 3px;
+    }
+
+    /* Space & App Items */
+    .item-list {
+      list-style: none;
+    }
+
+    .item-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid #F5F5F5;
+    }
+
+    .item-list li:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .item-list li:first-child {
+      padding-top: 0;
+    }
+
+    .item-list a {
+      text-decoration: none;
+      color: #333;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: color 0.15s ease;
+    }
+
+    .item-list a:hover {
+      color: #4A90D9;
+    }
+
+    .item-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      background: #F0F2F5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .item-icon.space {
+      background: #EBF2FA;
+      color: #4A90D9;
+    }
+
+    .item-icon.app {
+      background: #F0F5ED;
+      color: #6B9E5B;
+    }
+
+    .item-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-name {
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    .item-desc {
+      font-size: 11px;
+      color: #999;
+      margin-top: 1px;
+    }
+
+    .widget-footer {
+      padding: 12px 20px;
+      border-top: 1px solid #F0F1F3;
+      text-align: center;
+    }
+
+    .widget-footer a {
+      font-size: 12px;
+      color: #4A90D9;
+      text-decoration: none;
+    }
+
+    .widget-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Header -->
+  <header class="global-header">
+    <div class="global-header-inner">
+      <a href="#" class="logo">Open<span>Desk</span></a>
+      <nav class="global-nav">
+        <a href="#" class="active">ポータル</a>
+        <a href="#">通知</a>
+        <a href="#">ブックマーク</a>
+      </nav>
+      <div class="header-spacer"></div>
+      <div class="header-search">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" placeholder="検索...">
+      </div>
+      <div class="user-avatar">田</div>
+    </div>
+  </header>
+
+  <!-- Page Title Bar -->
+  <div class="page-title-bar">
+    <h1>ポータル</h1>
+    <button class="btn-option">オプション</button>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Left Column: Announcement Board -->
+    <div class="announcement-card card">
+      <div class="card-header">
+        <h2>お知らせ掲示板</h2>
+      </div>
+      <div class="card-body">
+        <div class="announcement-content">
+          <h3>OpenDeskへようこそ！はじめての方へ</h3>
+          <p>
+            OpenDeskは、チームの業務データを一元管理し、ノーコードでビジネスアプリを構築できるクラウドプラットフォームです。
+            このガイドでは、初めてご利用いただく方に向けて基本的な使い方をご紹介します。
+          </p>
+
+          <div class="highlight-box">
+            まずはスペースに参加して、チームメンバーとのコミュニケーションを始めましょう。
+            スペース内でアプリを作成し、データの管理や共有が行えます。
+          </div>
+
+          <p><strong>はじめに行う3つのステップ：</strong></p>
+          <ol>
+            <li><a href="#">プロフィールを設定する</a> — 名前やアイコンを登録して、チームメンバーにあなたを知ってもらいましょう</li>
+            <li><a href="#">スペースに参加する</a> — 所属チームのスペースに参加して、お知らせやスレッドを確認できます</li>
+            <li><a href="#">アプリを使ってみる</a> — 顧客リストやファイル管理など、チームで利用しているアプリにアクセスしてみましょう</li>
+          </ol>
+
+          <p>
+            ご不明な点がございましたら、<a href="#">ヘルプセンター</a>をご覧いただくか、
+            管理者の<strong>山田太郎</strong>さんまでお問い合わせください。
+          </p>
+        </div>
+
+        <div class="announcement-meta">
+          <span class="author">山田 太郎</span>
+          <span>2026年4月1日 投稿</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Widgets -->
+    <div class="sidebar">
+
+      <!-- Notifications Widget -->
+      <div class="card">
+        <div class="card-header">
+          <h2>通知</h2>
+          <div class="widget-controls">
+            <div class="toggle-tabs">
+              <button class="active">未読</button>
+              <button>すべて</button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <ul class="notification-list">
+            <li class="notification-item">
+              <div class="notif-dot"></div>
+              <div class="notif-content">
+                <div class="notif-text">佐藤花子さんが「顧客リスト」にレコードを追加しました</div>
+                <div class="notif-time">10分前</div>
+              </div>
+            </li>
+            <li class="notification-item">
+              <div class="notif-dot"></div>
+              <div class="notif-content">
+                <div class="notif-text">鈴木一郎さんがスレッド「今週のタスク確認」にコメントしました</div>
+                <div class="notif-time">1時間前</div>
+              </div>
+            </li>
+            <li class="notification-item">
+              <div class="notif-dot"></div>
+              <div class="notif-content">
+                <div class="notif-text">「新規プロジェクトについて」のスレッドに新しい返信があります</div>
+                <div class="notif-time">3時間前</div>
+              </div>
+            </li>
+            <li class="notification-item">
+              <div class="notif-dot read"></div>
+              <div class="notif-content">
+                <div class="notif-text">田中美咲さんが「ファイル管理」に新しいファイルをアップロードしました</div>
+                <div class="notif-time">昨日</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="widget-footer">
+          <a href="#">すべての通知を見る</a>
+        </div>
+      </div>
+
+      <!-- Spaces Widget -->
+      <div class="card">
+        <div class="card-header">
+          <h2>スペース</h2>
+          <div class="widget-controls">
+            <select class="widget-select">
+              <option>参加中</option>
+              <option>すべて</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <ul class="item-list">
+            <li>
+              <a href="#">
+                <div class="item-icon space">&#9776;</div>
+                <div class="item-details">
+                  <div class="item-name">あなたのチームのコミュニケーションスペース</div>
+                  <div class="item-desc">メンバー 12人 ・ 更新 2時間前</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <div class="item-icon space">&#9776;</div>
+                <div class="item-details">
+                  <div class="item-name">営業部プロジェクト管理</div>
+                  <div class="item-desc">メンバー 8人 ・ 更新 昨日</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <div class="item-icon space">&#9776;</div>
+                <div class="item-details">
+                  <div class="item-name">全社お知らせ</div>
+                  <div class="item-desc">メンバー 56人 ・ 更新 3日前</div>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="widget-footer">
+          <a href="#">すべてのスペースを見る</a>
+        </div>
+      </div>
+
+      <!-- Apps Widget -->
+      <div class="card">
+        <div class="card-header">
+          <h2>アプリ</h2>
+          <div class="widget-controls">
+            <select class="widget-select">
+              <option>よく使う</option>
+              <option>すべて</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <ul class="item-list">
+            <li>
+              <a href="#">
+                <div class="item-icon app">&#128196;</div>
+                <div class="item-details">
+                  <div class="item-name">ファイル管理</div>
+                  <div class="item-desc">あなたのチームのコミュニケーションスペース</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <div class="item-icon app">&#128101;</div>
+                <div class="item-details">
+                  <div class="item-name">顧客リスト</div>
+                  <div class="item-desc">あなたのチームのコミュニケーションスペース</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <div class="item-icon app">&#128203;</div>
+                <div class="item-details">
+                  <div class="item-name">案件管理</div>
+                  <div class="item-desc">営業部プロジェクト管理</div>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="widget-footer">
+          <a href="#">すべてのアプリを見る</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

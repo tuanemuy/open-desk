@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk - 営業部スペース | Bold Corporate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #EFF3F8;
+    color: #1B2A4A;
+    min-width: 1200px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== Global Header ===== */
+  .global-header {
+    background: #1B2A4A;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(27, 42, 74, 0.3);
+  }
+
+  .header-logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    margin-right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-logo .logo-icon {
+    width: 28px;
+    height: 28px;
+    background: #2563EB;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .header-nav a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+  }
+
+  .header-nav a:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .header-nav a.active {
+    color: #FFFFFF;
+    background: rgba(37, 99, 235, 0.5);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+  }
+
+  .header-search {
+    position: relative;
+  }
+
+  .header-search input {
+    width: 260px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 0 12px 0 34px;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.15s ease;
+  }
+
+  .header-search input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .header-search input:focus {
+    border-color: #2563EB;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  }
+
+  .header-search .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+  }
+
+  .header-notifications {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.15s ease;
+  }
+
+  .header-notifications:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 16px;
+    height: 16px;
+    background: #EF4444;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #1B2A4A;
+  }
+
+  .header-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    background: #2563EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: border-color 0.15s ease;
+  }
+
+  .header-avatar:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  /* ===== Breadcrumb ===== */
+  .breadcrumb-bar {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 10px 32px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .breadcrumb a {
+    color: #64748B;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .breadcrumb a:hover {
+    color: #2563EB;
+  }
+
+  .breadcrumb .separator {
+    color: #CBD5E1;
+    font-size: 10px;
+  }
+
+  .breadcrumb .current {
+    color: #1B2A4A;
+    font-weight: 700;
+  }
+
+  /* ===== Space Header ===== */
+  .space-header {
+    background: #FFFFFF;
+    border-bottom: 2px solid #D8DFE9;
+    padding: 20px 32px;
+  }
+
+  .space-header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .space-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .space-avatar {
+    width: 52px;
+    height: 52px;
+    background: #2563EB;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  }
+
+  .space-title-block h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1B2A4A;
+    letter-spacing: -0.3px;
+  }
+
+  .space-title-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #94A3B8;
+    font-weight: 500;
+  }
+
+  .space-title-meta .meta-dot {
+    width: 3px;
+    height: 3px;
+    background: #CBD5E1;
+    border-radius: 50%;
+  }
+
+  .space-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    height: 38px;
+    padding: 0 20px;
+    background: #2563EB;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: #1D4ED8;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+  }
+
+  .btn-secondary {
+    height: 38px;
+    padding: 0 16px;
+    background: #FFFFFF;
+    border: 2px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-secondary:hover {
+    border-color: #2563EB;
+    color: #2563EB;
+    background: #EFF6FF;
+  }
+
+  /* ===== Space Tabs ===== */
+  .space-tabs {
+    display: flex;
+    gap: 0;
+  }
+
+  .space-tab {
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748B;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    margin-bottom: -2px;
+  }
+
+  .space-tab.active {
+    color: #2563EB;
+    border-bottom-color: #2563EB;
+  }
+
+  .space-tab:hover:not(.active) {
+    color: #1B2A4A;
+  }
+
+  /* ===== Main Layout ===== */
+  .space-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+  }
+
+  /* ===== Panel Styles ===== */
+  .panel {
+    background: #FFFFFF;
+    border-radius: 8px;
+    border: 1px solid #D8DFE9;
+    box-shadow: 0 1px 3px rgba(27, 42, 74, 0.06);
+    overflow: hidden;
+  }
+
+  .panel + .panel {
+    margin-top: 20px;
+  }
+
+  .panel-header {
+    padding: 14px 20px;
+    background: #F8FAFC;
+    border-bottom: 2px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-header h2 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1B2A4A;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .panel-header .panel-action {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2563EB;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  .panel-header .panel-action:hover {
+    color: #1D4ED8;
+  }
+
+  .panel-body {
+    padding: 0;
+  }
+
+  .panel-footer {
+    padding: 10px 16px;
+    border-top: 1px solid #F1F5F9;
+    text-align: center;
+  }
+
+  .panel-footer a {
+    font-size: 12px;
+    font-weight: 700;
+    color: #2563EB;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .panel-footer a:hover {
+    color: #1D4ED8;
+  }
+
+  /* ===== Announcements ===== */
+  .announcement-content {
+    padding: 20px;
+  }
+
+  .announcement-content h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1B2A4A;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #E2E8F0;
+  }
+
+  .announcement-body {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.8;
+  }
+
+  .announcement-body p {
+    margin-bottom: 12px;
+  }
+
+  .announcement-body ul {
+    margin: 8px 0 12px 20px;
+  }
+
+  .announcement-body li {
+    margin-bottom: 4px;
+  }
+
+  .announcement-meta-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 12px;
+    margin-top: 12px;
+    border-top: 1px solid #F1F5F9;
+    font-size: 12px;
+    color: #94A3B8;
+    font-weight: 500;
+  }
+
+  .announcement-meta-footer .author-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .author-avatar-sm {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    background: #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  /* ===== Thread Area ===== */
+  .thread-area {
+    margin-top: 20px;
+  }
+
+  .thread-compose {
+    padding: 16px 20px;
+    border-bottom: 2px solid #E2E8F0;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .compose-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: #2563EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #FFFFFF;
+    flex-shrink: 0;
+  }
+
+  .compose-input-wrapper {
+    flex: 1;
+  }
+
+  .compose-input {
+    width: 100%;
+    min-height: 60px;
+    padding: 10px 14px;
+    border: 2px solid #E2E8F0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #1B2A4A;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .compose-input:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  .compose-input::placeholder {
+    color: #94A3B8;
+  }
+
+  .compose-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  .compose-tools {
+    display: flex;
+    gap: 4px;
+  }
+
+  .compose-tool-btn {
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 5px;
+    font-size: 13px;
+    color: #94A3B8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+
+  .compose-tool-btn:hover {
+    border-color: #2563EB;
+    color: #2563EB;
+    background: #EFF6FF;
+  }
+
+  .btn-sm {
+    height: 30px;
+    padding: 0 14px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+
+  .btn-sm-primary {
+    background: #2563EB;
+    color: #FFFFFF;
+    border: none;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-sm-primary:hover {
+    background: #1D4ED8;
+  }
+
+  /* ===== Thread Comments ===== */
+  .thread-list {
+    list-style: none;
+  }
+
+  .thread-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid #F1F5F9;
+    display: flex;
+    gap: 12px;
+  }
+
+  .thread-item:last-child {
+    border-bottom: none;
+  }
+
+  .thread-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #FFFFFF;
+    flex-shrink: 0;
+  }
+
+  .thread-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .thread-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .thread-author {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1B2A4A;
+  }
+
+  .thread-time {
+    font-size: 11px;
+    color: #94A3B8;
+    font-weight: 500;
+  }
+
+  .thread-text {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.6;
+  }
+
+  .thread-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .thread-action-btn {
+    font-size: 11px;
+    font-weight: 600;
+    color: #94A3B8;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .thread-action-btn:hover {
+    color: #2563EB;
+  }
+
+  /* ===== Right Sidebar ===== */
+  .sidebar-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Thread sidebar */
+  .sidebar-thread-list {
+    list-style: none;
+    padding: 4px 0;
+  }
+
+  .sidebar-thread-item {
+    padding: 10px 16px;
+    border-bottom: 1px solid #F1F5F9;
+    cursor: pointer;
+    transition: background 0.1s ease;
+  }
+
+  .sidebar-thread-item:last-child {
+    border-bottom: none;
+  }
+
+  .sidebar-thread-item:hover {
+    background: #F8FAFC;
+  }
+
+  .sidebar-thread-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1B2A4A;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar-thread-meta {
+    font-size: 11px;
+    color: #94A3B8;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .thread-reply-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #2563EB;
+    background: #DBEAFE;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* App list sidebar */
+  .sidebar-app-list {
+    list-style: none;
+    padding: 4px 0;
+  }
+
+  .sidebar-app-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: background 0.1s ease;
+  }
+
+  .sidebar-app-item:hover {
+    background: #F8FAFC;
+  }
+
+  .sidebar-app-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-app-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1B2A4A;
+  }
+
+  .sidebar-app-count {
+    font-size: 11px;
+    color: #94A3B8;
+    font-weight: 500;
+    margin-left: auto;
+  }
+
+  /* Members sidebar */
+  .sidebar-members {
+    padding: 12px 16px;
+  }
+
+  .members-row {
+    display: flex;
+    align-items: center;
+    gap: -4px;
+    margin-bottom: 8px;
+  }
+
+  .member-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #FFFFFF;
+    border: 2px solid #FFFFFF;
+    margin-right: -4px;
+    position: relative;
+  }
+
+  .member-avatar:hover {
+    z-index: 1;
+    transform: translateY(-1px);
+  }
+
+  .member-more {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    background: #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: #64748B;
+    border: 2px solid #FFFFFF;
+  }
+
+  .members-list-compact {
+    list-style: none;
+    margin-top: 8px;
+  }
+
+  .members-list-compact li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: #475569;
+  }
+
+  .member-avatar-xs {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .member-role {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .member-role.admin {
+    color: #2563EB;
+    background: #DBEAFE;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* Links sidebar */
+  .sidebar-links {
+    list-style: none;
+    padding: 4px 0;
+  }
+
+  .sidebar-link-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: background 0.1s ease;
+    text-decoration: none;
+  }
+
+  .sidebar-link-item:hover {
+    background: #F8FAFC;
+  }
+
+  .sidebar-link-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: #F1F5F9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #64748B;
+    flex-shrink: 0;
+  }
+
+  .sidebar-link-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2563EB;
+  }
+
+  .sidebar-link-text:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Global Header ===== -->
+<header class="global-header">
+  <div class="header-logo">
+    <span class="logo-icon">O</span>
+    OpenDesk
+  </div>
+  <nav class="header-nav">
+    <a href="#">ポータル</a>
+    <a href="#" class="active">スペース</a>
+    <a href="#">アプリ</a>
+    <a href="#">ピープル</a>
+    <a href="#">管理</a>
+  </nav>
+  <div class="header-right">
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" placeholder="アプリ、スペース、ユーザーを検索...">
+    </div>
+    <button class="header-notifications">
+      &#128276;
+      <span class="notification-badge">5</span>
+    </button>
+    <div class="header-avatar">田中</div>
+  </div>
+</header>
+
+<!-- ===== Breadcrumb ===== -->
+<div class="breadcrumb-bar">
+  <nav class="breadcrumb">
+    <a href="#">ポータル</a>
+    <span class="separator">&#9656;</span>
+    <a href="#">スペース一覧</a>
+    <span class="separator">&#9656;</span>
+    <span class="current">営業部</span>
+  </nav>
+</div>
+
+<!-- ===== Space Header ===== -->
+<div class="space-header">
+  <div class="space-header-top">
+    <div class="space-header-left">
+      <div class="space-avatar">営</div>
+      <div class="space-title-block">
+        <h1>営業部</h1>
+        <div class="space-title-meta">
+          <span>24人のメンバー</span>
+          <span class="meta-dot"></span>
+          <span>作成日: 2025年1月15日</span>
+          <span class="meta-dot"></span>
+          <span>公開スペース</span>
+        </div>
+      </div>
+    </div>
+    <div class="space-header-right">
+      <button class="btn-primary">+ 投稿する</button>
+      <button class="btn-secondary">&#128101; メンバー管理</button>
+      <button class="btn-secondary">&#9881; 設定</button>
+    </div>
+  </div>
+  <div class="space-tabs">
+    <button class="space-tab active">ディスカッション</button>
+    <button class="space-tab">お知らせ</button>
+    <button class="space-tab">ファイル</button>
+    <button class="space-tab">アプリ</button>
+  </div>
+</div>
+
+<!-- ===== Main Content ===== -->
+<main class="space-content">
+
+  <!-- Left Column -->
+  <div class="left-content">
+
+    <!-- Announcement Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>&#128227; お知らせ</h2>
+        <a class="panel-action">編集</a>
+      </div>
+      <div class="panel-body">
+        <div class="announcement-content">
+          <h3>2026年度 Q1 営業目標と重点施策について</h3>
+          <div class="announcement-body">
+            <p>営業部の皆さん、新年度のスタートにあたり、Q1の営業目標と重点施策を共有いたします。</p>
+            <p><strong>Q1 売上目標：</strong>3億2,000万円（前年同期比 115%）</p>
+            <ul>
+              <li>新規顧客開拓：月間10社以上のアポイント獲得</li>
+              <li>既存顧客のアップセル：上位プランへの移行促進</li>
+              <li>大型案件（1,000万円以上）：3件以上のクロージング</li>
+              <li>顧客満足度スコア：4.5以上の維持</li>
+            </ul>
+            <p>各チームリーダーは4月10日（金）までに、個別のアクションプランを提出してください。不明点があれば部長の佐藤まで直接ご連絡ください。</p>
+          </div>
+          <div class="announcement-meta-footer">
+            <div class="author-info">
+              <span class="author-avatar-sm">佐</span>
+              <span>佐藤 健太（部長）</span>
+            </div>
+            <span>2026年4月1日 09:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thread / Discussion Area -->
+    <div class="panel thread-area">
+      <div class="panel-header">
+        <h2>&#128172; ディスカッション</h2>
+        <a class="panel-action">最新順</a>
+      </div>
+      <div class="panel-body">
+        <!-- Compose -->
+        <div class="thread-compose">
+          <div class="compose-avatar">田</div>
+          <div class="compose-input-wrapper">
+            <textarea class="compose-input" placeholder="メッセージを入力してください..."></textarea>
+            <div class="compose-actions">
+              <div class="compose-tools">
+                <button class="compose-tool-btn" title="ファイル添付">&#128206;</button>
+                <button class="compose-tool-btn" title="メンション">@</button>
+                <button class="compose-tool-btn" title="絵文字">&#128578;</button>
+              </div>
+              <button class="btn-sm btn-sm-primary">投稿する</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thread Items -->
+        <ul class="thread-list">
+          <li class="thread-item">
+            <div class="thread-avatar" style="background: #059669;">鈴</div>
+            <div class="thread-body">
+              <div class="thread-header">
+                <span class="thread-author">鈴木 一郎</span>
+                <span class="thread-time">30分前</span>
+              </div>
+              <div class="thread-text">
+                来週の大阪出張について、関西メディカル様との商談資料を共有フォルダにアップしました。事前にご確認いただけると助かります。特に競合他社との比較表を更新していますので、フィードバックをお願いします。
+              </div>
+              <div class="thread-actions">
+                <button class="thread-action-btn">&#128172; 返信 (2)</button>
+                <button class="thread-action-btn">&#128077; いいね (4)</button>
+              </div>
+            </div>
+          </li>
+          <li class="thread-item">
+            <div class="thread-avatar" style="background: #7C3AED;">高</div>
+            <div class="thread-body">
+              <div class="thread-header">
+                <span class="thread-author">高橋 美咲</span>
+                <span class="thread-time">2時間前</span>
+              </div>
+              <div class="thread-text">
+                株式会社東京テクノロジーズ様から追加の見積もり依頼がありました。オプションサービスを含めた提案書を作成中です。@佐藤健太 部長、金額レンジについて相談させてください。
+              </div>
+              <div class="thread-actions">
+                <button class="thread-action-btn">&#128172; 返信 (5)</button>
+                <button class="thread-action-btn">&#128077; いいね (2)</button>
+              </div>
+            </div>
+          </li>
+          <li class="thread-item">
+            <div class="thread-avatar" style="background: #EA580C;">渡</div>
+            <div class="thread-body">
+              <div class="thread-header">
+                <span class="thread-author">渡辺 健太</span>
+                <span class="thread-time">4時間前</span>
+              </div>
+              <div class="thread-text">
+                先週の展示会でいただいた名刺情報をCRMに入力しました。52件の新規リードを追加しています。優先度の高い案件はフラグを立てていますので、各担当にてフォローをお願いします。
+              </div>
+              <div class="thread-actions">
+                <button class="thread-action-btn">&#128172; 返信 (8)</button>
+                <button class="thread-action-btn">&#128077; いいね (12)</button>
+              </div>
+            </div>
+          </li>
+          <li class="thread-item">
+            <div class="thread-avatar" style="background: #2563EB;">佐</div>
+            <div class="thread-body">
+              <div class="thread-header">
+                <span class="thread-author">佐藤 健太</span>
+                <span class="thread-time">昨日</span>
+              </div>
+              <div class="thread-text">
+                来月の営業会議の日程を調整中です。4月18日（金）14:00〜16:00を第一候補としていますが、ご都合いかがでしょうか。出欠をこのスレッドで返信してください。
+              </div>
+              <div class="thread-actions">
+                <button class="thread-action-btn">&#128172; 返信 (15)</button>
+                <button class="thread-action-btn">&#128077; いいね (6)</button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Sidebar -->
+  <div class="sidebar-panels">
+
+    <!-- Threads Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>&#128196; スレッド</h2>
+        <a class="panel-action">すべて表示</a>
+      </div>
+      <div class="panel-body">
+        <ul class="sidebar-thread-list">
+          <li class="sidebar-thread-item">
+            <div class="sidebar-thread-title">大阪出張 商談資料について</div>
+            <div class="sidebar-thread-meta">
+              鈴木 一郎 &bull; 30分前
+              <span class="thread-reply-count">&#128172; 2</span>
+            </div>
+          </li>
+          <li class="sidebar-thread-item">
+            <div class="sidebar-thread-title">東京テクノロジーズ見積もり相談</div>
+            <div class="sidebar-thread-meta">
+              高橋 美咲 &bull; 2時間前
+              <span class="thread-reply-count">&#128172; 5</span>
+            </div>
+          </li>
+          <li class="sidebar-thread-item">
+            <div class="sidebar-thread-title">展示会リードのフォローアップ</div>
+            <div class="sidebar-thread-meta">
+              渡辺 健太 &bull; 4時間前
+              <span class="thread-reply-count">&#128172; 8</span>
+            </div>
+          </li>
+          <li class="sidebar-thread-item">
+            <div class="sidebar-thread-title">4月営業会議の日程調整</div>
+            <div class="sidebar-thread-meta">
+              佐藤 健太 &bull; 昨日
+              <span class="thread-reply-count">&#128172; 15</span>
+            </div>
+          </li>
+          <li class="sidebar-thread-item">
+            <div class="sidebar-thread-title">新規プロダクトの営業資料レビュー</div>
+            <div class="sidebar-thread-meta">
+              中村 さくら &bull; 2日前
+              <span class="thread-reply-count">&#128172; 7</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="panel-footer">
+        <a href="#">すべてのスレッド &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Apps Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>&#128187; アプリ</h2>
+        <a class="panel-action">追加</a>
+      </div>
+      <div class="panel-body">
+        <ul class="sidebar-app-list">
+          <li class="sidebar-app-item">
+            <span class="sidebar-app-icon" style="background: #DBEAFE; color: #2563EB;">&#128100;</span>
+            <span class="sidebar-app-name">顧客管理</span>
+            <span class="sidebar-app-count">1,248件</span>
+          </li>
+          <li class="sidebar-app-item">
+            <span class="sidebar-app-icon" style="background: #D1FAE5; color: #059669;">&#128176;</span>
+            <span class="sidebar-app-name">売上管理</span>
+            <span class="sidebar-app-count">856件</span>
+          </li>
+          <li class="sidebar-app-item">
+            <span class="sidebar-app-icon" style="background: #FED7AA; color: #EA580C;">&#128203;</span>
+            <span class="sidebar-app-name">案件管理</span>
+            <span class="sidebar-app-count">342件</span>
+          </li>
+          <li class="sidebar-app-item">
+            <span class="sidebar-app-icon" style="background: #F3E8FF; color: #7C3AED;">&#128197;</span>
+            <span class="sidebar-app-name">活動報告</span>
+            <span class="sidebar-app-count">1,520件</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Members Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>&#128101; メンバー</h2>
+        <a class="panel-action">管理</a>
+      </div>
+      <div class="panel-body">
+        <div class="sidebar-members">
+          <div class="members-row">
+            <div class="member-avatar" style="background: #2563EB;">佐</div>
+            <div class="member-avatar" style="background: #059669;">鈴</div>
+            <div class="member-avatar" style="background: #7C3AED;">高</div>
+            <div class="member-avatar" style="background: #EA580C;">渡</div>
+            <div class="member-avatar" style="background: #DC2626;">中</div>
+            <div class="member-avatar" style="background: #0284C7;">山</div>
+            <div class="member-avatar" style="background: #475569;">田</div>
+            <div class="member-more">+17</div>
+          </div>
+          <ul class="members-list-compact">
+            <li>
+              <span class="member-avatar-xs" style="background: #2563EB;">佐</span>
+              佐藤 健太
+              <span class="member-role admin">管理者</span>
+            </li>
+            <li>
+              <span class="member-avatar-xs" style="background: #059669;">鈴</span>
+              鈴木 一郎
+              <span class="member-role">メンバー</span>
+            </li>
+            <li>
+              <span class="member-avatar-xs" style="background: #7C3AED;">高</span>
+              高橋 美咲
+              <span class="member-role">メンバー</span>
+            </li>
+            <li>
+              <span class="member-avatar-xs" style="background: #EA580C;">渡</span>
+              渡辺 健太
+              <span class="member-role">メンバー</span>
+            </li>
+            <li>
+              <span class="member-avatar-xs" style="background: #DC2626;">中</span>
+              中村 さくら
+              <span class="member-role">メンバー</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <a href="#">全メンバーを見る (24人) &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Related Links Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>&#128279; 関連リンク</h2>
+        <a class="panel-action">追加</a>
+      </div>
+      <div class="panel-body">
+        <ul class="sidebar-links">
+          <li class="sidebar-link-item">
+            <span class="sidebar-link-icon">&#128196;</span>
+            <span class="sidebar-link-text">営業マニュアル 2026年版</span>
+          </li>
+          <li class="sidebar-link-item">
+            <span class="sidebar-link-icon">&#128202;</span>
+            <span class="sidebar-link-text">Q1 売上ダッシュボード</span>
+          </li>
+          <li class="sidebar-link-item">
+            <span class="sidebar-link-icon">&#128194;</span>
+            <span class="sidebar-link-text">提案書テンプレート集</span>
+          </li>
+          <li class="sidebar-link-item">
+            <span class="sidebar-link-icon">&#127891;</span>
+            <span class="sidebar-link-text">営業研修 eラーニング</span>
+          </li>
+          <li class="sidebar-link-item">
+            <span class="sidebar-link-icon">&#128197;</span>
+            <span class="sidebar-link-text">営業部 共有カレンダー</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

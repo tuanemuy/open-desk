@@ -4,6 +4,10 @@ import {
   createMockHeaders,
   setupTestContainer,
 } from "@/core/application/__tests__/helpers";
+import {
+  FieldCode as FieldCodeVO,
+  FieldSize,
+} from "@/core/domain/app/valueObject";
 import { BusinessRuleError } from "@/core/domain/error";
 import { NotFoundError } from "../error";
 import { addField } from "./addField";
@@ -43,7 +47,7 @@ describe("updateFormLayout", () => {
     const container = getContainer();
     await seedUser(container.db);
     await seedApp(container.db, { id: "app-1" });
-    const field = await addField({
+    const _field = await addField({
       container,
       headers: headers(),
       input: {
@@ -55,7 +59,13 @@ describe("updateFormLayout", () => {
         unique: null,
         noLabel: null,
         defaultValue: null,
-        properties: {},
+        properties: {
+          type: "SINGLE_LINE_TEXT" as const,
+          expression: null,
+          hideExpression: false,
+          minLength: null,
+          maxLength: null,
+        },
         layoutPosition: null,
         creatorId: "user-1",
       },
@@ -69,7 +79,19 @@ describe("updateFormLayout", () => {
           {
             type: "ROW",
             code: null,
-            fields: [{ code: "f_a", size: "NORMAL" }],
+            fields: [
+              {
+                type: "SINGLE_LINE_TEXT" as const,
+                code: FieldCodeVO.create("f_a"),
+                label: null,
+                elementId: null,
+                size: FieldSize.create({
+                  width: null,
+                  height: null,
+                  innerHeight: null,
+                }),
+              },
+            ],
             innerLayout: null,
           },
         ],

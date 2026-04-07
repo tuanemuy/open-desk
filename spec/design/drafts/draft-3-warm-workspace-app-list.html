@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk - 顧客リスト（Warm Workspace）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #F5F0E8;
+    color: #4A4541;
+    min-width: 1200px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========== Header ========== */
+  .header {
+    background: #FFFCF7;
+    border-bottom: 1px solid #E8E0D4;
+    box-shadow: 0 1px 4px rgba(74, 69, 65, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    height: 60px;
+    gap: 32px;
+  }
+
+  .logo {
+    font-size: 22px;
+    font-weight: 800;
+    color: #7C5B3A;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #D97706, #B45309);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .nav a {
+    text-decoration: none;
+    color: #6B6560;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+  }
+
+  .nav a:hover {
+    background: #F5F0E8;
+    color: #4A4541;
+  }
+
+  .nav a.active {
+    background: #D97706;
+    color: white;
+  }
+
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-search {
+    position: relative;
+  }
+
+  .header-search input {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    padding: 7px 14px 7px 36px;
+    border: 1px solid #E0D8CC;
+    border-radius: 20px;
+    background: #FBF8F3;
+    color: #4A4541;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .header-search input::placeholder {
+    color: #A89F94;
+  }
+
+  .header-search input:focus {
+    border-color: #D97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+  }
+
+  .header-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #A89F94;
+    font-size: 14px;
+  }
+
+  .notification-bell {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #FBF8F3;
+    border: 1px solid #E0D8CC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    font-size: 16px;
+    color: #6B6560;
+  }
+
+  .notification-bell:hover {
+    background: #F5F0E8;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #D97706;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #FFFCF7;
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D97706, #B45309);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ========== Breadcrumb ========== */
+  .breadcrumb-bar {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .breadcrumb-bar a {
+    color: #A89F94;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+
+  .breadcrumb-bar a:hover {
+    color: #D97706;
+  }
+
+  .breadcrumb-sep {
+    color: #C4BDB3;
+    font-size: 11px;
+  }
+
+  .breadcrumb-current {
+    color: #4A4541;
+    font-weight: 700;
+  }
+
+  /* ========== App Header ========== */
+  .app-header {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .app-title-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .app-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #D97706, #B45309);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: white;
+  }
+
+  .app-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #4A4541;
+  }
+
+  .app-record-count {
+    font-size: 13px;
+    color: #A89F94;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* ========== Toolbar ========== */
+  .toolbar {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: #D97706;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #B45309;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
+  }
+
+  .btn-secondary {
+    background: #FFFCF7;
+    color: #6B6560;
+    border: 1px solid #E0D8CC;
+  }
+
+  .btn-secondary:hover {
+    background: #F5F0E8;
+    border-color: #D4CBBD;
+  }
+
+  .toolbar-search {
+    position: relative;
+  }
+
+  .toolbar-search input {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    padding: 8px 14px 8px 36px;
+    border: 1px solid #E0D8CC;
+    border-radius: 20px;
+    background: #FFFCF7;
+    color: #4A4541;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .toolbar-search input::placeholder {
+    color: #A89F94;
+  }
+
+  .toolbar-search input:focus {
+    border-color: #D97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+  }
+
+  .toolbar-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #A89F94;
+    font-size: 14px;
+  }
+
+  .view-toggle {
+    display: flex;
+    background: #FFFCF7;
+    border: 1px solid #E0D8CC;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .view-toggle button {
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border: none;
+    background: transparent;
+    color: #A89F94;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .view-toggle button.active {
+    background: #D97706;
+    color: white;
+  }
+
+  .view-toggle button:hover:not(.active) {
+    color: #4A4541;
+    background: #F5F0E8;
+  }
+
+  /* ========== Table ========== */
+  .table-wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px 48px;
+  }
+
+  .table-card {
+    background: #FFFCF7;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(74, 69, 65, 0.06), 0 1px 2px rgba(74, 69, 65, 0.04);
+    border: 1px solid #EDE7DC;
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    color: #8C847A;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 14px 18px;
+    background: #FAF6EE;
+    border-bottom: 1px solid #EDE7DC;
+    white-space: nowrap;
+    position: sticky;
+    top: 60px;
+  }
+
+  thead th:first-child {
+    padding-left: 22px;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #F0EAE0;
+    transition: background 0.15s;
+  }
+
+  tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: #FBF6EE;
+  }
+
+  tbody td {
+    font-size: 14px;
+    padding: 14px 18px;
+    color: #4A4541;
+    vertical-align: middle;
+  }
+
+  tbody td:first-child {
+    padding-left: 22px;
+  }
+
+  .checkbox-cell {
+    width: 44px;
+  }
+
+  .checkbox-cell input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #D97706;
+    cursor: pointer;
+  }
+
+  .customer-name {
+    font-weight: 700;
+    color: #4A4541;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .customer-name:hover {
+    color: #D97706;
+  }
+
+  .status-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 10px;
+    display: inline-block;
+  }
+
+  .status-active {
+    background: #E8F0E8;
+    color: #5B8C5A;
+  }
+
+  .status-negotiating {
+    background: #FEF0CD;
+    color: #B45309;
+  }
+
+  .status-prospect {
+    background: #E0EDF7;
+    color: #4A7FA8;
+  }
+
+  .status-inactive {
+    background: #EDE7DC;
+    color: #8C847A;
+  }
+
+  .row-actions {
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  tbody tr:hover .row-actions {
+    opacity: 1;
+  }
+
+  .row-action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid #E0D8CC;
+    background: #FFFCF7;
+    color: #8C847A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+
+  .row-action-btn:hover {
+    border-color: #D97706;
+    color: #D97706;
+    background: #FEF8EC;
+  }
+
+  /* ========== Pagination ========== */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    border-top: 1px solid #EDE7DC;
+    background: #FAF6EE;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .pagination-info {
+    font-size: 13px;
+    color: #8C847A;
+    font-weight: 600;
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .page-btn {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #6B6560;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .page-btn:hover {
+    background: #F0EAE0;
+  }
+
+  .page-btn.active {
+    background: #D97706;
+    color: white;
+  }
+
+  .page-btn.nav-btn {
+    border: 1px solid #E0D8CC;
+    background: #FFFCF7;
+  }
+
+  .page-btn.nav-btn:hover {
+    border-color: #D97706;
+    color: #D97706;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== Header ==================== -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">O</div>
+      OpenDesk
+    </div>
+
+    <nav class="nav">
+      <a href="#">ポータル</a>
+      <a href="#">スペース</a>
+      <a href="#" class="active">アプリ</a>
+      <a href="#">メッセージ</a>
+      <a href="#">管理</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">&#128269;</span>
+        <input type="text" placeholder="検索...">
+      </div>
+      <div class="notification-bell">
+        &#128276;
+        <span class="notification-badge">5</span>
+      </div>
+      <div class="user-avatar">田</div>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== Breadcrumb ==================== -->
+<div class="breadcrumb-bar">
+  <a href="#">ポータル</a>
+  <span class="breadcrumb-sep">&#9656;</span>
+  <a href="#">アプリ</a>
+  <span class="breadcrumb-sep">&#9656;</span>
+  <span class="breadcrumb-current">顧客管理</span>
+</div>
+
+<!-- ==================== App Header ==================== -->
+<div class="app-header">
+  <div class="app-title-area">
+    <div class="app-icon">&#128203;</div>
+    <div>
+      <div class="app-title">顧客管理</div>
+      <div class="app-record-count">全 247 件のレコード</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== Toolbar ==================== -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <button class="btn btn-primary">&#43; レコード追加</button>
+    <button class="btn btn-secondary">&#128229; インポート</button>
+    <button class="btn btn-secondary">&#128228; エクスポート</button>
+    <button class="btn btn-secondary">&#128514; 絞り込み</button>
+  </div>
+  <div class="toolbar-right">
+    <div class="toolbar-search">
+      <span class="toolbar-search-icon">&#128269;</span>
+      <input type="text" placeholder="顧客名・会社名で検索...">
+    </div>
+    <div class="view-toggle">
+      <button class="active">一覧</button>
+      <button>カード</button>
+      <button>グラフ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== Table ==================== -->
+<div class="table-wrap">
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th class="checkbox-cell"><input type="checkbox"></th>
+          <th>顧客名</th>
+          <th>会社名</th>
+          <th>部署・役職</th>
+          <th>電話番号</th>
+          <th>ステータス</th>
+          <th>最終更新</th>
+          <th>担当者</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td><span class="customer-name">佐藤 一郎</span></td>
+          <td>株式会社テクノソリューション</td>
+          <td>営業部 部長</td>
+          <td>03-1234-5678</td>
+          <td><span class="status-badge status-active">取引中</span></td>
+          <td>2026/04/07</td>
+          <td>田中 太郎</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action-btn" title="編集">&#9998;</button>
+              <button class="row-action-btn" title="詳細">&#8943;</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td><span class="customer-name">鈴木 花子</span></td>
+          <td>グローバルメディア株式会社</td>
+          <td>マーケティング部 課長</td>
+          <td>06-9876-5432</td>
+          <td><span class="status-badge status-active">取引中</span></td>
+          <td>2026/04/06</td>
+          <td>山本 花子</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action-btn" title="編集">&#9998;</button>
+              <button class="row-action-btn" title="詳細">&#8943;</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td><span class="customer-name">高橋 健太</span></td>
+          <td>株式会社ネクストイノベーション</td>
+          <td>代表取締役</td>
+          <td>03-2468-1357</td>
+          <td><span class="status-badge status-negotiating">商談中</span></td>
+          <td>2026/04/06</td>
+          <td>田中 太郎</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action-btn" title="編集">&#9998;</button>
+              <button class="row-action-btn" title="詳細">&#8943;</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td><span class="customer-name">渡辺 美紀</span></td>
+          <td>サクラ建設株式会社</td>
+          <td>総務部 主任</td>
+          <td>045-111-2222</td>
+          <td><span class="status-badge status-active">取引中</span></td>
+          <td>2026/04/05</td>
+          <td>佐々木 大輔</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action-btn" title="編集">&#9998;</button>
+              <button class="row-action-btn" title="詳細">&#8943;</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td><span class="customer-name">伊藤 大輔</span></td>
+          <td>フューチャーデザイン合同会社</td>
+          <td>企画部 マネージャー</td>
+          <td>03-3333-4444</td>
+          <td><span class="status-badge status-negotiating">商談中</span></td>
+          <td>2026/04/05</td>
+          <td>山本 花子</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action-btn" title="編集">&#9998;</button>
+              <button class="row-action-btn" title="詳細">&#8943;</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td><span class="customer-name">小林 真由美</span></td>
+          <td>株式会社オーシャントレード</td>
+          <td>経理部 部長</td>
+          <td>06-5555-6666</td>
+          <td><span class="status-badge status-prospect">見込み</span></td>
+          <td>2026/04/04</td>
+          <td>渡辺 誠</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action-btn" title="編集">&#9998;</button>
+              <button class="row-action-btn" title="詳細">&#8943;</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td><span class="customer-name">中村 翔</span></td>
+          <td>ライズコンサルティング株式会社</td>
+          <td>コンサルタント</td>
+          <td>03-7777-8888</td>
+          <td><span class="status-badge status-active">取引中</span></td>
+          <td>2026/04/03</td>
+          <td>田中 太郎</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action-btn" title="編集">&#9998;</button>
+              <button class="row-action-btn" title="詳細">&#8943;</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td><span class="customer-name">山口 理恵</span></td>
+          <td>株式会社ヒカリ製作所</td>
+          <td>製造部 係長</td>
+          <td>052-9999-0000</td>
+          <td><span class="status-badge status-inactive">休止中</span></td>
+          <td>2026/04/02</td>
+          <td>佐々木 大輔</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action-btn" title="編集">&#9998;</button>
+              <button class="row-action-btn" title="詳細">&#8943;</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td><span class="customer-name">松本 雄太</span></td>
+          <td>デジタルフロンティア株式会社</td>
+          <td>開発部 リーダー</td>
+          <td>03-1111-2222</td>
+          <td><span class="status-badge status-negotiating">商談中</span></td>
+          <td>2026/04/01</td>
+          <td>山本 花子</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action-btn" title="編集">&#9998;</button>
+              <button class="row-action-btn" title="詳細">&#8943;</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td><span class="customer-name">吉田 明日香</span></td>
+          <td>株式会社グリーンフィールド</td>
+          <td>人事部 課長</td>
+          <td>06-3333-4444</td>
+          <td><span class="status-badge status-prospect">見込み</span></td>
+          <td>2026/03/31</td>
+          <td>渡辺 誠</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action-btn" title="編集">&#9998;</button>
+              <button class="row-action-btn" title="詳細">&#8943;</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span class="pagination-info">1 - 10 件 / 全 247 件</span>
+      <div class="pagination-controls">
+        <button class="page-btn nav-btn">&laquo; 前へ</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">...</button>
+        <button class="page-btn">25</button>
+        <button class="page-btn nav-btn">次へ &raquo;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

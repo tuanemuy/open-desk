@@ -81,7 +81,9 @@ export type RawActionHandler<TData = undefined> = {
  * ここでの `any` が利用側に漏洩することはない。
  */
 export type ActionHandler =
+  // biome-ignore lint/suspicious/noExplicitAny: see above
   | ValidatedActionHandler<z.ZodTypeAny, any>
+  // biome-ignore lint/suspicious/noExplicitAny: see above
   | RawActionHandler<any>;
 
 // ============================================================
@@ -191,6 +193,7 @@ export type CompositeError<TIntent extends string = string> =
 
 /** ハンドラーから TData を抽出する */
 type InferHandlerData<T extends ActionHandler> =
+  // biome-ignore lint/suspicious/noExplicitAny: required for conditional type inference
   T extends ValidatedActionHandler<any, infer D>
     ? D
     : T extends RawActionHandler<infer D>
@@ -279,6 +282,7 @@ export async function createCompositeAction<
     throw new Response(`Unknown intent: "${intent}"`, { status: 400 });
   }
 
+  // biome-ignore lint/style/noNonNullAssertion: intent is verified to exist in handlers on line 278
   const def = handlers[intent]!;
   let result: ActionResult<unknown>;
   let source: ErrorSource | "handler";
@@ -398,9 +402,13 @@ export function useCompositeAction<
   // 型安全性は onDone のシグネチャ（Callbacks<I>）で担保する。
   // Map 内部では any で保持し、dispatch 時にキャストする。
   interface InternalCallbacks {
+    // biome-ignore lint/suspicious/noExplicitAny: type safety ensured by Callbacks<I> at registration
     onSuccess?: (data: any) => void;
+    // biome-ignore lint/suspicious/noExplicitAny: type safety ensured by Callbacks<I> at registration
     onValidationError?: (data: any) => void;
+    // biome-ignore lint/suspicious/noExplicitAny: type safety ensured by Callbacks<I> at registration
     onHandlerError?: (data: any) => void;
+    // biome-ignore lint/suspicious/noExplicitAny: type safety ensured by Callbacks<I> at registration
     onError?: (data: any) => void;
   }
 

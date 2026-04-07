@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as schema from "@/core/adapters/drizzleSqlite/schema";
 import {
   createMockHeaders,

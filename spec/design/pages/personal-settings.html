@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>個人設定 - OpenDesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary-lighter: oklch(0.95 0.03 250);
+      --color-primary-light: oklch(0.82 0.07 250);
+      --color-primary: oklch(0.65 0.12 250);
+      --color-primary-dark: oklch(0.52 0.12 250);
+      --color-primary-darker: oklch(0.40 0.12 250);
+      --color-accent: oklch(0.65 0.15 270);
+      --color-accent-light: oklch(0.90 0.05 270);
+      --color-neutral-50: oklch(0.98 0.002 250);
+      --color-neutral-100: oklch(0.96 0.004 250);
+      --color-neutral-150: oklch(0.94 0.004 250);
+      --color-neutral-200: oklch(0.92 0.005 250);
+      --color-neutral-300: oklch(0.86 0.008 250);
+      --color-neutral-400: oklch(0.72 0.015 250);
+      --color-neutral-500: oklch(0.60 0.02 250);
+      --color-neutral-600: oklch(0.50 0.02 250);
+      --color-neutral-700: oklch(0.40 0.02 250);
+      --color-neutral-800: oklch(0.30 0.02 250);
+      --color-neutral-900: oklch(0.20 0.02 250);
+      --color-success: oklch(0.60 0.15 155);
+      --color-success-light: oklch(0.95 0.04 155);
+      --color-warning: oklch(0.75 0.15 80);
+      --color-warning-light: oklch(0.95 0.05 80);
+      --color-error: oklch(0.60 0.20 25);
+      --color-error-light: oklch(0.95 0.04 25);
+      --color-info: oklch(0.65 0.12 250);
+      --color-info-light: oklch(0.95 0.03 250);
+      --color-bg-page: oklch(0.98 0.002 250);
+      --color-bg-card: oklch(1.0 0 0);
+      --color-bg-section: oklch(0.96 0.004 250);
+      --color-bg-header: oklch(1.0 0 0);
+      --color-on-primary: oklch(1.0 0 0);
+      --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --text-xs: clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);
+      --text-sm: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
+      --text-base: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+      --text-lg: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --text-xl: clamp(1.125rem, 1.05rem + 0.2vw, 1.25rem);
+      --text-2xl: clamp(1.375rem, 1.25rem + 0.3vw, 1.5rem);
+      --text-3xl: clamp(1.75rem, 1.6rem + 0.4vw, 2rem);
+      --weight-normal: 400;
+      --weight-medium: 500;
+      --weight-semibold: 600;
+      --leading-tight: 1.3;
+      --leading-normal: 1.6;
+      --leading-relaxed: 1.8;
+      --tracking-tight: -0.02em;
+      --tracking-normal: 0;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-section: 48px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px oklch(0.20 0 0 / 0.04);
+      --shadow-md: 0 2px 8px oklch(0.20 0 0 / 0.06);
+      --shadow-lg: 0 4px 16px oklch(0.20 0 0 / 0.08);
+      --transition-fast: 0.1s ease;
+      --transition-default: 0.15s ease;
+      --transition-slow: 0.25s ease;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      line-height: var(--leading-normal);
+      color: var(--color-neutral-800);
+      background-color: var(--color-bg-page);
+      min-height: 100vh;
+    }
+
+    /* ========== Global Header ========== */
+    .global-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: var(--color-bg-header);
+      border-bottom: 1px solid var(--color-neutral-200);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-normal);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-neutral-800);
+      text-decoration: none;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .logo strong {
+      font-weight: var(--weight-semibold);
+      color: var(--color-primary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .header-nav a {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      text-decoration: none;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .header-nav a:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .header-nav a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .header-nav a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .search-input {
+      height: 34px;
+      width: 240px;
+      padding: 0 var(--space-md);
+      padding-left: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      outline: none;
+      transition: border-color var(--transition-default), background-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .search-input:hover {
+      background: var(--color-bg-card);
+      border-color: var(--color-neutral-300);
+    }
+
+    .search-input:focus {
+      background: var(--color-bg-card);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary-darker);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      transition: box-shadow var(--transition-default);
+      border: 1px solid var(--color-neutral-200);
+    }
+
+    .user-avatar:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== Page Layout ===== */
+    .page-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-xl) var(--space-xl) var(--space-3xl);
+    }
+
+    .page-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* ===== Two Column Layout ===== */
+    .settings-layout {
+      display: flex;
+      gap: var(--space-lg);
+      align-items: flex-start;
+    }
+
+    /* ===== Settings Sidebar ===== */
+    .settings-sidebar {
+      width: 220px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md) 0;
+    }
+
+    .sidebar-section-label {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: var(--space-sm) var(--space-lg);
+      margin-bottom: var(--space-xs);
+    }
+
+    .sidebar-nav {
+      list-style: none;
+    }
+
+    .sidebar-nav li a {
+      display: block;
+      padding: var(--space-sm) var(--space-lg);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-normal);
+      color: var(--color-neutral-700);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: color var(--transition-default), background-color var(--transition-default), border-color var(--transition-default);
+    }
+
+    .sidebar-nav li a:hover {
+      color: var(--color-neutral-900);
+      background: var(--color-neutral-50);
+    }
+
+    .sidebar-nav li a.active {
+      color: var(--color-primary);
+      font-weight: var(--weight-medium);
+      background: var(--color-primary-lighter);
+      border-left-color: var(--color-primary);
+    }
+
+    .sidebar-nav li a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ===== Settings Main ===== */
+    .settings-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .settings-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+    }
+
+    .settings-section-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      line-height: var(--leading-tight);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-md);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    /* ===== Radio Group ===== */
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      cursor: pointer;
+    }
+
+    .radio-item input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .radio-item label {
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      cursor: pointer;
+      user-select: none;
+      line-height: var(--leading-normal);
+    }
+
+    .radio-item label .example {
+      color: var(--color-neutral-500);
+      font-size: var(--text-sm);
+    }
+
+    /* ===== Buttons ===== */
+    .btn-primary {
+      height: 38px;
+      padding: 0 var(--space-xl);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-on-primary);
+      background: var(--color-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-primary:active {
+      background: var(--color-primary-darker);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Header -->
+  <header class="global-header">
+    <div class="header-inner">
+      <a href="#" class="logo">Open<strong>Desk</strong></a>
+      <nav class="header-nav">
+        <a href="#">ポータル</a>
+        <a href="#">通知</a>
+        <a href="#">ブックマーク</a>
+      </nav>
+      <div class="header-right">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="search-input" placeholder="全体検索">
+        </div>
+        <div class="user-avatar" title="山田 太郎">山</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <div class="page-wrapper">
+
+    <h2 class="page-title">個人設定</h2>
+
+    <!-- Two Column Layout -->
+    <div class="settings-layout">
+
+      <!-- Left Sidebar: Navigation -->
+      <aside class="settings-sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-section-label">OpenDesk の設定</div>
+          <ul class="sidebar-nav">
+            <li><a href="#">各アプリの設定</a></li>
+            <li><a href="#" class="active">時刻表記</a></li>
+            <li><a href="#">メール通知</a></li>
+            <li><a href="#">デスクトップ通知</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Main: Settings Content -->
+      <main class="settings-main">
+        <div class="settings-card">
+          <h3 class="settings-section-title">時刻表記</h3>
+
+          <fieldset style="border: none; padding: 0; margin: 0;">
+            <legend style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);">時刻の表示形式を選択してください</legend>
+            <div class="radio-group">
+              <div class="radio-item">
+                <input type="radio" id="time-12h" name="time-format" value="12h">
+                <label for="time-12h">12時間表記 <span class="example">（例：午後5:00）</span></label>
+              </div>
+              <div class="radio-item">
+                <input type="radio" id="time-24h" name="time-format" value="24h" checked>
+                <label for="time-24h">24時間表記 <span class="example">（例：17:00）</span></label>
+              </div>
+            </div>
+          </fieldset>
+
+          <button class="btn-primary" type="button">保存</button>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+</body>
+</html>

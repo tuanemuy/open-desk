@@ -51,7 +51,7 @@ describe("queryRecords", () => {
       input: {
         appId: "app-1",
         fieldValues: new Map([
-          ["f", { type: "SINGLE_LINE_TEXT", value: "v1" }],
+          ["f", { type: "SINGLE_LINE_TEXT" as const, value: "v1" }],
         ]),
         creatorId: "user-1",
       },
@@ -62,7 +62,7 @@ describe("queryRecords", () => {
       input: {
         appId: "app-1",
         fieldValues: new Map([
-          ["f", { type: "SINGLE_LINE_TEXT", value: "v2" }],
+          ["f", { type: "SINGLE_LINE_TEXT" as const, value: "v2" }],
         ]),
         creatorId: "user-1",
       },
@@ -72,7 +72,12 @@ describe("queryRecords", () => {
       headers: headers(),
       input: {
         appId: "app-1",
-        executionContext: { currentUser: "user-1", now: new Date() },
+        executionContext: {
+          loginUserId: "user-1",
+          loginUserCode: "login-user-1",
+          primaryOrganizationCode: null,
+          now: new Date(),
+        },
       },
     });
     expect(result.records.length).toBeGreaterThanOrEqual(2);
@@ -104,7 +109,7 @@ describe("queryRecords", () => {
       input: {
         appId: "app-1",
         fieldValues: new Map([
-          ["f", { type: "SINGLE_LINE_TEXT", value: "v1" }],
+          ["f", { type: "SINGLE_LINE_TEXT" as const, value: "v1" }],
         ]),
         creatorId: "user-1",
       },
@@ -115,7 +120,12 @@ describe("queryRecords", () => {
       input: {
         appId: "app-1",
         query: 'f = "v1"',
-        executionContext: { currentUser: "user-1", now: new Date() },
+        executionContext: {
+          loginUserId: "user-1",
+          loginUserCode: "login-user-1",
+          primaryOrganizationCode: null,
+          now: new Date(),
+        },
       },
     });
     expect(result.records).toBeDefined();
@@ -130,7 +140,12 @@ describe("queryRecords", () => {
       headers: headers(),
       input: {
         appId: "app-1",
-        executionContext: { currentUser: "user-1", now: new Date() },
+        executionContext: {
+          loginUserId: "user-1",
+          loginUserCode: "login-user-1",
+          primaryOrganizationCode: null,
+          now: new Date(),
+        },
       },
     });
     expect(result.records).toHaveLength(0);
@@ -149,7 +164,9 @@ describe("queryRecords", () => {
       headers: headers(),
       input: {
         appId: "app-1",
-        fieldValues: new Map([["f", { type: "SINGLE_LINE_TEXT", value: "v" }]]),
+        fieldValues: new Map([
+          ["f", { type: "SINGLE_LINE_TEXT" as const, value: "v" }],
+        ]),
         creatorId: "user-1",
       },
     });
@@ -159,7 +176,12 @@ describe("queryRecords", () => {
       input: {
         appId: "app-1",
         totalCount: true,
-        executionContext: { currentUser: "user-1", now: new Date() },
+        executionContext: {
+          loginUserId: "user-1",
+          loginUserCode: "login-user-1",
+          primaryOrganizationCode: null,
+          now: new Date(),
+        },
       },
     });
     expect(result.totalCount).toBeGreaterThanOrEqual(1);

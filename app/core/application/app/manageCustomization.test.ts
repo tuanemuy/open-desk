@@ -95,7 +95,14 @@ describe("manageCustomization", () => {
       headers: headers(),
       input: {
         ...baseInput,
-        desktopJs: [{ type: "URL", url: "https://example.com/app.js" }],
+        desktopJs: [
+          {
+            type: "URL" as const,
+            url: "https://example.com/app.js",
+            fileKey: null,
+            name: null,
+          },
+        ],
       },
     });
     expect(result.appId).toBe("app-1");

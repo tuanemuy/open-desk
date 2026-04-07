@@ -5,7 +5,6 @@ import {
   setupTestContainer,
 } from "@/core/application/__tests__/helpers";
 import { NotFoundError } from "../error";
-import { createCursor } from "./createCursor";
 import { getCursorRecords } from "./getCursorRecords";
 
 const getContainer = setupTestContainer();

@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk - 営業部スペース | Soft Gradient</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    min-width: 1200px;
+    background: linear-gradient(135deg, #F3E8FF 0%, #EDE9FE 30%, #DBEAFE 70%, #E0F2FE 100%);
+    min-height: 100vh;
+    color: #1E1B4B;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========== Header ========== */
+  .header {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 40%, #4F46E5 70%, #3B82F6 100%);
+    padding: 0 40px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(124, 58, 237, 0.25);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    backdrop-filter: blur(4px);
+  }
+
+  .nav {
+    display: flex;
+    gap: 6px;
+  }
+
+  .nav-item {
+    padding: 7px 18px;
+    border-radius: 100px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+  }
+
+  .nav-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+    backdrop-filter: blur(4px);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .search-input {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 100px;
+    padding: 8px 16px 8px 38px;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    width: 260px;
+    outline: none;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+  }
+
+  .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .search-input:focus {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    width: 300px;
+  }
+
+  .search-wrapper {
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+  }
+
+  .header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .header-icon:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+  }
+
+  .notification-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background: #F472B6;
+    border-radius: 50%;
+    border: 2px solid #7C3AED;
+  }
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E9D5FF, #BFDBFE);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6D28D9;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  /* ========== Page ========== */
+  .page {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 28px 40px 60px;
+  }
+
+  /* ========== Breadcrumb ========== */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 13px;
+  }
+
+  .breadcrumb a {
+    color: #7C3AED;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+
+  .breadcrumb a:hover {
+    color: #6D28D9;
+  }
+
+  .breadcrumb-sep {
+    color: #C4B5FD;
+    font-size: 11px;
+  }
+
+  .breadcrumb-current {
+    color: #6B7280;
+    font-weight: 500;
+  }
+
+  /* ========== Space Header ========== */
+  .space-header {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    box-shadow:
+      0 1px 3px rgba(124, 58, 237, 0.06),
+      0 8px 24px rgba(124, 58, 237, 0.08),
+      0 20px 48px rgba(59, 130, 246, 0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .space-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #7C3AED 0%, #6D28D9 30%, #4F46E5 60%, #3B82F6 100%);
+  }
+
+  .space-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .space-header-info {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .space-avatar-lg {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #7C3AED, #6D28D9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  }
+
+  .space-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1E1B4B;
+    margin-bottom: 4px;
+  }
+
+  .space-meta {
+    font-size: 13px;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .space-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .space-header-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 20px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #3B82F6 100%);
+    color: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 6px 24px rgba(124, 58, 237, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: #FFFFFF;
+    color: #374151;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.06);
+  }
+
+  .btn-secondary:hover {
+    background: #F9FAFB;
+    border-color: #D1D5DB;
+  }
+
+  /* Space Nav Tabs */
+  .space-nav {
+    display: flex;
+    gap: 4px;
+    border-top: 1px solid #F3F0FF;
+    padding-top: 16px;
+  }
+
+  .space-nav-item {
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #6B7280;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .space-nav-item:hover {
+    background: #F5F3FF;
+    color: #7C3AED;
+  }
+
+  .space-nav-item.active {
+    background: linear-gradient(135deg, #EDE9FE, #F3E8FF);
+    color: #7C3AED;
+    font-weight: 600;
+  }
+
+  /* ========== Two-Column Layout ========== */
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 28px;
+    align-items: start;
+  }
+
+  /* ========== Floating Card ========== */
+  .card {
+    background: #FFFFFF;
+    border-radius: 18px;
+    box-shadow:
+      0 1px 3px rgba(124, 58, 237, 0.06),
+      0 8px 24px rgba(124, 58, 237, 0.08),
+      0 20px 48px rgba(59, 130, 246, 0.04);
+    overflow: hidden;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+
+  .card:hover {
+    box-shadow:
+      0 1px 3px rgba(124, 58, 237, 0.08),
+      0 12px 32px rgba(124, 58, 237, 0.12),
+      0 24px 56px rgba(59, 130, 246, 0.06);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #F3F0FF;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1E1B4B;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-title-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .icon-purple {
+    background: linear-gradient(135deg, #EDE9FE, #F3E8FF);
+    color: #7C3AED;
+  }
+
+  .icon-blue {
+    background: linear-gradient(135deg, #DBEAFE, #E0F2FE);
+    color: #3B82F6;
+  }
+
+  .icon-violet {
+    background: linear-gradient(135deg, #F3E8FF, #EDE9FE);
+    color: #8B5CF6;
+  }
+
+  .card-action {
+    font-size: 13px;
+    font-weight: 500;
+    color: #7C3AED;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .card-action:hover {
+    color: #6D28D9;
+  }
+
+  .card-body {
+    padding: 16px 24px 20px;
+  }
+
+  /* ========== Main Column ========== */
+  .main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ========== Announcements ========== */
+  .announcement-item {
+    padding: 14px 0;
+    border-bottom: 1px solid #F5F3FF;
+  }
+
+  .announcement-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .announcement-item:first-child {
+    padding-top: 0;
+  }
+
+  .announcement-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .badge-important {
+    background: linear-gradient(135deg, #FEE2E2, #FECACA);
+    color: #DC2626;
+  }
+
+  .badge-info {
+    background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+    color: #2563EB;
+  }
+
+  .badge-update {
+    background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+    color: #059669;
+  }
+
+  .announcement-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #1E1B4B;
+    margin-bottom: 4px;
+    line-height: 1.5;
+  }
+
+  .announcement-meta {
+    font-size: 12px;
+    color: #9CA3AF;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* ========== Threads ========== */
+  .thread-item {
+    padding: 18px 0;
+    border-bottom: 1px solid #F5F3FF;
+  }
+
+  .thread-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .thread-item:first-child {
+    padding-top: 0;
+  }
+
+  .thread-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .thread-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+    flex-shrink: 0;
+  }
+
+  .thread-info {
+    flex: 1;
+  }
+
+  .thread-author {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1E1B4B;
+    margin-bottom: 2px;
+  }
+
+  .thread-time {
+    font-size: 12px;
+    color: #9CA3AF;
+  }
+
+  .thread-body {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.7;
+    margin-bottom: 12px;
+    padding-left: 52px;
+  }
+
+  .thread-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-left: 52px;
+  }
+
+  .thread-action {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12.5px;
+    color: #9CA3AF;
+    cursor: pointer;
+    transition: color 0.15s;
+    font-weight: 500;
+  }
+
+  .thread-action:hover {
+    color: #7C3AED;
+  }
+
+  .thread-action-icon {
+    font-size: 14px;
+  }
+
+  .thread-reply-count {
+    background: linear-gradient(135deg, #EDE9FE, #F3E8FF);
+    color: #7C3AED;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11.5px;
+  }
+
+  /* ========== Compose ========== */
+  .compose-box {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #F3F0FF;
+  }
+
+  .compose-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #E9D5FF, #BFDBFE);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #6D28D9;
+    flex-shrink: 0;
+  }
+
+  .compose-input {
+    flex: 1;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    font-family: 'DM Sans', sans-serif;
+    color: #1E1B4B;
+    outline: none;
+    resize: none;
+    transition: all 0.2s ease;
+  }
+
+  .compose-input:focus {
+    border-color: #C4B5FD;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+    background: #FFFFFF;
+  }
+
+  .compose-input::placeholder {
+    color: #9CA3AF;
+  }
+
+  /* ========== Sidebar ========== */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ========== Members ========== */
+  .member-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #F5F3FF;
+  }
+
+  .member-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .member-item:first-child {
+    padding-top: 0;
+  }
+
+  .member-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #FFFFFF;
+    flex-shrink: 0;
+  }
+
+  .member-info {
+    flex: 1;
+  }
+
+  .member-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1E1B4B;
+  }
+
+  .member-role {
+    font-size: 12px;
+    color: #9CA3AF;
+  }
+
+  .member-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-online {
+    background: #10B981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+
+  .status-away {
+    background: #FBBF24;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+  }
+
+  .status-offline {
+    background: #D1D5DB;
+  }
+
+  /* ========== Related Apps ========== */
+  .related-app-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #F5F3FF;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .related-app-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .related-app-item:first-child {
+    padding-top: 0;
+  }
+
+  .related-app-item:hover .related-app-name {
+    color: #7C3AED;
+  }
+
+  .related-app-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .related-app-name {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #374151;
+    transition: color 0.15s;
+  }
+
+  .related-app-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: #9CA3AF;
+  }
+
+  /* ========== Activity Card ========== */
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #F5F3FF;
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .activity-item:first-child {
+    padding-top: 0;
+  }
+
+  .activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .activity-text {
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .activity-text strong {
+    color: #1E1B4B;
+    font-weight: 600;
+  }
+
+  .activity-time {
+    font-size: 11.5px;
+    color: #9CA3AF;
+    margin-top: 2px;
+  }
+
+  /* Gradient border utility */
+  .gradient-border-card {
+    position: relative;
+    background: #FFFFFF;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .gradient-border-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #7C3AED, #3B82F6);
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== Header ========== -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">
+      <div class="logo-icon">&#9671;</div>
+      OpenDesk
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="#">ポータル</a>
+      <a class="nav-item active" href="#">スペース</a>
+      <a class="nav-item" href="#">アプリ</a>
+      <a class="nav-item" href="#">管理</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div class="search-wrapper">
+      <span class="search-icon">&#128269;</span>
+      <input class="search-input" type="text" placeholder="検索...">
+    </div>
+    <div class="header-icon">
+      &#128276;
+      <span class="notification-dot"></span>
+    </div>
+    <div class="header-icon">&#9881;</div>
+    <div class="avatar">田中</div>
+  </div>
+</header>
+
+<!-- ========== Page Content ========== -->
+<main class="page">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="#">ポータル</a>
+    <span class="breadcrumb-sep">&#9656;</span>
+    <a href="#">スペース</a>
+    <span class="breadcrumb-sep">&#9656;</span>
+    <span class="breadcrumb-current">営業部</span>
+  </div>
+
+  <!-- Space Header -->
+  <div class="space-header">
+    <div class="space-header-top">
+      <div class="space-header-info">
+        <div class="space-avatar-lg">営</div>
+        <div>
+          <div class="space-title">営業部</div>
+          <div class="space-meta">
+            <span class="space-meta-item">&#128101; メンバー 24人</span>
+            <span class="space-meta-item">&#128172; スレッド 156件</span>
+            <span class="space-meta-item">&#128197; 作成日 2024年1月15日</span>
+          </div>
+        </div>
+      </div>
+      <div class="space-header-actions">
+        <button class="btn btn-primary">&#43; 投稿する</button>
+        <button class="btn btn-secondary">&#9881; 設定</button>
+      </div>
+    </div>
+    <div class="space-nav">
+      <a class="space-nav-item active" href="#">スレッド</a>
+      <a class="space-nav-item" href="#">お知らせ</a>
+      <a class="space-nav-item" href="#">アプリ</a>
+      <a class="space-nav-item" href="#">メンバー</a>
+      <a class="space-nav-item" href="#">ファイル</a>
+    </div>
+  </div>
+
+  <!-- Two-Column Content -->
+  <div class="content">
+    <!-- Left Column: Main Content -->
+    <div class="main-column">
+      <!-- Announcements -->
+      <div class="card gradient-border-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon icon-purple">&#128227;</span>
+            お知らせ
+          </div>
+          <a class="card-action" href="#">すべて &rarr;</a>
+        </div>
+        <div class="card-body">
+          <div class="announcement-item">
+            <span class="announcement-badge badge-important">重要</span>
+            <div class="announcement-title">4月度営業目標の修正について</div>
+            <div class="announcement-meta">
+              <span>佐藤 太郎</span>
+              <span>2026年4月7日 10:30</span>
+            </div>
+          </div>
+          <div class="announcement-item">
+            <span class="announcement-badge badge-info">共有</span>
+            <div class="announcement-title">新規取引先リストを更新しました</div>
+            <div class="announcement-meta">
+              <span>山田 花子</span>
+              <span>2026年4月5日 16:00</span>
+            </div>
+          </div>
+          <div class="announcement-item">
+            <span class="announcement-badge badge-update">更新</span>
+            <div class="announcement-title">顧客管理アプリにカスタムフィールドを追加</div>
+            <div class="announcement-meta">
+              <span>鈴木 一郎</span>
+              <span>2026年4月3日 11:15</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Threads -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon icon-blue">&#128172;</span>
+            スレッド
+          </div>
+          <a class="card-action" href="#">新しい順</a>
+        </div>
+        <div class="card-body">
+          <div class="thread-item">
+            <div class="thread-top">
+              <div class="thread-avatar" style="background: linear-gradient(135deg, #7C3AED, #6D28D9);">佐藤</div>
+              <div class="thread-info">
+                <div class="thread-author">佐藤 太郎</div>
+                <div class="thread-time">今日 10:30</div>
+              </div>
+            </div>
+            <div class="thread-body">
+              来週の大手クライアント向けプレゼンの資料レビューをお願いします。第3四半期の実績データと来期の提案内容を盛り込んでいます。特に競合分析のセクションについてフィードバックいただけると助かります。
+            </div>
+            <div class="thread-actions">
+              <span class="thread-action"><span class="thread-action-icon">&#128172;</span> 返信</span>
+              <span class="thread-action"><span class="thread-action-icon">&#128077;</span> 5</span>
+              <span class="thread-reply-count">8件の返信</span>
+            </div>
+          </div>
+
+          <div class="thread-item">
+            <div class="thread-top">
+              <div class="thread-avatar" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">山田</div>
+              <div class="thread-info">
+                <div class="thread-author">山田 花子</div>
+                <div class="thread-time">今日 09:15</div>
+              </div>
+            </div>
+            <div class="thread-body">
+              新規顧客の株式会社サンライズ様との初回打ち合わせが完了しました。先方のニーズは主にワークフロー自動化で、来月中にPoC提案を行う方向です。議事録を案件管理アプリに登録済みです。
+            </div>
+            <div class="thread-actions">
+              <span class="thread-action"><span class="thread-action-icon">&#128172;</span> 返信</span>
+              <span class="thread-action"><span class="thread-action-icon">&#128077;</span> 3</span>
+              <span class="thread-reply-count">4件の返信</span>
+            </div>
+          </div>
+
+          <div class="thread-item">
+            <div class="thread-top">
+              <div class="thread-avatar" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">高橋</div>
+              <div class="thread-info">
+                <div class="thread-author">高橋 亮太</div>
+                <div class="thread-time">昨日 17:45</div>
+              </div>
+            </div>
+            <div class="thread-body">
+              今月の営業チームのKPI進捗をまとめました。新規商談数は目標の85%到達、受注率は前月比+5%改善しています。詳細データはダッシュボードをご確認ください。
+            </div>
+            <div class="thread-actions">
+              <span class="thread-action"><span class="thread-action-icon">&#128172;</span> 返信</span>
+              <span class="thread-action"><span class="thread-action-icon">&#128077;</span> 12</span>
+              <span class="thread-reply-count">6件の返信</span>
+            </div>
+          </div>
+
+          <div class="thread-item">
+            <div class="thread-top">
+              <div class="thread-avatar" style="background: linear-gradient(135deg, #06B6D4, #0891B2);">中村</div>
+              <div class="thread-info">
+                <div class="thread-author">中村 美咲</div>
+                <div class="thread-time">昨日 14:20</div>
+              </div>
+            </div>
+            <div class="thread-body">
+              来週水曜日の営業定例ミーティングですが、会議室Aが使用中のため会議室Cに変更になります。時間は変わらず14:00開始です。アジェンダを後ほど共有します。
+            </div>
+            <div class="thread-actions">
+              <span class="thread-action"><span class="thread-action-icon">&#128172;</span> 返信</span>
+              <span class="thread-action"><span class="thread-action-icon">&#128077;</span> 2</span>
+              <span class="thread-reply-count">2件の返信</span>
+            </div>
+          </div>
+        </div>
+        <div class="compose-box">
+          <div class="compose-avatar">田中</div>
+          <input class="compose-input" type="text" placeholder="スレッドに投稿する...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Sidebar -->
+    <div class="sidebar">
+      <!-- Members -->
+      <div class="card gradient-border-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon icon-purple">&#128101;</span>
+            メンバー
+          </div>
+          <a class="card-action" href="#">全員表示 &rarr;</a>
+        </div>
+        <div class="card-body">
+          <div class="member-item">
+            <div class="member-avatar" style="background: linear-gradient(135deg, #7C3AED, #6D28D9);">佐藤</div>
+            <div class="member-info">
+              <div class="member-name">佐藤 太郎</div>
+              <div class="member-role">部長</div>
+            </div>
+            <div class="member-status status-online"></div>
+          </div>
+          <div class="member-item">
+            <div class="member-avatar" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">山田</div>
+            <div class="member-info">
+              <div class="member-name">山田 花子</div>
+              <div class="member-role">課長</div>
+            </div>
+            <div class="member-status status-online"></div>
+          </div>
+          <div class="member-item">
+            <div class="member-avatar" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">高橋</div>
+            <div class="member-info">
+              <div class="member-name">高橋 亮太</div>
+              <div class="member-role">主任</div>
+            </div>
+            <div class="member-status status-online"></div>
+          </div>
+          <div class="member-item">
+            <div class="member-avatar" style="background: linear-gradient(135deg, #06B6D4, #0891B2);">中村</div>
+            <div class="member-info">
+              <div class="member-name">中村 美咲</div>
+              <div class="member-role">主任</div>
+            </div>
+            <div class="member-status status-away"></div>
+          </div>
+          <div class="member-item">
+            <div class="member-avatar" style="background: linear-gradient(135deg, #EC4899, #DB2777);">田中</div>
+            <div class="member-info">
+              <div class="member-name">田中 誠</div>
+              <div class="member-role">メンバー</div>
+            </div>
+            <div class="member-status status-offline"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Related Apps -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon icon-blue">&#9881;</span>
+            関連アプリ
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="related-app-item">
+            <div class="related-app-icon" style="background: linear-gradient(135deg, #EDE9FE, #F3E8FF); color: #7C3AED;">&#128203;</div>
+            <span class="related-app-name">顧客管理</span>
+            <span class="related-app-count">48件</span>
+          </div>
+          <div class="related-app-item">
+            <div class="related-app-icon" style="background: linear-gradient(135deg, #DBEAFE, #E0F2FE); color: #3B82F6;">&#128200;</div>
+            <span class="related-app-name">案件管理</span>
+            <span class="related-app-count">32件</span>
+          </div>
+          <div class="related-app-item">
+            <div class="related-app-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669;">&#128202;</div>
+            <span class="related-app-name">売上レポート</span>
+            <span class="related-app-count">月次</span>
+          </div>
+          <div class="related-app-item">
+            <div class="related-app-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706;">&#128197;</div>
+            <span class="related-app-name">営業日報</span>
+            <span class="related-app-count">日次</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon icon-violet">&#9889;</span>
+            最近のアクティビティ
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="activity-item">
+            <div class="activity-dot" style="background: linear-gradient(135deg, #7C3AED, #3B82F6);"></div>
+            <div>
+              <div class="activity-text"><strong>佐藤 太郎</strong>が案件管理にレコードを追加</div>
+              <div class="activity-time">10分前</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background: linear-gradient(135deg, #3B82F6, #06B6D4);"></div>
+            <div>
+              <div class="activity-text"><strong>山田 花子</strong>が顧客管理のレコードを更新</div>
+              <div class="activity-time">30分前</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);"></div>
+            <div>
+              <div class="activity-text"><strong>高橋 亮太</strong>がファイルをアップロード</div>
+              <div class="activity-time">1時間前</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background: linear-gradient(135deg, #06B6D4, #0891B2);"></div>
+            <div>
+              <div class="activity-text"><strong>中村 美咲</strong>がスレッドに返信</div>
+              <div class="activity-time">2時間前</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background: linear-gradient(135deg, #EC4899, #DB2777);"></div>
+            <div>
+              <div class="activity-text"><strong>田中 誠</strong>が営業日報を提出</div>
+              <div class="activity-time">3時間前</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

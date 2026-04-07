@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk — 顧客リスト (Dense Productive)</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #1A1A1A;
+  background: #FAFAFA;
+  min-width: 1200px;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: #fff;
+  border-bottom: 1px solid #E5E5E5;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-logo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-right: 20px;
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+
+.header-logo span {
+  color: #0D9488;
+}
+
+.header-nav {
+  display: flex;
+  gap: 2px;
+  margin-right: auto;
+}
+
+.header-nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  transition: background 0.1s;
+}
+
+.header-nav a:hover {
+  background: #F0F0F0;
+  color: #1A1A1A;
+}
+
+.header-nav a.active {
+  background: #0D9488;
+  color: #fff;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-search {
+  position: relative;
+}
+
+.header-search input {
+  width: 200px;
+  height: 26px;
+  border: 1px solid #E5E5E5;
+  border-radius: 3px;
+  padding: 0 8px 0 26px;
+  font-size: 12px;
+  font-family: inherit;
+  background: #FAFAFA;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.header-search input:focus {
+  border-color: #0D9488;
+  background: #fff;
+}
+
+.header-search::before {
+  content: "⌕";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: #999;
+}
+
+.header-user {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0D9488;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.header-bell {
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  position: relative;
+}
+
+.header-bell .badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  width: 14px;
+  height: 14px;
+  background: #DC2626;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== BREADCRUMB ===== */
+.breadcrumb {
+  padding: 6px 16px;
+  font-size: 11px;
+  color: #888;
+  background: #fff;
+  border-bottom: 1px solid #E5E5E5;
+}
+
+.breadcrumb a {
+  color: #0D9488;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb span {
+  margin: 0 4px;
+  color: #CCC;
+}
+
+/* ===== CONTENT ===== */
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 8px 16px;
+}
+
+/* ===== TOOLBAR ===== */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  flex-wrap: nowrap;
+}
+
+.toolbar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+
+.toolbar-count {
+  font-size: 11px;
+  color: #888;
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+.toolbar-btn {
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid #E5E5E5;
+  background: #fff;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #555;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolbar-btn:hover {
+  background: #F5F5F5;
+}
+
+.toolbar-btn-primary {
+  background: #0D9488;
+  color: #fff;
+  border-color: #0D9488;
+}
+
+.toolbar-btn-primary:hover {
+  background: #0F766E;
+}
+
+.toolbar-select {
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid #E5E5E5;
+  background: #fff;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #555;
+  cursor: pointer;
+}
+
+.toolbar-search {
+  height: 26px;
+  width: 180px;
+  border: 1px solid #E5E5E5;
+  border-radius: 3px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+  background: #fff;
+}
+
+.toolbar-search:focus {
+  border-color: #0D9488;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: #E5E5E5;
+}
+
+/* ===== DATA TABLE ===== */
+.table-wrapper {
+  background: #fff;
+  border: 1px solid #E5E5E5;
+  border-radius: 3px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-align: left;
+  background: #FAFAFA;
+  border-bottom: 1px solid #E5E5E5;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  user-select: none;
+  cursor: pointer;
+}
+
+thead th:hover {
+  background: #F0F0F0;
+}
+
+thead th .sort-icon {
+  font-size: 9px;
+  margin-left: 3px;
+  color: #CCC;
+}
+
+thead th .sort-icon.active {
+  color: #0D9488;
+}
+
+tbody tr {
+  transition: background 0.08s;
+}
+
+tbody tr:hover {
+  background: #F8FFFE;
+}
+
+tbody tr.selected {
+  background: #F0FDFA;
+}
+
+tbody td {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-bottom: 1px solid #F0F0F0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+
+tbody td:first-child {
+  width: 40px;
+}
+
+.col-id {
+  color: #0D9488;
+  font-weight: 500;
+  font-size: 11px;
+}
+
+.col-link {
+  color: #0D9488;
+  cursor: pointer;
+}
+
+.col-link:hover {
+  text-decoration: underline;
+}
+
+.checkbox-cell {
+  width: 30px;
+}
+
+.checkbox-cell input {
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  accent-color: #0D9488;
+}
+
+.rank-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.rank-a { background: #F0FDFA; color: #0D9488; }
+.rank-b { background: #EFF6FF; color: #2563EB; }
+.rank-c { background: #FFF7ED; color: #C2410C; }
+.rank-d { background: #F5F5F5; color: #666; }
+
+/* ===== PAGINATION ===== */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 11px;
+  color: #888;
+}
+
+.pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.pagination-pages button {
+  width: 26px;
+  height: 24px;
+  border: 1px solid #E5E5E5;
+  background: #fff;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #555;
+  cursor: pointer;
+}
+
+.pagination-pages button:hover {
+  background: #F5F5F5;
+}
+
+.pagination-pages button.active {
+  background: #0D9488;
+  color: #fff;
+  border-color: #0D9488;
+}
+
+.pagination-pages button:disabled {
+  color: #CCC;
+  cursor: default;
+}
+
+.rows-select {
+  height: 24px;
+  padding: 0 4px;
+  border: 1px solid #E5E5E5;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #555;
+  background: #fff;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo"><span>Open</span>Desk</div>
+  <nav class="header-nav">
+    <a href="#">ポータル</a>
+    <a href="#">スペース</a>
+    <a href="#" class="active">アプリ</a>
+    <a href="#">ユーザー管理</a>
+    <a href="#">システム管理</a>
+  </nav>
+  <div class="header-right">
+    <div class="header-search">
+      <input type="text" placeholder="検索... ⌘K">
+    </div>
+    <span class="header-bell">🔔<span class="badge">3</span></span>
+    <div class="header-user">田</div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="#">ポータル</a><span>/</span><a href="#">営業部</a><span>/</span>顧客管理
+</div>
+
+<!-- CONTENT -->
+<main class="content">
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <span class="toolbar-title">顧客リスト</span>
+    <span class="toolbar-count">1,248件中 1-15件</span>
+
+    <select class="toolbar-select">
+      <option>すべてのレコード</option>
+      <option>ランクA のみ</option>
+      <option>ランクB のみ</option>
+      <option>今月追加</option>
+    </select>
+
+    <input type="text" class="toolbar-search" placeholder="レコード内を検索...">
+
+    <div class="toolbar-divider"></div>
+
+    <button class="toolbar-btn">↕ 並び替え</button>
+    <button class="toolbar-btn">⊟ 絞り込み</button>
+    <button class="toolbar-btn">↓ CSV出力</button>
+    <button class="toolbar-btn">⚙ 設定</button>
+
+    <div class="toolbar-divider"></div>
+
+    <button class="toolbar-btn toolbar-btn-primary">+ レコード追加</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th class="checkbox-cell"><input type="checkbox"></th>
+          <th>レコード番号 <span class="sort-icon active">▼</span></th>
+          <th>会社名</th>
+          <th>部署名</th>
+          <th>担当者名</th>
+          <th>住所</th>
+          <th>TEL</th>
+          <th>顧客ランク <span class="sort-icon">▽</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1248</td>
+          <td class="col-link">株式会社テクノフューチャー</td>
+          <td>情報システム部</td>
+          <td>佐藤 太郎</td>
+          <td>東京都港区六本木3-2-1</td>
+          <td>03-1234-5678</td>
+          <td><span class="rank-badge rank-a">A</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1247</td>
+          <td class="col-link">グローバルソリューションズ株式会社</td>
+          <td>営業本部</td>
+          <td>鈴木 花子</td>
+          <td>大阪府大阪市北区梅田1-1-3</td>
+          <td>06-2345-6789</td>
+          <td><span class="rank-badge rank-a">A</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1246</td>
+          <td class="col-link">株式会社山田製作所</td>
+          <td>製造部</td>
+          <td>山田 次郎</td>
+          <td>愛知県名古屋市中区栄4-5-6</td>
+          <td>052-345-6789</td>
+          <td><span class="rank-badge rank-b">B</span></td>
+        </tr>
+        <tr class="selected">
+          <td class="checkbox-cell"><input type="checkbox" checked></td>
+          <td class="col-id">CUS-1245</td>
+          <td class="col-link">東日本コンサルティング株式会社</td>
+          <td>経営企画室</td>
+          <td>高橋 美咲</td>
+          <td>東京都千代田区丸の内2-7-1</td>
+          <td>03-3456-7890</td>
+          <td><span class="rank-badge rank-a">A</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1244</td>
+          <td class="col-link">株式会社サンライズ物流</td>
+          <td>物流管理部</td>
+          <td>中村 健一</td>
+          <td>福岡県福岡市博多区博多駅前3-2-8</td>
+          <td>092-456-7890</td>
+          <td><span class="rank-badge rank-c">C</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1243</td>
+          <td class="col-link">ネクストイノベーション株式会社</td>
+          <td>開発部</td>
+          <td>伊藤 直人</td>
+          <td>東京都渋谷区神宮前5-3-1</td>
+          <td>03-4567-8901</td>
+          <td><span class="rank-badge rank-b">B</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1242</td>
+          <td class="col-link">株式会社オーシャントレード</td>
+          <td>海外事業部</td>
+          <td>渡辺 真理</td>
+          <td>神奈川県横浜市中区山下町1-2</td>
+          <td>045-567-8901</td>
+          <td><span class="rank-badge rank-b">B</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1241</td>
+          <td class="col-link">ファーストデジタル株式会社</td>
+          <td>マーケティング部</td>
+          <td>小林 由美</td>
+          <td>東京都新宿区西新宿2-8-1</td>
+          <td>03-5678-9012</td>
+          <td><span class="rank-badge rank-a">A</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1240</td>
+          <td class="col-link">株式会社中央建設</td>
+          <td>設計部</td>
+          <td>加藤 修平</td>
+          <td>埼玉県さいたま市大宮区桜木町4-1-1</td>
+          <td>048-678-9012</td>
+          <td><span class="rank-badge rank-c">C</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1239</td>
+          <td class="col-link">株式会社北海道フーズ</td>
+          <td>商品開発部</td>
+          <td>吉田 裕子</td>
+          <td>北海道札幌市中央区北1条西2-1</td>
+          <td>011-789-0123</td>
+          <td><span class="rank-badge rank-b">B</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1238</td>
+          <td class="col-link">西日本エネルギー株式会社</td>
+          <td>総務部</td>
+          <td>松本 一郎</td>
+          <td>広島県広島市中区紙屋町1-3-5</td>
+          <td>082-890-1234</td>
+          <td><span class="rank-badge rank-d">D</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1237</td>
+          <td class="col-link">株式会社メディカルサポート</td>
+          <td>営業部</td>
+          <td>井上 恵美</td>
+          <td>京都府京都市下京区四条通烏丸東入</td>
+          <td>075-901-2345</td>
+          <td><span class="rank-badge rank-a">A</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1236</td>
+          <td class="col-link">アジアパシフィック商事株式会社</td>
+          <td>貿易部</td>
+          <td>木村 大輔</td>
+          <td>東京都中央区日本橋室町2-1-1</td>
+          <td>03-6789-0123</td>
+          <td><span class="rank-badge rank-b">B</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1235</td>
+          <td class="col-link">株式会社九州テクノロジー</td>
+          <td>研究開発部</td>
+          <td>林 美奈子</td>
+          <td>福岡県北九州市小倉北区浅野3-8-1</td>
+          <td>093-012-3456</td>
+          <td><span class="rank-badge rank-c">C</span></td>
+        </tr>
+        <tr>
+          <td class="checkbox-cell"><input type="checkbox"></td>
+          <td class="col-id">CUS-1234</td>
+          <td class="col-link">株式会社関東プランニング</td>
+          <td>企画部</td>
+          <td>斉藤 雄太</td>
+          <td>千葉県千葉市美浜区中瀬1-3</td>
+          <td>043-123-4567</td>
+          <td><span class="rank-badge rank-b">B</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="pagination">
+    <div class="pagination-info">
+      <span>表示件数:</span>
+      <select class="rows-select">
+        <option>15件</option>
+        <option>30件</option>
+        <option>50件</option>
+        <option>100件</option>
+      </select>
+      <span>1,248件中 1-15件を表示</span>
+    </div>
+    <div class="pagination-pages">
+      <button disabled>&lt;</button>
+      <button class="active">1</button>
+      <button>2</button>
+      <button>3</button>
+      <button>4</button>
+      <button>5</button>
+      <button>...</button>
+      <button>84</button>
+      <button>&gt;</button>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アプリの設定 - 顧客リスト - OpenDesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary-lighter: oklch(0.95 0.03 250);
+      --color-primary-light: oklch(0.82 0.07 250);
+      --color-primary: oklch(0.65 0.12 250);
+      --color-primary-dark: oklch(0.52 0.12 250);
+      --color-primary-darker: oklch(0.40 0.12 250);
+      --color-accent: oklch(0.65 0.15 270);
+      --color-accent-light: oklch(0.90 0.05 270);
+      --color-neutral-50: oklch(0.98 0.002 250);
+      --color-neutral-100: oklch(0.96 0.004 250);
+      --color-neutral-150: oklch(0.94 0.004 250);
+      --color-neutral-200: oklch(0.92 0.005 250);
+      --color-neutral-300: oklch(0.86 0.008 250);
+      --color-neutral-400: oklch(0.72 0.015 250);
+      --color-neutral-500: oklch(0.60 0.02 250);
+      --color-neutral-600: oklch(0.50 0.02 250);
+      --color-neutral-700: oklch(0.40 0.02 250);
+      --color-neutral-800: oklch(0.30 0.02 250);
+      --color-neutral-900: oklch(0.20 0.02 250);
+      --color-success: oklch(0.60 0.15 155);
+      --color-success-light: oklch(0.95 0.04 155);
+      --color-warning: oklch(0.75 0.15 80);
+      --color-warning-light: oklch(0.95 0.05 80);
+      --color-error: oklch(0.60 0.20 25);
+      --color-error-light: oklch(0.95 0.04 25);
+      --color-info: oklch(0.65 0.12 250);
+      --color-info-light: oklch(0.95 0.03 250);
+      --color-bg-page: oklch(0.98 0.002 250);
+      --color-bg-card: oklch(1.0 0 0);
+      --color-bg-section: oklch(0.96 0.004 250);
+      --color-bg-header: oklch(1.0 0 0);
+      --color-on-primary: oklch(1.0 0 0);
+      --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --text-xs: clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);
+      --text-sm: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
+      --text-base: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+      --text-lg: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --text-xl: clamp(1.125rem, 1.05rem + 0.2vw, 1.25rem);
+      --text-2xl: clamp(1.375rem, 1.25rem + 0.3vw, 1.5rem);
+      --text-3xl: clamp(1.75rem, 1.6rem + 0.4vw, 2rem);
+      --weight-normal: 400;
+      --weight-medium: 500;
+      --weight-semibold: 600;
+      --leading-tight: 1.3;
+      --leading-normal: 1.6;
+      --leading-relaxed: 1.8;
+      --tracking-tight: -0.02em;
+      --tracking-normal: 0;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-section: 48px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px oklch(0.20 0 0 / 0.04);
+      --shadow-md: 0 2px 8px oklch(0.20 0 0 / 0.06);
+      --shadow-lg: 0 4px 16px oklch(0.20 0 0 / 0.08);
+      --transition-fast: 0.1s ease;
+      --transition-default: 0.15s ease;
+      --transition-slow: 0.25s ease;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      line-height: var(--leading-normal);
+      color: var(--color-neutral-800);
+      background-color: var(--color-bg-page);
+      min-height: 100vh;
+    }
+
+    /* ========== Global Header ========== */
+    .global-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: var(--color-bg-header);
+      border-bottom: 1px solid var(--color-neutral-200);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-normal);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-neutral-800);
+      text-decoration: none;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .logo strong {
+      font-weight: var(--weight-semibold);
+      color: var(--color-primary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .header-nav a {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      text-decoration: none;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .header-nav a:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .header-nav a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .header-nav a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .search-input {
+      height: 34px;
+      width: 240px;
+      padding: 0 var(--space-md);
+      padding-left: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      outline: none;
+      transition: border-color var(--transition-default), background-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .search-input:hover {
+      background: var(--color-bg-card);
+      border-color: var(--color-neutral-300);
+    }
+
+    .search-input:focus {
+      background: var(--color-bg-card);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary-darker);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      transition: box-shadow var(--transition-default);
+      border: 1px solid var(--color-neutral-200);
+    }
+
+    .user-avatar:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== Page Layout ===== */
+    .page-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-lg) var(--space-xl) var(--space-3xl);
+    }
+
+    /* ===== Breadcrumb ===== */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+      margin-bottom: var(--space-md);
+      list-style: none;
+    }
+
+    .breadcrumb a {
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: color var(--transition-default);
+    }
+
+    .breadcrumb a:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    .breadcrumb a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+
+    .breadcrumb-separator {
+      color: var(--color-neutral-400);
+      font-size: var(--text-xs);
+    }
+
+    .breadcrumb-current {
+      color: var(--color-neutral-700);
+      font-weight: var(--weight-medium);
+    }
+
+    /* ===== Page Header ===== */
+    .page-header {
+      margin-bottom: var(--space-lg);
+    }
+
+    .page-header h1 {
+      font-family: var(--font-heading);
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .page-header h1 small {
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      color: var(--color-neutral-500);
+      margin-left: var(--space-sm);
+    }
+
+    /* ===== Tab Bar ===== */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--color-neutral-200);
+      margin-bottom: var(--space-lg);
+    }
+
+    .tab-bar a {
+      display: flex;
+      align-items: center;
+      padding: var(--space-sm) var(--space-lg);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color var(--transition-default), border-color var(--transition-default);
+    }
+
+    .tab-bar a:hover {
+      color: var(--color-neutral-700);
+    }
+
+    .tab-bar a.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    .tab-bar a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ===== Action Bar ===== */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+
+    .btn-primary {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-on-primary);
+      background: var(--color-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-primary:active {
+      background: var(--color-primary-darker);
+    }
+
+    .btn-secondary {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: border-color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-neutral-400);
+      background: var(--color-neutral-50);
+    }
+
+    .btn-secondary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ===== Form Builder Layout ===== */
+    .form-builder-layout {
+      display: flex;
+      gap: var(--space-lg);
+      align-items: flex-start;
+    }
+
+    /* ===== Field Palette ===== */
+    .field-palette {
+      width: 250px;
+      flex-shrink: 0;
+    }
+
+    .palette-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+    }
+
+    .palette-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .palette-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .palette-chip {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 var(--space-sm);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-sm);
+      cursor: grab;
+      user-select: none;
+      transition: background-color var(--transition-default), border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .palette-chip:hover {
+      background: var(--color-primary-lighter);
+      border-color: var(--color-primary-light);
+      color: var(--color-primary-dark);
+    }
+
+    .palette-chip:active {
+      cursor: grabbing;
+      box-shadow: var(--shadow-md);
+    }
+
+    .palette-chip.system {
+      color: var(--color-neutral-500);
+      background: var(--color-neutral-50);
+      border-style: dashed;
+    }
+
+    .palette-chip.system:hover {
+      background: var(--color-neutral-100);
+      border-color: var(--color-neutral-300);
+      color: var(--color-neutral-600);
+    }
+
+    /* ===== Form Canvas ===== */
+    .form-canvas {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .canvas-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+    }
+
+    .canvas-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .form-row {
+      display: flex;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-sm);
+    }
+
+    .form-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-field {
+      flex: 1;
+      min-width: 0;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm) var(--space-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      cursor: pointer;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .form-field:hover {
+      border-color: var(--color-primary-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .field-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .field-name {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-800);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .field-type {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+    }
+
+    .field-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      flex-shrink: 0;
+    }
+
+    .field-action-btn {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      border-radius: var(--radius-sm);
+      color: var(--color-neutral-400);
+      cursor: pointer;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .field-action-btn:hover {
+      color: var(--color-neutral-700);
+      background: var(--color-neutral-100);
+    }
+
+    .field-action-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 1px;
+    }
+
+    .field-required {
+      display: inline-block;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-error);
+      margin-left: var(--space-xs);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Header -->
+  <header class="global-header">
+    <div class="header-inner">
+      <a href="#" class="logo">Open<strong>Desk</strong></a>
+      <nav class="header-nav">
+        <a href="#">ポータル</a>
+        <a href="#">通知</a>
+        <a href="#">ブックマーク</a>
+      </nav>
+      <div class="header-right">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="search-input" placeholder="アプリ内検索">
+        </div>
+        <div class="user-avatar" title="山田 太郎">山</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <div class="page-wrapper">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="パンくずリスト">
+      <ol class="breadcrumb">
+        <li><a href="#">ポータル</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li><a href="#">営業支援スペース</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li><a href="#">顧客リスト</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-current">アプリの設定</li>
+      </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>顧客リスト<small>アプリの設定</small></h1>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <a href="#" class="active">フォーム</a>
+      <a href="#">一覧</a>
+      <a href="#">グラフ</a>
+      <a href="#">設定</a>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <button class="btn-primary" type="button">フォームを保存</button>
+      <button class="btn-secondary" type="button">アプリを更新</button>
+    </div>
+
+    <!-- Form Builder Layout -->
+    <div class="form-builder-layout">
+
+      <!-- Left: Field Palette -->
+      <aside class="field-palette">
+        <div class="palette-card">
+          <div class="palette-title">フィールド</div>
+          <div class="palette-chips">
+            <span class="palette-chip">文字列（1行）</span>
+            <span class="palette-chip">文字列（複数行）</span>
+            <span class="palette-chip">リッチエディター</span>
+            <span class="palette-chip">数値</span>
+            <span class="palette-chip">計算</span>
+            <span class="palette-chip">ラジオボタン</span>
+            <span class="palette-chip">チェックボックス</span>
+            <span class="palette-chip">複数選択</span>
+            <span class="palette-chip">ドロップダウン</span>
+            <span class="palette-chip">日付</span>
+            <span class="palette-chip">時刻</span>
+            <span class="palette-chip">日時</span>
+            <span class="palette-chip">添付ファイル</span>
+            <span class="palette-chip">リンク</span>
+            <span class="palette-chip">ユーザー選択</span>
+            <span class="palette-chip">組織選択</span>
+            <span class="palette-chip">グループ選択</span>
+            <span class="palette-chip">テーブル</span>
+            <span class="palette-chip">関連レコード一覧</span>
+            <span class="palette-chip">ルックアップ</span>
+            <span class="palette-chip">ラベル</span>
+            <span class="palette-chip">スペース</span>
+            <span class="palette-chip">罫線</span>
+            <span class="palette-chip">グループ</span>
+            <span class="palette-chip system">レコード番号</span>
+            <span class="palette-chip system">作成者</span>
+            <span class="palette-chip system">更新者</span>
+            <span class="palette-chip system">作成日時</span>
+            <span class="palette-chip system">更新日時</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main: Form Canvas -->
+      <main class="form-canvas">
+        <div class="canvas-card">
+          <div class="canvas-title">フォームレイアウト</div>
+
+          <!-- Row 1: Record Number -->
+          <div class="form-row">
+            <div class="form-field">
+              <div class="field-info">
+                <div class="field-name">レコード番号</div>
+                <div class="field-type">レコード番号</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Company Name | Department | Contact Person -->
+          <div class="form-row">
+            <div class="form-field">
+              <div class="field-info">
+                <div class="field-name">会社名<span class="field-required">*</span></div>
+                <div class="field-type">文字列（1行）</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-field">
+              <div class="field-info">
+                <div class="field-name">部署名</div>
+                <div class="field-type">文字列（1行）</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-field">
+              <div class="field-info">
+                <div class="field-name">担当者名</div>
+                <div class="field-type">文字列（1行）</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 3: Postal Code | TEL | FAX -->
+          <div class="form-row">
+            <div class="form-field">
+              <div class="field-info">
+                <div class="field-name">郵便番号</div>
+                <div class="field-type">文字列（1行）</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-field">
+              <div class="field-info">
+                <div class="field-name">TEL</div>
+                <div class="field-type">文字列（1行）</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-field">
+              <div class="field-info">
+                <div class="field-name">FAX</div>
+                <div class="field-type">文字列（1行）</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 4: Address | Customer Rank -->
+          <div class="form-row">
+            <div class="form-field" style="flex: 2;">
+              <div class="field-info">
+                <div class="field-name">住所</div>
+                <div class="field-type">文字列（1行）</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-field" style="flex: 1;">
+              <div class="field-info">
+                <div class="field-name">顧客ランク</div>
+                <div class="field-type">ドロップダウン</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 5: Email | Company Logo -->
+          <div class="form-row">
+            <div class="form-field">
+              <div class="field-info">
+                <div class="field-name">メールアドレス</div>
+                <div class="field-type">リンク</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-field">
+              <div class="field-info">
+                <div class="field-name">会社ロゴ</div>
+                <div class="field-type">添付ファイル</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 6: Notes -->
+          <div class="form-row">
+            <div class="form-field">
+              <div class="field-info">
+                <div class="field-name">備考</div>
+                <div class="field-type">文字列（複数行）</div>
+              </div>
+              <div class="field-actions">
+                <button class="field-action-btn" type="button" title="設定">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M6.5 1.2l-.3 1.5a5.5 5.5 0 00-1.6.9L3.2 3 1.7 5.5l1.1 1a5.6 5.6 0 000 1.9l-1.1 1L3.2 12l1.4-.6a5.5 5.5 0 001.6.9l.3 1.5h3l.3-1.5a5.5 5.5 0 001.6-.9l1.4.6 1.5-2.6-1.1-1a5.6 5.6 0 000-1.9l1.1-1L13.8 3l-1.4.6a5.5 5.5 0 00-1.6-.9L10.5 1.2z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+</body>
+</html>

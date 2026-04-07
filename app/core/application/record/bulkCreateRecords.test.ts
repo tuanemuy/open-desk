@@ -54,7 +54,7 @@ describe("bulkCreateRecords", () => {
         records: [
           {
             fieldValues: new Map([
-              ["f", { type: "SINGLE_LINE_TEXT", value: "v" }],
+              ["f", { type: "SINGLE_LINE_TEXT" as const, value: "v" }],
             ]),
           },
         ],
@@ -74,7 +74,9 @@ describe("bulkCreateRecords", () => {
       "validateFieldValues",
     ).mockResolvedValue();
     const records = Array.from({ length: 100 }, () => ({
-      fieldValues: new Map([["f", { type: "SINGLE_LINE_TEXT", value: "v" }]]),
+      fieldValues: new Map([
+        ["f", { type: "SINGLE_LINE_TEXT" as const, value: "v" }],
+      ]),
     }));
     const result = await bulkCreateRecords({
       container,
@@ -122,11 +124,13 @@ describe("bulkCreateRecords", () => {
       );
     const records = [
       {
-        fieldValues: new Map([["f", { type: "SINGLE_LINE_TEXT", value: "v" }]]),
+        fieldValues: new Map([
+          ["f", { type: "SINGLE_LINE_TEXT" as const, value: "v" }],
+        ]),
       },
       {
         fieldValues: new Map([
-          ["f", { type: "SINGLE_LINE_TEXT", value: "bad" }],
+          ["f", { type: "SINGLE_LINE_TEXT" as const, value: "bad" }],
         ]),
       },
     ];

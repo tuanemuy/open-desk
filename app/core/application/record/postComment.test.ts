@@ -50,7 +50,9 @@ async function seedRecord(
     headers: headers(),
     input: {
       appId,
-      fieldValues: new Map([["f", { type: "SINGLE_LINE_TEXT", value: "v" }]]),
+      fieldValues: new Map([
+        ["f", { type: "SINGLE_LINE_TEXT" as const, value: "v" }],
+      ]),
       creatorId: "user-1",
     },
   });
@@ -101,7 +103,7 @@ describe("postComment", () => {
     const r = await seedRecord(container);
     const mentions = Array.from({ length: 10 }, (_, i) => ({
       type: "USER" as const,
-      id: `user-${i}`,
+      code: `user-${i}`,
     }));
     const result = await postComment({
       container,
@@ -124,7 +126,7 @@ describe("postComment", () => {
     const r = await seedRecord(container);
     const mentions = Array.from({ length: 11 }, (_, i) => ({
       type: "USER" as const,
-      id: `user-${i}`,
+      code: `user-${i}`,
     }));
     await expect(
       postComment({

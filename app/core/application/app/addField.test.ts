@@ -47,7 +47,13 @@ const baseInput = {
   unique: null,
   noLabel: null,
   defaultValue: null,
-  properties: {},
+  properties: {
+    type: "SINGLE_LINE_TEXT" as const,
+    expression: null,
+    hideExpression: false,
+    minLength: null,
+    maxLength: null,
+  },
   layoutPosition: null,
   creatorId: "user-1",
 };

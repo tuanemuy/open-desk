@@ -1,11 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as schema from "@/core/adapters/drizzleSqlite/schema";
 import {
   createMockHeaders,
   setupTestContainer,
 } from "@/core/application/__tests__/helpers";
 import { BusinessRuleError } from "@/core/domain/error";
-import { ValidationError } from "../error";
 import { createCursor } from "./createCursor";
 
 const getContainer = setupTestContainer();

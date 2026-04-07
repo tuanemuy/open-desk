@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenDesk — スペース</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #F8F9FA;
+      color: #333;
+      font-size: 14px;
+      line-height: 1.6;
+      min-width: 1200px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Global Header */
+    .global-header {
+      background: #FFFFFF;
+      border-bottom: 1px solid #E8EAED;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .global-header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .logo span {
+      color: #4A90D9;
+    }
+
+    .global-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .global-nav a {
+      text-decoration: none;
+      color: #666;
+      font-size: 13px;
+      font-weight: 400;
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .global-nav a:hover {
+      color: #333;
+      background: #F3F4F6;
+    }
+
+    .global-nav a.active {
+      color: #4A90D9;
+      background: #EBF2FA;
+      font-weight: 500;
+    }
+
+    .header-spacer {
+      flex: 1;
+    }
+
+    .header-search {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .header-search input {
+      width: 260px;
+      height: 36px;
+      border: 1px solid #E0E3E8;
+      border-radius: 8px;
+      padding: 0 12px 0 36px;
+      font-size: 13px;
+      font-family: inherit;
+      background: #F8F9FA;
+      color: #333;
+      transition: all 0.15s ease;
+    }
+
+    .header-search input::placeholder {
+      color: #999;
+    }
+
+    .header-search input:focus {
+      outline: none;
+      border-color: #4A90D9;
+      background: #FFF;
+      box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+    }
+
+    .header-search .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 14px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #E0E3E8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .user-avatar:hover {
+      background: #D0D3D8;
+    }
+
+    /* Space Header */
+    .space-header {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 32px 0;
+    }
+
+    .space-title-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .space-title-row h2 {
+      font-size: 22px;
+      font-weight: 300;
+      color: #333;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-option {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 400;
+      color: #666;
+      background: #FFF;
+      border: 1px solid #E0E3E8;
+      border-radius: 6px;
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-option:hover {
+      border-color: #CCC;
+      color: #333;
+    }
+
+    .btn-favorite {
+      font-size: 18px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #CCC;
+      transition: color 0.15s ease;
+      line-height: 1;
+    }
+
+    .btn-favorite:hover {
+      color: #F5C542;
+    }
+
+    .btn-favorite.active {
+      color: #F5C542;
+    }
+
+    .space-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #4A90D9;
+      background: #EBF2FA;
+      border-radius: 4px;
+      padding: 2px 10px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Main Layout */
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 32px 60px;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+    }
+
+    /* Card Base */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E8EAED;
+      border-radius: 10px;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #F0F1F3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    /* Announcement Section */
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .announcement-content p {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+
+    .announcement-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .announcement-content a {
+      color: #4A90D9;
+      text-decoration: none;
+    }
+
+    .announcement-content a:hover {
+      text-decoration: underline;
+    }
+
+    .announcement-content .highlight-box {
+      background: #F8F9FA;
+      border-left: 3px solid #4A90D9;
+      padding: 14px 18px;
+      border-radius: 0 6px 6px 0;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    .edit-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #4A90D9;
+      text-decoration: none;
+      margin-top: 8px;
+    }
+
+    .edit-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Thread Content Area */
+    .thread-area .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .thread-content-main {
+      padding: 20px;
+    }
+
+    .thread-post {
+      padding: 16px 0;
+      border-bottom: 1px solid #F2F3F5;
+    }
+
+    .thread-post:first-child {
+      padding-top: 0;
+    }
+
+    .thread-post:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .thread-post-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .thread-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #E0E3E8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: #666;
+      flex-shrink: 0;
+    }
+
+    .thread-post-author {
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .thread-post-time {
+      font-size: 11px;
+      color: #999;
+    }
+
+    .thread-post-body {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.7;
+      padding-left: 38px;
+    }
+
+    .thread-reply-box {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #F2F3F5;
+    }
+
+    .thread-reply-input {
+      width: 100%;
+      height: 40px;
+      border: 1px solid #E0E3E8;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-family: inherit;
+      font-size: 13px;
+      color: #333;
+      background: #F8F9FA;
+      transition: all 0.15s ease;
+    }
+
+    .thread-reply-input::placeholder {
+      color: #999;
+    }
+
+    .thread-reply-input:focus {
+      outline: none;
+      border-color: #4A90D9;
+      background: #FFF;
+      box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .sidebar-section {
+      background: #FFFFFF;
+      border: 1px solid #E8EAED;
+      border-radius: 10px;
+    }
+
+    .sidebar-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #F0F1F3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header h4 {
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .sidebar-body {
+      padding: 14px 18px;
+    }
+
+    .btn-add {
+      font-size: 18px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #CCC;
+      line-height: 1;
+      transition: color 0.15s ease;
+    }
+
+    .btn-add:hover {
+      color: #4A90D9;
+    }
+
+    /* Thread List */
+    .thread-list {
+      list-style: none;
+    }
+
+    .thread-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid #F5F5F5;
+    }
+
+    .thread-list li:first-child {
+      padding-top: 0;
+    }
+
+    .thread-list li:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .thread-list a {
+      text-decoration: none;
+      color: #333;
+      font-size: 13px;
+      display: block;
+      transition: color 0.15s ease;
+    }
+
+    .thread-list a:hover {
+      color: #4A90D9;
+    }
+
+    .thread-list .thread-meta {
+      font-size: 11px;
+      color: #999;
+      margin-top: 3px;
+    }
+
+    /* App List */
+    .app-list {
+      list-style: none;
+    }
+
+    .app-list li {
+      padding: 9px 0;
+      border-bottom: 1px solid #F5F5F5;
+    }
+
+    .app-list li:first-child {
+      padding-top: 0;
+    }
+
+    .app-list li:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .app-list a {
+      text-decoration: none;
+      color: #333;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      transition: color 0.15s ease;
+    }
+
+    .app-list a:hover {
+      color: #4A90D9;
+    }
+
+    .app-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 5px;
+      background: #F0F5ED;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+      color: #6B9E5B;
+    }
+
+    /* People */
+    .people-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .people-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .people-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #E0E3E8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+      flex-shrink: 0;
+    }
+
+    .people-name {
+      font-size: 13px;
+      color: #333;
+    }
+
+    .people-role {
+      font-size: 11px;
+      color: #999;
+    }
+
+    /* Related Links */
+    .related-links {
+      list-style: none;
+    }
+
+    .related-links li {
+      padding: 8px 0;
+      border-bottom: 1px solid #F5F5F5;
+    }
+
+    .related-links li:first-child {
+      padding-top: 0;
+    }
+
+    .related-links li:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .related-links a {
+      text-decoration: none;
+      color: #4A90D9;
+      font-size: 13px;
+    }
+
+    .related-links a:hover {
+      text-decoration: underline;
+    }
+
+    .empty-state {
+      font-size: 12px;
+      color: #BBB;
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    /* Active thread highlight */
+    .thread-list .active-thread a {
+      color: #4A90D9;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Header -->
+  <header class="global-header">
+    <div class="global-header-inner">
+      <a href="#" class="logo">Open<span>Desk</span></a>
+      <nav class="global-nav">
+        <a href="#">ポータル</a>
+        <a href="#">通知</a>
+        <a href="#">ブックマーク</a>
+      </nav>
+      <div class="header-spacer"></div>
+      <div class="header-search">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" placeholder="スペース内検索...">
+      </div>
+      <div class="user-avatar">田</div>
+    </div>
+  </header>
+
+  <!-- Space Header -->
+  <div class="space-header">
+    <div class="space-title-row">
+      <h2>あなたのチームのコミュニケーションスペース</h2>
+      <button class="btn-option">オプション</button>
+      <button class="btn-favorite active">&#9733;</button>
+      <span class="space-label">公開</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Left Column -->
+    <div class="left-column">
+
+      <!-- Announcement Section -->
+      <div class="card">
+        <div class="card-header">
+          <h3>お知らせ</h3>
+        </div>
+        <div class="card-body">
+          <div class="announcement-content">
+            <p>
+              このスペースは、チーム内の情報共有やプロジェクトの進捗管理を行うための場所です。
+              メンバー全員がアクセスできますので、重要なお知らせや共有事項はこちらに投稿してください。
+            </p>
+            <div class="highlight-box">
+              毎週月曜日にチームミーティングを開催しています。議事録はスレッド「今週のタスク確認」に記録していますので、
+              欠席された方はそちらをご確認ください。次回は4月13日（月）10:00からです。
+            </div>
+            <p>
+              新しいメンバーの方は、まず<a href="#">チーム運用ガイド</a>をご一読ください。
+              アプリの使い方や日常的なワークフローについて記載しています。
+              不明な点があれば、スレッドで気軽に質問してください。
+            </p>
+          </div>
+          <a href="#" class="edit-link">スペースの本文を編集</a>
+        </div>
+      </div>
+
+      <!-- Thread Content Area -->
+      <div class="card thread-area">
+        <div class="card-header">
+          <h3>今週のタスク確認</h3>
+          <span style="font-size: 12px; color: #999;">返信 3件</span>
+        </div>
+        <div class="thread-content-main">
+          <div class="thread-post">
+            <div class="thread-post-header">
+              <div class="thread-avatar">山</div>
+              <span class="thread-post-author">山田 太郎</span>
+              <span class="thread-post-time">2026年4月7日 09:15</span>
+            </div>
+            <div class="thread-post-body">
+              今週のタスクを共有します。各自、担当分の進捗を確認してコメントをお願いします。<br><br>
+              ・顧客リストの更新（担当：佐藤）<br>
+              ・月次レポートの作成（担当：鈴木）<br>
+              ・新規プロジェクト提案書の準備（担当：田中）
+            </div>
+          </div>
+
+          <div class="thread-post">
+            <div class="thread-post-header">
+              <div class="thread-avatar">佐</div>
+              <span class="thread-post-author">佐藤 花子</span>
+              <span class="thread-post-time">2026年4月7日 10:02</span>
+            </div>
+            <div class="thread-post-body">
+              顧客リストの更新ですが、先週分のデータ入力は完了しました。今週中に新規取引先の情報も追加する予定です。
+            </div>
+          </div>
+
+          <div class="thread-post">
+            <div class="thread-post-header">
+              <div class="thread-avatar">鈴</div>
+              <span class="thread-post-author">鈴木 一郎</span>
+              <span class="thread-post-time">2026年4月7日 10:30</span>
+            </div>
+            <div class="thread-post-body">
+              月次レポートは現在データ集計中です。水曜日までにドラフトを共有できると思います。確認をお願いします。
+            </div>
+          </div>
+
+          <div class="thread-reply-box">
+            <input type="text" class="thread-reply-input" placeholder="返信を入力...">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar">
+
+      <!-- Thread List -->
+      <div class="sidebar-section">
+        <div class="sidebar-header">
+          <h4>スレッド</h4>
+        </div>
+        <div class="sidebar-body">
+          <ul class="thread-list">
+            <li class="active-thread">
+              <a href="#">今週のタスク確認</a>
+              <div class="thread-meta">最終更新：本日 10:30 ・ 返信 3件</div>
+            </li>
+            <li>
+              <a href="#">新規プロジェクトについて</a>
+              <div class="thread-meta">最終更新：4月4日 ・ 返信 7件</div>
+            </li>
+            <li>
+              <a href="#">備品購入リクエスト</a>
+              <div class="thread-meta">最終更新：4月2日 ・ 返信 2件</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Apps -->
+      <div class="sidebar-section">
+        <div class="sidebar-header">
+          <h4>アプリ</h4>
+          <button class="btn-add">+</button>
+        </div>
+        <div class="sidebar-body">
+          <ul class="app-list">
+            <li>
+              <a href="#">
+                <div class="app-icon">&#128196;</div>
+                ファイル管理
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <div class="app-icon">&#128101;</div>
+                顧客リスト
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- People -->
+      <div class="sidebar-section">
+        <div class="sidebar-header">
+          <h4>ピープル</h4>
+        </div>
+        <div class="sidebar-body">
+          <ul class="people-list">
+            <li class="people-item">
+              <div class="people-avatar">山</div>
+              <div>
+                <div class="people-name">山田 太郎</div>
+                <div class="people-role">管理者</div>
+              </div>
+            </li>
+            <li class="people-item">
+              <div class="people-avatar">佐</div>
+              <div>
+                <div class="people-name">佐藤 花子</div>
+                <div class="people-role">メンバー</div>
+              </div>
+            </li>
+            <li class="people-item">
+              <div class="people-avatar">鈴</div>
+              <div>
+                <div class="people-name">鈴木 一郎</div>
+                <div class="people-role">メンバー</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Related Links -->
+      <div class="sidebar-section">
+        <div class="sidebar-header">
+          <h4>関連リンク</h4>
+          <button class="btn-add">+</button>
+        </div>
+        <div class="sidebar-body">
+          <ul class="related-links">
+            <li><a href="#">チーム運用ガイド</a></li>
+            <li><a href="#">社内ポータルサイト</a></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

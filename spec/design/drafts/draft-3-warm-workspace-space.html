@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk - スペース（Warm Workspace）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #F5F0E8;
+    color: #4A4541;
+    min-width: 1200px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========== Header ========== */
+  .header {
+    background: #FFFCF7;
+    border-bottom: 1px solid #E8E0D4;
+    box-shadow: 0 1px 4px rgba(74, 69, 65, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    height: 60px;
+    gap: 32px;
+  }
+
+  .logo {
+    font-size: 22px;
+    font-weight: 800;
+    color: #7C5B3A;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #D97706, #B45309);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .nav a {
+    text-decoration: none;
+    color: #6B6560;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+  }
+
+  .nav a:hover {
+    background: #F5F0E8;
+    color: #4A4541;
+  }
+
+  .nav a.active {
+    background: #D97706;
+    color: white;
+  }
+
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-search {
+    position: relative;
+  }
+
+  .header-search input {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    padding: 7px 14px 7px 36px;
+    border: 1px solid #E0D8CC;
+    border-radius: 20px;
+    background: #FBF8F3;
+    color: #4A4541;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .header-search input::placeholder {
+    color: #A89F94;
+  }
+
+  .header-search input:focus {
+    border-color: #D97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+  }
+
+  .header-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #A89F94;
+    font-size: 14px;
+  }
+
+  .notification-bell {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #FBF8F3;
+    border: 1px solid #E0D8CC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    font-size: 16px;
+    color: #6B6560;
+  }
+
+  .notification-bell:hover {
+    background: #F5F0E8;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #D97706;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #FFFCF7;
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D97706, #B45309);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ========== Breadcrumb ========== */
+  .breadcrumb-bar {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .breadcrumb-bar a {
+    color: #A89F94;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+
+  .breadcrumb-bar a:hover {
+    color: #D97706;
+  }
+
+  .breadcrumb-sep {
+    color: #C4BDB3;
+    font-size: 11px;
+  }
+
+  .breadcrumb-current {
+    color: #4A4541;
+    font-weight: 700;
+  }
+
+  /* ========== Space Header ========== */
+  .space-hero {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px 20px;
+  }
+
+  .space-hero-card {
+    background: linear-gradient(135deg, #FFFCF7 0%, #FEF5E7 100%);
+    border-radius: 16px;
+    border: 1px solid #EDE7DC;
+    box-shadow: 0 2px 8px rgba(74, 69, 65, 0.06);
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .space-hero-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .space-hero-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #D97706, #B45309);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: white;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+  }
+
+  .space-hero-info h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #4A4541;
+    margin-bottom: 4px;
+  }
+
+  .space-hero-desc {
+    font-size: 14px;
+    color: #8C847A;
+    font-weight: 500;
+  }
+
+  .space-hero-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .space-hero-right .btn {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: #D97706;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #B45309;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
+  }
+
+  .btn-secondary {
+    background: #FFFCF7;
+    color: #6B6560;
+    border: 1px solid #E0D8CC;
+  }
+
+  .btn-secondary:hover {
+    background: #F5F0E8;
+    border-color: #D4CBBD;
+  }
+
+  .member-faces {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+  }
+
+  .member-face {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    margin-left: -8px;
+    border: 2px solid #FFFCF7;
+  }
+
+  .member-face:first-child {
+    margin-left: 0;
+  }
+
+  .member-more {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #EDE7DC;
+    color: #6B6560;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: -8px;
+    border: 2px solid #FFFCF7;
+  }
+
+  /* ========== Content ========== */
+  .content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px 48px;
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+  }
+
+  /* ========== Cards ========== */
+  .card {
+    background: #FFFCF7;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(74, 69, 65, 0.06), 0 1px 2px rgba(74, 69, 65, 0.04);
+    border: 1px solid #EDE7DC;
+    overflow: hidden;
+  }
+
+  .card + .card {
+    margin-top: 20px;
+  }
+
+  .card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #EDE7DC;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #4A4541;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .card-more {
+    font-size: 13px;
+    font-weight: 600;
+    color: #D97706;
+    text-decoration: none;
+    padding: 4px 12px;
+    border-radius: 12px;
+    transition: background 0.2s;
+  }
+
+  .card-more:hover {
+    background: rgba(217, 119, 6, 0.08);
+  }
+
+  .card-body {
+    padding: 16px 22px 20px;
+  }
+
+  /* ========== Announcement ========== */
+  .announcement-box {
+    background: #FBF8F3;
+    border: 1px solid #EDE7DC;
+    border-radius: 12px;
+    padding: 18px 20px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #4A4541;
+    margin-bottom: 8px;
+  }
+
+  .announcement-box p {
+    margin-bottom: 10px;
+  }
+
+  .announcement-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  .announcement-box strong {
+    color: #B45309;
+  }
+
+  .announcement-meta-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 12px;
+    font-size: 12px;
+    color: #A89F94;
+    font-weight: 600;
+  }
+
+  /* ========== Thread List / Discussion ========== */
+  .thread-compose {
+    display: flex;
+    gap: 12px;
+    padding: 16px 0 8px;
+    border-bottom: 1px solid #F0EAE0;
+  }
+
+  .thread-compose-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D97706, #B45309);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .thread-compose-input {
+    flex: 1;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    padding: 10px 16px;
+    border: 1px solid #E0D8CC;
+    border-radius: 12px;
+    background: #FBF8F3;
+    color: #4A4541;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    height: 44px;
+  }
+
+  .thread-compose-input::placeholder {
+    color: #A89F94;
+  }
+
+  .thread-compose-input:focus {
+    border-color: #D97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+  }
+
+  .thread-item {
+    display: flex;
+    gap: 12px;
+    padding: 18px 0;
+    border-bottom: 1px solid #F0EAE0;
+  }
+
+  .thread-item:last-child {
+    border-bottom: none;
+  }
+
+  .thread-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .thread-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .thread-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .thread-author {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4A4541;
+  }
+
+  .thread-time {
+    font-size: 12px;
+    color: #B5ADA3;
+    font-weight: 500;
+  }
+
+  .thread-text {
+    font-size: 14px;
+    color: #4A4541;
+    line-height: 1.7;
+  }
+
+  .thread-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .thread-action {
+    font-size: 12px;
+    font-weight: 600;
+    color: #A89F94;
+    cursor: pointer;
+    transition: color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .thread-action:hover {
+    color: #D97706;
+  }
+
+  .thread-replies-badge {
+    font-size: 12px;
+    font-weight: 700;
+    color: #D97706;
+    background: #FEF0CD;
+    padding: 2px 10px;
+    border-radius: 10px;
+  }
+
+  /* ========== Sidebar ========== */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* --- Sidebar Thread List --- */
+  .sidebar-thread-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F0EAE0;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .sidebar-thread-item:last-child {
+    border-bottom: none;
+  }
+
+  .sidebar-thread-item:hover {
+    opacity: 0.8;
+  }
+
+  .sidebar-thread-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .sidebar-thread-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4A4541;
+    line-height: 1.4;
+  }
+
+  .sidebar-thread-meta {
+    font-size: 11px;
+    color: #B5ADA3;
+    margin-top: 2px;
+  }
+
+  .sidebar-thread-new {
+    width: 7px;
+    height: 7px;
+    background: #D97706;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+    margin-left: auto;
+  }
+
+  /* --- Sidebar App List --- */
+  .sidebar-app-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .sidebar-app-item:hover {
+    background: #FBF8F3;
+  }
+
+  .sidebar-app-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .sidebar-app-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4A4541;
+  }
+
+  .sidebar-app-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: #A89F94;
+    font-weight: 600;
+  }
+
+  /* --- Members --- */
+  .members-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  .member-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 6px;
+    background: #FBF8F3;
+    border: 1px solid #EDE7DC;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .member-chip:hover {
+    border-color: #D97706;
+    background: #FEF8EC;
+  }
+
+  .member-chip-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .member-chip-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4A4541;
+  }
+
+  .member-chip-role {
+    font-size: 10px;
+    color: #A89F94;
+    font-weight: 600;
+  }
+
+  /* --- Links --- */
+  .link-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #F0EAE0;
+  }
+
+  .link-item:last-child {
+    border-bottom: none;
+  }
+
+  .link-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: #FEF0CD;
+    color: #B45309;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .link-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #D97706;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .link-name:hover {
+    color: #B45309;
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== Header ==================== -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">O</div>
+      OpenDesk
+    </div>
+
+    <nav class="nav">
+      <a href="#">ポータル</a>
+      <a href="#" class="active">スペース</a>
+      <a href="#">アプリ</a>
+      <a href="#">メッセージ</a>
+      <a href="#">管理</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="header-search">
+        <span class="header-search-icon">&#128269;</span>
+        <input type="text" placeholder="検索...">
+      </div>
+      <div class="notification-bell">
+        &#128276;
+        <span class="notification-badge">5</span>
+      </div>
+      <div class="user-avatar">田</div>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== Breadcrumb ==================== -->
+<div class="breadcrumb-bar">
+  <a href="#">ポータル</a>
+  <span class="breadcrumb-sep">&#9656;</span>
+  <a href="#">スペース</a>
+  <span class="breadcrumb-sep">&#9656;</span>
+  <span class="breadcrumb-current">営業チーム</span>
+</div>
+
+<!-- ==================== Space Hero ==================== -->
+<div class="space-hero">
+  <div class="space-hero-card">
+    <div class="space-hero-left">
+      <div class="space-hero-icon">営</div>
+      <div class="space-hero-info">
+        <h1>営業チーム</h1>
+        <div class="space-hero-desc">営業部の情報共有・チームコミュニケーションスペースです</div>
+      </div>
+    </div>
+    <div class="space-hero-right">
+      <div class="member-faces">
+        <div class="member-face" style="background: #D97706;">田</div>
+        <div class="member-face" style="background: #5B8C5A;">山</div>
+        <div class="member-face" style="background: #7C5BA8;">佐</div>
+        <div class="member-face" style="background: #4A7FA8;">渡</div>
+        <div class="member-more">+8</div>
+      </div>
+      <button class="btn btn-secondary">&#9998; 編集</button>
+      <button class="btn btn-primary">&#43; 投稿する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== Content ==================== -->
+<div class="content">
+
+  <!-- ===== Left Column ===== -->
+  <div class="main-column">
+
+    <!-- お知らせ Card -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">
+          <span class="card-title-icon" style="background: #FEF0CD; color: #B45309;">&#128227;</span>
+          お知らせ
+        </span>
+        <a href="#" class="card-more">編集 &rarr;</a>
+      </div>
+      <div class="card-body">
+        <div class="announcement-box">
+          <p><strong>4月の営業目標:</strong> 新規顧客獲得 15社、既存顧客アップセル 8件</p>
+          <p>今月のフォーカスエリアは「製造業セグメント」です。新しい提案資料が共有フォルダにアップされていますので、各自ご確認ください。</p>
+          <p>毎週水曜 10:00 の進捗会議は引き続き実施します。欠席の場合は前日までに連絡をお願いします。</p>
+        </div>
+        <div class="announcement-meta-footer">
+          <span>更新: 田中 太郎</span>
+          <span>2026/04/07 09:00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Threads Card -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">
+          <span class="card-title-icon" style="background: #E8F0E8; color: #5B8C5A;">&#128172;</span>
+          ディスカッション
+        </span>
+      </div>
+      <div class="card-body">
+
+        <!-- Compose -->
+        <div class="thread-compose">
+          <div class="thread-compose-avatar">田</div>
+          <input type="text" class="thread-compose-input" placeholder="チームに共有したいことを書く...">
+        </div>
+
+        <!-- Thread 1 -->
+        <div class="thread-item">
+          <div class="thread-avatar" style="background: linear-gradient(135deg, #5B8C5A, #4A7A4A);">山</div>
+          <div class="thread-body">
+            <div class="thread-header">
+              <span class="thread-author">山本 花子</span>
+              <span class="thread-time">今日 11:30</span>
+            </div>
+            <div class="thread-text">
+              株式会社テクノソリューションとの商談ですが、先方から追加要件のヒアリング依頼がありました。来週火曜に訪問予定です。佐藤さんの顧客管理レコードも更新しておきます。
+            </div>
+            <div class="thread-actions">
+              <span class="thread-action">&#128077; いいね (3)</span>
+              <span class="thread-action">&#128172; 返信</span>
+              <span class="thread-replies-badge">2件の返信</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thread 2 -->
+        <div class="thread-item">
+          <div class="thread-avatar" style="background: linear-gradient(135deg, #D97706, #B45309);">田</div>
+          <div class="thread-body">
+            <div class="thread-header">
+              <span class="thread-author">田中 太郎</span>
+              <span class="thread-time">今日 09:15</span>
+            </div>
+            <div class="thread-text">
+              おはようございます。今月の営業資料を更新しました。製造業向けの新しいケーススタディを追加しています。提案時に活用してください。共有フォルダの「2026年4月_提案資料」に格納済みです。
+            </div>
+            <div class="thread-actions">
+              <span class="thread-action">&#128077; いいね (7)</span>
+              <span class="thread-action">&#128172; 返信</span>
+              <span class="thread-replies-badge">4件の返信</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thread 3 -->
+        <div class="thread-item">
+          <div class="thread-avatar" style="background: linear-gradient(135deg, #4A7FA8, #3A6F98);">渡</div>
+          <div class="thread-body">
+            <div class="thread-header">
+              <span class="thread-author">渡辺 誠</span>
+              <span class="thread-time">昨日 17:45</span>
+            </div>
+            <div class="thread-text">
+              フューチャーデザイン合同会社から正式な見積依頼が来ました。予算規模は年間300万円程度とのことです。伊藤さんのレコードにも情報追記しています。明日中に見積書を作成予定です。
+            </div>
+            <div class="thread-actions">
+              <span class="thread-action">&#128077; いいね (5)</span>
+              <span class="thread-action">&#128172; 返信</span>
+              <span class="thread-replies-badge">1件の返信</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thread 4 -->
+        <div class="thread-item">
+          <div class="thread-avatar" style="background: linear-gradient(135deg, #7C5BA8, #6B4A97);">佐</div>
+          <div class="thread-body">
+            <div class="thread-header">
+              <span class="thread-author">佐々木 大輔</span>
+              <span class="thread-time">昨日 14:20</span>
+            </div>
+            <div class="thread-text">
+              先週のセミナー参加者リストを整理しました。12名の見込み客が新たに登録されています。来週からフォローアップのアクションを開始します。担当割り振りについて相談させてください。
+            </div>
+            <div class="thread-actions">
+              <span class="thread-action">&#128077; いいね (2)</span>
+              <span class="thread-action">&#128172; 返信</span>
+              <span class="thread-replies-badge">6件の返信</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thread 5 -->
+        <div class="thread-item">
+          <div class="thread-avatar" style="background: linear-gradient(135deg, #A87D5B, #8C6545);">木</div>
+          <div class="thread-body">
+            <div class="thread-header">
+              <span class="thread-author">木村 遥</span>
+              <span class="thread-time">4/5 11:00</span>
+            </div>
+            <div class="thread-text">
+              グローバルメディア株式会社の鈴木様から、追加ライセンスの相談をいただきました。現在10ユーザーで利用中で、部署全体（25名）への展開を検討されています。
+            </div>
+            <div class="thread-actions">
+              <span class="thread-action">&#128077; いいね (4)</span>
+              <span class="thread-action">&#128172; 返信</span>
+              <span class="thread-replies-badge">3件の返信</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Right Column: Sidebar ===== -->
+  <div class="sidebar">
+
+    <!-- Recent Threads -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">
+          <span class="card-title-icon" style="background: #FDECD0; color: #D97706;">&#128196;</span>
+          最近のスレッド
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-avatar" style="background: #5B8C5A;">山</div>
+          <div>
+            <div class="sidebar-thread-title">テクノソリューション 追加要件</div>
+            <div class="sidebar-thread-meta">山本 花子 &middot; 今日 11:30</div>
+          </div>
+          <div class="sidebar-thread-new"></div>
+        </div>
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-avatar" style="background: #D97706;">田</div>
+          <div>
+            <div class="sidebar-thread-title">4月 営業資料 更新のお知らせ</div>
+            <div class="sidebar-thread-meta">田中 太郎 &middot; 今日 09:15</div>
+          </div>
+          <div class="sidebar-thread-new"></div>
+        </div>
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-avatar" style="background: #4A7FA8;">渡</div>
+          <div>
+            <div class="sidebar-thread-title">フューチャーデザイン 見積依頼</div>
+            <div class="sidebar-thread-meta">渡辺 誠 &middot; 昨日 17:45</div>
+          </div>
+        </div>
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-avatar" style="background: #7C5BA8;">佐</div>
+          <div>
+            <div class="sidebar-thread-title">セミナー参加者 フォローアップ</div>
+            <div class="sidebar-thread-meta">佐々木 大輔 &middot; 昨日 14:20</div>
+          </div>
+        </div>
+        <div class="sidebar-thread-item">
+          <div class="sidebar-thread-avatar" style="background: #A87D5B;">木</div>
+          <div>
+            <div class="sidebar-thread-title">グローバルメディア ライセンス拡大</div>
+            <div class="sidebar-thread-meta">木村 遥 &middot; 4/5 11:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Apps -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">
+          <span class="card-title-icon" style="background: #E0EDF7; color: #4A7FA8;">&#128187;</span>
+          アプリ
+        </span>
+      </div>
+      <div class="card-body" style="padding: 10px 12px 14px;">
+        <div class="sidebar-app-item">
+          <div class="sidebar-app-icon" style="background: #FEF0CD; color: #B45309;">&#128203;</div>
+          <span class="sidebar-app-name">顧客管理</span>
+          <span class="sidebar-app-count">247件</span>
+        </div>
+        <div class="sidebar-app-item">
+          <div class="sidebar-app-icon" style="background: #E8F0E8; color: #5B8C5A;">&#128200;</div>
+          <span class="sidebar-app-name">営業日報</span>
+          <span class="sidebar-app-count">1,024件</span>
+        </div>
+        <div class="sidebar-app-item">
+          <div class="sidebar-app-icon" style="background: #FDECD0; color: #D97706;">&#128202;</div>
+          <span class="sidebar-app-name">商談管理</span>
+          <span class="sidebar-app-count">89件</span>
+        </div>
+        <div class="sidebar-app-item">
+          <div class="sidebar-app-icon" style="background: #EDE4F5; color: #7C5BA8;">&#128197;</div>
+          <span class="sidebar-app-name">訪問スケジュール</span>
+          <span class="sidebar-app-count">36件</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Members -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">
+          <span class="card-title-icon" style="background: #E8F0E8; color: #5B8C5A;">&#128101;</span>
+          メンバー（12人）
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="members-grid">
+          <div class="member-chip">
+            <div class="member-chip-avatar" style="background: #D97706;">田</div>
+            <div>
+              <div class="member-chip-name">田中 太郎</div>
+              <div class="member-chip-role">管理者</div>
+            </div>
+          </div>
+          <div class="member-chip">
+            <div class="member-chip-avatar" style="background: #5B8C5A;">山</div>
+            <div>
+              <div class="member-chip-name">山本 花子</div>
+              <div class="member-chip-role">メンバー</div>
+            </div>
+          </div>
+          <div class="member-chip">
+            <div class="member-chip-avatar" style="background: #7C5BA8;">佐</div>
+            <div>
+              <div class="member-chip-name">佐々木 大輔</div>
+              <div class="member-chip-role">メンバー</div>
+            </div>
+          </div>
+          <div class="member-chip">
+            <div class="member-chip-avatar" style="background: #4A7FA8;">渡</div>
+            <div>
+              <div class="member-chip-name">渡辺 誠</div>
+              <div class="member-chip-role">メンバー</div>
+            </div>
+          </div>
+          <div class="member-chip">
+            <div class="member-chip-avatar" style="background: #A87D5B;">木</div>
+            <div>
+              <div class="member-chip-name">木村 遥</div>
+              <div class="member-chip-role">メンバー</div>
+            </div>
+          </div>
+          <div class="member-chip">
+            <div class="member-chip-avatar" style="background: #A85B5B;">中</div>
+            <div>
+              <div class="member-chip-name">中田 健二</div>
+              <div class="member-chip-role">メンバー</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Links -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">
+          <span class="card-title-icon" style="background: #EDE4F5; color: #7C5BA8;">&#128279;</span>
+          関連リンク
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="link-item">
+          <div class="link-icon">&#128196;</div>
+          <a href="#" class="link-name">2026年度 営業戦略資料</a>
+        </div>
+        <div class="link-item">
+          <div class="link-icon">&#128202;</div>
+          <a href="#" class="link-name">月次売上ダッシュボード</a>
+        </div>
+        <div class="link-item">
+          <div class="link-icon">&#128218;</div>
+          <a href="#" class="link-name">製品カタログ（最新版）</a>
+        </div>
+        <div class="link-item">
+          <div class="link-icon">&#128221;</div>
+          <a href="#" class="link-name">競合分析レポート Q1</a>
+        </div>
+        <div class="link-item">
+          <div class="link-icon">&#127891;</div>
+          <a href="#" class="link-name">営業研修マニュアル</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

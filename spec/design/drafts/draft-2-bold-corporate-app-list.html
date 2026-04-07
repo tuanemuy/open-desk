@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk - 顧客リスト | Bold Corporate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #EFF3F8;
+    color: #1B2A4A;
+    min-width: 1200px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== Global Header ===== */
+  .global-header {
+    background: #1B2A4A;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(27, 42, 74, 0.3);
+  }
+
+  .header-logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    margin-right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-logo .logo-icon {
+    width: 28px;
+    height: 28px;
+    background: #2563EB;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .header-nav a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+  }
+
+  .header-nav a:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .header-nav a.active {
+    color: #FFFFFF;
+    background: rgba(37, 99, 235, 0.5);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+  }
+
+  .header-search {
+    position: relative;
+  }
+
+  .header-search input {
+    width: 260px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 0 12px 0 34px;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.15s ease;
+  }
+
+  .header-search input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .header-search input:focus {
+    border-color: #2563EB;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  }
+
+  .header-search .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+  }
+
+  .header-notifications {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.15s ease;
+  }
+
+  .header-notifications:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 16px;
+    height: 16px;
+    background: #EF4444;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #1B2A4A;
+  }
+
+  .header-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    background: #2563EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: border-color 0.15s ease;
+  }
+
+  .header-avatar:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  /* ===== Breadcrumb ===== */
+  .breadcrumb-bar {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 10px 32px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .breadcrumb a {
+    color: #64748B;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .breadcrumb a:hover {
+    color: #2563EB;
+  }
+
+  .breadcrumb .separator {
+    color: #CBD5E1;
+    font-size: 10px;
+  }
+
+  .breadcrumb .current {
+    color: #1B2A4A;
+    font-weight: 700;
+  }
+
+  /* ===== App Title Bar ===== */
+  .app-title-bar {
+    background: #FFFFFF;
+    border-bottom: 2px solid #D8DFE9;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .app-title-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .app-title-icon {
+    width: 40px;
+    height: 40px;
+    background: #DBEAFE;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #2563EB;
+  }
+
+  .app-title-text h1 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1B2A4A;
+    letter-spacing: -0.3px;
+  }
+
+  .app-title-text .app-meta {
+    font-size: 12px;
+    color: #94A3B8;
+    font-weight: 500;
+  }
+
+  .app-title-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    height: 38px;
+    padding: 0 20px;
+    background: #2563EB;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: #1D4ED8;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+  }
+
+  .btn-secondary {
+    height: 38px;
+    padding: 0 16px;
+    background: #FFFFFF;
+    border: 2px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-secondary:hover {
+    border-color: #2563EB;
+    color: #2563EB;
+    background: #EFF6FF;
+  }
+
+  /* ===== Toolbar ===== */
+  .toolbar {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-select {
+    height: 32px;
+    padding: 0 28px 0 10px;
+    background: #F8FAFC;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2364748B' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: #2563EB;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  }
+
+  .search-inline {
+    position: relative;
+  }
+
+  .search-inline input {
+    width: 220px;
+    height: 32px;
+    background: #F8FAFC;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 5px;
+    padding: 0 10px 0 30px;
+    font-size: 12px;
+    font-family: inherit;
+    color: #1B2A4A;
+    outline: none;
+  }
+
+  .search-inline input:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  }
+
+  .search-inline .search-icon-sm {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    font-size: 12px;
+  }
+
+  .view-toggle {
+    display: flex;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .view-toggle button {
+    width: 32px;
+    height: 30px;
+    background: #FFFFFF;
+    border: none;
+    border-right: 1px solid #E2E8F0;
+    font-size: 12px;
+    color: #94A3B8;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .view-toggle button:last-child {
+    border-right: none;
+  }
+
+  .view-toggle button.active {
+    background: #2563EB;
+    color: #FFFFFF;
+  }
+
+  .record-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748B;
+  }
+
+  .record-count strong {
+    color: #1B2A4A;
+    font-weight: 800;
+  }
+
+  /* ===== Data Table ===== */
+  .table-container {
+    padding: 24px 32px;
+  }
+
+  .data-table-wrapper {
+    background: #FFFFFF;
+    border-radius: 8px;
+    border: 1px solid #D8DFE9;
+    box-shadow: 0 1px 3px rgba(27, 42, 74, 0.06);
+    overflow: hidden;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .data-table thead {
+    background: #1B2A4A;
+  }
+
+  .data-table thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 800;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease;
+    position: relative;
+  }
+
+  .data-table thead th:hover {
+    background: #243557;
+  }
+
+  .data-table thead th:last-child {
+    border-right: none;
+  }
+
+  .data-table thead th .sort-icon {
+    margin-left: 4px;
+    opacity: 0.5;
+    font-size: 10px;
+  }
+
+  .data-table thead th.sorted .sort-icon {
+    opacity: 1;
+  }
+
+  .data-table thead th.th-checkbox {
+    width: 44px;
+    text-align: center;
+  }
+
+  .data-table thead th.th-checkbox input {
+    cursor: pointer;
+  }
+
+  .data-table tbody tr {
+    border-bottom: 1px solid #F1F5F9;
+    transition: background 0.1s ease;
+  }
+
+  .data-table tbody tr:nth-child(even) {
+    background: #F8FAFC;
+  }
+
+  .data-table tbody tr:hover {
+    background: #EFF6FF;
+  }
+
+  .data-table tbody td {
+    padding: 11px 16px;
+    color: #334155;
+    font-weight: 500;
+    border-right: 1px solid #F1F5F9;
+    vertical-align: middle;
+  }
+
+  .data-table tbody td:last-child {
+    border-right: none;
+  }
+
+  .data-table tbody td.td-checkbox {
+    text-align: center;
+  }
+
+  .data-table tbody td.td-checkbox input {
+    cursor: pointer;
+  }
+
+  .td-record-number {
+    font-weight: 700;
+    color: #2563EB;
+    cursor: pointer;
+  }
+
+  .td-record-number:hover {
+    text-decoration: underline;
+  }
+
+  .td-company {
+    font-weight: 700;
+    color: #1B2A4A;
+  }
+
+  .td-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .btn-table-action {
+    height: 26px;
+    padding: 0 10px;
+    background: transparent;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748B;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+
+  .btn-table-action:hover {
+    border-color: #2563EB;
+    color: #2563EB;
+    background: #EFF6FF;
+  }
+
+  .btn-table-action.danger:hover {
+    border-color: #EF4444;
+    color: #EF4444;
+    background: #FEF2F2;
+  }
+
+  /* ===== Table Footer / Pagination ===== */
+  .table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #F8FAFC;
+    border-top: 2px solid #E2E8F0;
+  }
+
+  .table-footer-info {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748B;
+  }
+
+  .table-pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .table-pagination button {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 6px;
+    background: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+
+  .table-pagination button.active {
+    background: #2563EB;
+    border-color: #2563EB;
+    color: #FFFFFF;
+  }
+
+  .table-pagination button:hover:not(.active):not(:disabled) {
+    border-color: #2563EB;
+    color: #2563EB;
+  }
+
+  .table-pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .rows-per-page {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #64748B;
+    font-weight: 600;
+  }
+
+  .rows-per-page select {
+    height: 28px;
+    padding: 0 22px 0 8px;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    font-family: inherit;
+    cursor: pointer;
+    background: #FFFFFF;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2364748B' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Global Header ===== -->
+<header class="global-header">
+  <div class="header-logo">
+    <span class="logo-icon">O</span>
+    OpenDesk
+  </div>
+  <nav class="header-nav">
+    <a href="#">ポータル</a>
+    <a href="#">スペース</a>
+    <a href="#" class="active">アプリ</a>
+    <a href="#">ピープル</a>
+    <a href="#">管理</a>
+  </nav>
+  <div class="header-right">
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" placeholder="アプリ、スペース、ユーザーを検索...">
+    </div>
+    <button class="header-notifications">
+      &#128276;
+      <span class="notification-badge">5</span>
+    </button>
+    <div class="header-avatar">田中</div>
+  </div>
+</header>
+
+<!-- ===== Breadcrumb ===== -->
+<div class="breadcrumb-bar">
+  <nav class="breadcrumb">
+    <a href="#">ポータル</a>
+    <span class="separator">&#9656;</span>
+    <a href="#">営業部</a>
+    <span class="separator">&#9656;</span>
+    <span class="current">顧客管理</span>
+  </nav>
+</div>
+
+<!-- ===== App Title Bar ===== -->
+<div class="app-title-bar">
+  <div class="app-title-left">
+    <div class="app-title-icon">&#128100;</div>
+    <div class="app-title-text">
+      <h1>顧客管理</h1>
+      <div class="app-meta">営業部 &bull; 最終更新: 2026年4月7日 10:34</div>
+    </div>
+  </div>
+  <div class="app-title-right">
+    <button class="btn-primary">+ レコード追加</button>
+    <button class="btn-secondary">&#128229; CSV出力</button>
+    <button class="btn-secondary">&#9881; 設定</button>
+  </div>
+</div>
+
+<!-- ===== Toolbar ===== -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="filter-group">
+      <select class="filter-select">
+        <option>すべてのステータス</option>
+        <option>取引中</option>
+        <option>商談中</option>
+        <option>休止中</option>
+      </select>
+      <select class="filter-select">
+        <option>すべての地域</option>
+        <option>関東</option>
+        <option>関西</option>
+        <option>中部</option>
+        <option>九州</option>
+      </select>
+    </div>
+    <div class="search-inline">
+      <span class="search-icon-sm">&#128269;</span>
+      <input type="text" placeholder="顧客名で検索...">
+    </div>
+    <span class="record-count"><strong>1,248</strong> 件中 1-10 件を表示</span>
+  </div>
+  <div class="toolbar-right">
+    <div class="view-toggle">
+      <button class="active" title="テーブル表示">&#9776;</button>
+      <button title="カード表示">&#9638;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Data Table ===== -->
+<div class="table-container">
+  <div class="data-table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th class="th-checkbox"><input type="checkbox"></th>
+          <th class="sorted">レコード番号 <span class="sort-icon">&#9660;</span></th>
+          <th>会社名 <span class="sort-icon">&#9650;&#9660;</span></th>
+          <th>部署名 <span class="sort-icon">&#9650;&#9660;</span></th>
+          <th>担当者名 <span class="sort-icon">&#9650;&#9660;</span></th>
+          <th>住所 <span class="sort-icon">&#9650;&#9660;</span></th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-checkbox"><input type="checkbox"></td>
+          <td class="td-record-number">CRM-1248</td>
+          <td class="td-company">株式会社東京テクノロジーズ</td>
+          <td>情報システム部</td>
+          <td>山田 太郎</td>
+          <td>東京都千代田区丸の内1-1-1 丸の内ビル12F</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-table-action">詳細</button>
+              <button class="btn-table-action">編集</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="td-checkbox"><input type="checkbox"></td>
+          <td class="td-record-number">CRM-1247</td>
+          <td class="td-company">大阪商事株式会社</td>
+          <td>営業企画部</td>
+          <td>佐藤 花子</td>
+          <td>大阪府大阪市北区梅田3-2-2 グランフロント大阪</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-table-action">詳細</button>
+              <button class="btn-table-action">編集</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="td-checkbox"><input type="checkbox"></td>
+          <td class="td-record-number">CRM-1246</td>
+          <td class="td-company">名古屋製造株式会社</td>
+          <td>製造管理部</td>
+          <td>鈴木 一郎</td>
+          <td>愛知県名古屋市中村区名駅4-7-1 ミッドランドスクエア</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-table-action">詳細</button>
+              <button class="btn-table-action">編集</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="td-checkbox"><input type="checkbox"></td>
+          <td class="td-record-number">CRM-1245</td>
+          <td class="td-company">九州エネルギー株式会社</td>
+          <td>経営戦略室</td>
+          <td>田中 誠</td>
+          <td>福岡県福岡市博多区博多駅前2-9-28</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-table-action">詳細</button>
+              <button class="btn-table-action">編集</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="td-checkbox"><input type="checkbox"></td>
+          <td class="td-record-number">CRM-1244</td>
+          <td class="td-company">北海道フーズ株式会社</td>
+          <td>商品開発部</td>
+          <td>高橋 美咲</td>
+          <td>北海道札幌市中央区北5条西6丁目 札幌センタービル</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-table-action">詳細</button>
+              <button class="btn-table-action">編集</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="td-checkbox"><input type="checkbox"></td>
+          <td class="td-record-number">CRM-1243</td>
+          <td class="td-company">横浜マリンサービス株式会社</td>
+          <td>総務部</td>
+          <td>渡辺 健太</td>
+          <td>神奈川県横浜市西区みなとみらい2-3-1 クイーンズタワーA</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-table-action">詳細</button>
+              <button class="btn-table-action">編集</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="td-checkbox"><input type="checkbox"></td>
+          <td class="td-record-number">CRM-1242</td>
+          <td class="td-company">関西メディカル株式会社</td>
+          <td>人事部</td>
+          <td>伊藤 裕子</td>
+          <td>兵庫県神戸市中央区三宮町1-9-1 センタープラザ</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-table-action">詳細</button>
+              <button class="btn-table-action">編集</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="td-checkbox"><input type="checkbox"></td>
+          <td class="td-record-number">CRM-1241</td>
+          <td class="td-company">仙台ロジスティクス株式会社</td>
+          <td>物流管理部</td>
+          <td>松本 直樹</td>
+          <td>宮城県仙台市青葉区中央1-3-1 AER 20F</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-table-action">詳細</button>
+              <button class="btn-table-action">編集</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="td-checkbox"><input type="checkbox"></td>
+          <td class="td-record-number">CRM-1240</td>
+          <td class="td-company">京都クラフト株式会社</td>
+          <td>マーケティング部</td>
+          <td>中村 さくら</td>
+          <td>京都府京都市下京区四条通烏丸東入 京都タワービル</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-table-action">詳細</button>
+              <button class="btn-table-action">編集</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="td-checkbox"><input type="checkbox"></td>
+          <td class="td-record-number">CRM-1239</td>
+          <td class="td-company">広島デジタルソリューションズ</td>
+          <td>開発第一部</td>
+          <td>小林 大輔</td>
+          <td>広島県広島市中区紙屋町1-2-22 広島トランヴェール</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-table-action">詳細</button>
+              <button class="btn-table-action">編集</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="table-footer">
+      <div class="rows-per-page">
+        表示件数:
+        <select>
+          <option>10</option>
+          <option>25</option>
+          <option>50</option>
+          <option>100</option>
+        </select>
+      </div>
+      <div class="table-footer-info">
+        1,248 件中 1 - 10 件
+      </div>
+      <div class="table-pagination">
+        <button disabled>&#8249; 前へ</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>4</button>
+        <button>5</button>
+        <button>...</button>
+        <button>125</button>
+        <button>次へ &#8250;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

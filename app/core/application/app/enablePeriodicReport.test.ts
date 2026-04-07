@@ -4,10 +4,13 @@ import {
   createMockHeaders,
   setupTestContainer,
 } from "@/core/application/__tests__/helpers";
+import { FieldCode as FieldCodeVO } from "@/core/domain/app/valueObject";
 import { BusinessRuleError } from "@/core/domain/error";
 import { NotFoundError } from "../error";
 import { createReport } from "./createReport";
 import { enablePeriodicReport } from "./enablePeriodicReport";
+
+const fc = (code: string) => FieldCodeVO.create(code);
 
 const getContainer = setupTestContainer();
 const headers = () => createMockHeaders();
@@ -46,8 +49,8 @@ async function seedReport(container: ReturnType<typeof getContainer>) {
       reportName: "R1",
       chartType: "BAR",
       chartSubType: null,
-      groups: [{ fieldCode: "f", sortDirection: "ASC" }],
-      aggregations: [{ fieldCode: "f", method: "COUNT" }],
+      groups: [{ fieldCode: fc("f"), timeUnit: null }],
+      aggregations: [{ fieldCode: fc("f"), method: "COUNT" as const }],
       filterCondition: null,
       sort: null,
       creatorId: "user-1",

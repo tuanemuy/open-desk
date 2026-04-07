@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk - ポータル | Bold Corporate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #EFF3F8;
+    color: #1B2A4A;
+    min-width: 1200px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== Global Header ===== */
+  .global-header {
+    background: #1B2A4A;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(27, 42, 74, 0.3);
+  }
+
+  .header-logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    margin-right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-logo .logo-icon {
+    width: 28px;
+    height: 28px;
+    background: #2563EB;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .header-nav a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+  }
+
+  .header-nav a:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .header-nav a.active {
+    color: #FFFFFF;
+    background: rgba(37, 99, 235, 0.5);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+  }
+
+  .header-search {
+    position: relative;
+  }
+
+  .header-search input {
+    width: 260px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 0 12px 0 34px;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.15s ease;
+  }
+
+  .header-search input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .header-search input:focus {
+    border-color: #2563EB;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  }
+
+  .header-search .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+  }
+
+  .header-notifications {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.15s ease;
+  }
+
+  .header-notifications:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 16px;
+    height: 16px;
+    background: #EF4444;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #1B2A4A;
+  }
+
+  .header-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    background: #2563EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: border-color 0.15s ease;
+  }
+
+  .header-avatar:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  /* ===== Page Title Bar ===== */
+  .page-title-bar {
+    background: #FFFFFF;
+    border-bottom: 2px solid #D8DFE9;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .page-title-bar h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1B2A4A;
+    letter-spacing: -0.3px;
+  }
+
+  .btn-option {
+    height: 36px;
+    padding: 0 18px;
+    background: #FFFFFF;
+    border: 2px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+
+  .btn-option:hover {
+    border-color: #2563EB;
+    color: #2563EB;
+    background: #EFF6FF;
+  }
+
+  /* ===== Main Content ===== */
+  .main-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+  }
+
+  /* ===== Panel Styles ===== */
+  .panel {
+    background: #FFFFFF;
+    border-radius: 8px;
+    border: 1px solid #D8DFE9;
+    box-shadow: 0 1px 3px rgba(27, 42, 74, 0.06);
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 14px 20px;
+    background: #F8FAFC;
+    border-bottom: 2px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-header h2 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1B2A4A;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .panel-header .panel-action {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2563EB;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  .panel-header .panel-action:hover {
+    color: #1D4ED8;
+  }
+
+  .panel-body {
+    padding: 0;
+  }
+
+  /* ===== Announcements (Left Column) ===== */
+  .announcement-list {
+    list-style: none;
+  }
+
+  .announcement-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid #F1F5F9;
+    transition: background 0.1s ease;
+  }
+
+  .announcement-item:last-child {
+    border-bottom: none;
+  }
+
+  .announcement-item:hover {
+    background: #F8FAFC;
+  }
+
+  .announcement-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .announcement-category {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .category-important {
+    background: #FEE2E2;
+    color: #DC2626;
+  }
+
+  .category-general {
+    background: #DBEAFE;
+    color: #2563EB;
+  }
+
+  .category-hr {
+    background: #D1FAE5;
+    color: #059669;
+  }
+
+  .category-it {
+    background: #F3E8FF;
+    color: #7C3AED;
+  }
+
+  .announcement-date {
+    font-size: 12px;
+    color: #94A3B8;
+    font-weight: 500;
+  }
+
+  .announcement-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1B2A4A;
+    margin-bottom: 4px;
+    cursor: pointer;
+  }
+
+  .announcement-title:hover {
+    color: #2563EB;
+  }
+
+  .announcement-excerpt {
+    font-size: 13px;
+    color: #64748B;
+    line-height: 1.5;
+  }
+
+  .announcement-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #94A3B8;
+    font-weight: 500;
+  }
+
+  .author-avatar-sm {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background: #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  /* ===== Right Sidebar Widgets ===== */
+  .sidebar-widgets {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Notification Widget */
+  .notification-filters {
+    display: flex;
+    gap: 0;
+    padding: 12px 16px 0;
+  }
+
+  .notif-filter-btn {
+    flex: 1;
+    padding: 6px 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748B;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    transition: all 0.15s ease;
+  }
+
+  .notif-filter-btn.active {
+    color: #2563EB;
+    border-bottom-color: #2563EB;
+  }
+
+  .notif-filter-btn:hover:not(.active) {
+    color: #1B2A4A;
+  }
+
+  .notification-list {
+    list-style: none;
+    padding: 8px 0;
+  }
+
+  .notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 16px;
+    transition: background 0.1s ease;
+    cursor: pointer;
+  }
+
+  .notification-item:hover {
+    background: #F8FAFC;
+  }
+
+  .notif-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+
+  .notif-icon.blue {
+    background: #DBEAFE;
+    color: #2563EB;
+  }
+
+  .notif-icon.green {
+    background: #D1FAE5;
+    color: #059669;
+  }
+
+  .notif-icon.orange {
+    background: #FED7AA;
+    color: #EA580C;
+  }
+
+  .notif-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .notif-text p {
+    font-size: 12px;
+    color: #475569;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .notif-text .notif-time {
+    font-size: 11px;
+    color: #94A3B8;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .notif-unread {
+    width: 6px;
+    height: 6px;
+    background: #2563EB;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+
+  /* Space Widget */
+  .space-list {
+    list-style: none;
+    padding: 4px 0;
+  }
+
+  .space-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    transition: background 0.1s ease;
+    cursor: pointer;
+  }
+
+  .space-item:hover {
+    background: #F8FAFC;
+  }
+
+  .space-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: #FFFFFF;
+    flex-shrink: 0;
+  }
+
+  .space-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .space-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1B2A4A;
+  }
+
+  .space-members {
+    font-size: 11px;
+    color: #94A3B8;
+    font-weight: 500;
+  }
+
+  .space-badge {
+    background: #EF4444;
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  /* App Widget */
+  .app-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #E2E8F0;
+  }
+
+  .app-card {
+    background: #FFFFFF;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.1s ease;
+  }
+
+  .app-card:hover {
+    background: #F8FAFC;
+  }
+
+  .app-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .app-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .app-card-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1B2A4A;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .app-card-count {
+    font-size: 11px;
+    color: #94A3B8;
+    font-weight: 500;
+  }
+
+  /* ===== Footer ===== */
+  .panel-footer {
+    padding: 10px 16px;
+    border-top: 1px solid #F1F5F9;
+    text-align: center;
+  }
+
+  .panel-footer a {
+    font-size: 12px;
+    font-weight: 700;
+    color: #2563EB;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .panel-footer a:hover {
+    color: #1D4ED8;
+  }
+
+  /* ===== Pagination ===== */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px 20px;
+    border-top: 1px solid #F1F5F9;
+  }
+
+  .pagination button {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 6px;
+    background: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+
+  .pagination button.active {
+    background: #2563EB;
+    border-color: #2563EB;
+    color: #FFFFFF;
+  }
+
+  .pagination button:hover:not(.active) {
+    border-color: #2563EB;
+    color: #2563EB;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Global Header ===== -->
+<header class="global-header">
+  <div class="header-logo">
+    <span class="logo-icon">O</span>
+    OpenDesk
+  </div>
+  <nav class="header-nav">
+    <a href="#" class="active">ポータル</a>
+    <a href="#">スペース</a>
+    <a href="#">アプリ</a>
+    <a href="#">ピープル</a>
+    <a href="#">管理</a>
+  </nav>
+  <div class="header-right">
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" placeholder="アプリ、スペース、ユーザーを検索...">
+    </div>
+    <button class="header-notifications">
+      &#128276;
+      <span class="notification-badge">5</span>
+    </button>
+    <div class="header-avatar">田中</div>
+  </div>
+</header>
+
+<!-- ===== Page Title Bar ===== -->
+<div class="page-title-bar">
+  <h1>ポータル</h1>
+  <button class="btn-option">&#9881; オプション</button>
+</div>
+
+<!-- ===== Main Content ===== -->
+<main class="main-content">
+
+  <!-- Left Column: Announcements -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>&#128227; お知らせ掲示板</h2>
+      <a class="panel-action">新規投稿 +</a>
+    </div>
+    <div class="panel-body">
+      <ul class="announcement-list">
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-category category-important">重要</span>
+            <span class="announcement-date">2026年4月7日</span>
+          </div>
+          <div class="announcement-title">【全社】2026年度 第1四半期 経営方針説明会のご案内</div>
+          <div class="announcement-excerpt">2026年度 第1四半期の経営方針説明会を下記の通り開催いたします。全社員必須参加となりますので、スケジュールの確保をお願いいたします。日時：4月15日（水）14:00〜16:00...</div>
+          <div class="announcement-author">
+            <span class="author-avatar-sm">佐</span>
+            佐藤 健太（経営企画部）
+          </div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-category category-it">IT</span>
+            <span class="announcement-date">2026年4月6日</span>
+          </div>
+          <div class="announcement-title">【情報システム部】社内VPNシステムのメンテナンスに関するお知らせ</div>
+          <div class="announcement-excerpt">4月12日（土）0:00〜6:00の間、社内VPNシステムのメンテナンスを実施いたします。この間、リモートアクセスがご利用いただけません。ご不便をおかけしますが...</div>
+          <div class="announcement-author">
+            <span class="author-avatar-sm">鈴</span>
+            鈴木 一郎（情報システム部）
+          </div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-category category-hr">人事</span>
+            <span class="announcement-date">2026年4月5日</span>
+          </div>
+          <div class="announcement-title">【人事部】2026年度 新入社員研修スケジュールについて</div>
+          <div class="announcement-excerpt">4月入社の新入社員研修について、各部署の受入れ担当者の方はスケジュールをご確認ください。OJT期間は4月20日〜5月31日を予定しており、メンター制度の詳細は...</div>
+          <div class="announcement-author">
+            <span class="author-avatar-sm">山</span>
+            山田 美咲（人事部）
+          </div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-category category-general">全般</span>
+            <span class="announcement-date">2026年4月4日</span>
+          </div>
+          <div class="announcement-title">【総務部】オフィスリニューアルに伴う座席変更のご連絡</div>
+          <div class="announcement-excerpt">5月連休明けよりオフィス3Fのリニューアル工事が完了し、新しいフリーアドレスエリアをオープンいたします。座席予約システムの利用方法については...</div>
+          <div class="announcement-author">
+            <span class="author-avatar-sm">高</span>
+            高橋 直樹（総務部）
+          </div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-category category-important">重要</span>
+            <span class="announcement-date">2026年4月3日</span>
+          </div>
+          <div class="announcement-title">【コンプライアンス】情報セキュリティ研修の受講期限について</div>
+          <div class="announcement-excerpt">年度初めの情報セキュリティ研修の受講期限が4月30日に迫っております。未受講の方は早めにeラーニングシステムより受講を完了してください...</div>
+          <div class="announcement-author">
+            <span class="author-avatar-sm">中</span>
+            中村 裕子（法務部）
+          </div>
+        </li>
+        <li class="announcement-item">
+          <div class="announcement-meta">
+            <span class="announcement-category category-general">全般</span>
+            <span class="announcement-date">2026年4月2日</span>
+          </div>
+          <div class="announcement-title">【広報】自社メディア掲載記事のご紹介</div>
+          <div class="announcement-excerpt">弊社の働き方改革の取り組みが「日経ビジネス」4月号に掲載されました。社内のDX推進事例として紹介されておりますので、ぜひご覧ください...</div>
+          <div class="announcement-author">
+            <span class="author-avatar-sm">松</span>
+            松本 亮介（広報部）
+          </div>
+        </li>
+      </ul>
+      <div class="pagination">
+        <button class="active">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>&#8250;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Widgets -->
+  <div class="sidebar-widgets">
+
+    <!-- Notification Widget -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>&#128276; 通知</h2>
+        <a class="panel-action">すべて既読</a>
+      </div>
+      <div class="panel-body">
+        <div class="notification-filters">
+          <button class="notif-filter-btn active">すべて</button>
+          <button class="notif-filter-btn">メンション</button>
+          <button class="notif-filter-btn">更新</button>
+        </div>
+        <ul class="notification-list">
+          <li class="notification-item">
+            <span class="notif-icon blue">&#9998;</span>
+            <div class="notif-text">
+              <p><strong>鈴木一郎</strong>が「売上管理」レコードにコメントしました</p>
+              <div class="notif-time">5分前</div>
+            </div>
+            <span class="notif-unread"></span>
+          </li>
+          <li class="notification-item">
+            <span class="notif-icon green">&#10003;</span>
+            <div class="notif-text">
+              <p><strong>山田美咲</strong>が「経費申請」を承認しました</p>
+              <div class="notif-time">15分前</div>
+            </div>
+            <span class="notif-unread"></span>
+          </li>
+          <li class="notification-item">
+            <span class="notif-icon orange">&#9888;</span>
+            <div class="notif-text">
+              <p>「顧客管理」アプリのレコードが更新されました</p>
+              <div class="notif-time">1時間前</div>
+            </div>
+            <span class="notif-unread"></span>
+          </li>
+          <li class="notification-item">
+            <span class="notif-icon blue">&#128172;</span>
+            <div class="notif-text">
+              <p><strong>佐藤健太</strong>がスペース「営業部」に投稿しました</p>
+              <div class="notif-time">2時間前</div>
+            </div>
+          </li>
+          <li class="notification-item">
+            <span class="notif-icon green">&#128101;</span>
+            <div class="notif-text">
+              <p>「プロジェクト管理」スペースに招待されました</p>
+              <div class="notif-time">3時間前</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="panel-footer">
+        <a href="#">すべての通知を見る &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Space Widget -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>&#128194; スペース</h2>
+        <a class="panel-action">すべて表示</a>
+      </div>
+      <div class="panel-body">
+        <ul class="space-list">
+          <li class="space-item">
+            <span class="space-icon" style="background: #2563EB;">営</span>
+            <div class="space-info">
+              <div class="space-name">営業部</div>
+              <div class="space-members">24人のメンバー</div>
+            </div>
+            <span class="space-badge">3</span>
+          </li>
+          <li class="space-item">
+            <span class="space-icon" style="background: #059669;">開</span>
+            <div class="space-info">
+              <div class="space-name">開発チーム</div>
+              <div class="space-members">18人のメンバー</div>
+            </div>
+          </li>
+          <li class="space-item">
+            <span class="space-icon" style="background: #7C3AED;">人</span>
+            <div class="space-info">
+              <div class="space-name">人事・総務</div>
+              <div class="space-members">12人のメンバー</div>
+            </div>
+            <span class="space-badge">1</span>
+          </li>
+          <li class="space-item">
+            <span class="space-icon" style="background: #EA580C;">企</span>
+            <div class="space-info">
+              <div class="space-name">企画マーケティング</div>
+              <div class="space-members">9人のメンバー</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="panel-footer">
+        <a href="#">スペース一覧 &rarr;</a>
+      </div>
+    </div>
+
+    <!-- App Widget -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>&#128187; アプリ</h2>
+        <a class="panel-action">すべて表示</a>
+      </div>
+      <div class="panel-body">
+        <div class="app-grid">
+          <div class="app-card">
+            <span class="app-icon" style="background: #DBEAFE; color: #2563EB;">&#128100;</span>
+            <div class="app-card-info">
+              <div class="app-card-name">顧客管理</div>
+              <div class="app-card-count">1,248件</div>
+            </div>
+          </div>
+          <div class="app-card">
+            <span class="app-icon" style="background: #D1FAE5; color: #059669;">&#128176;</span>
+            <div class="app-card-info">
+              <div class="app-card-name">売上管理</div>
+              <div class="app-card-count">856件</div>
+            </div>
+          </div>
+          <div class="app-card">
+            <span class="app-icon" style="background: #FED7AA; color: #EA580C;">&#128203;</span>
+            <div class="app-card-info">
+              <div class="app-card-name">案件管理</div>
+              <div class="app-card-count">342件</div>
+            </div>
+          </div>
+          <div class="app-card">
+            <span class="app-icon" style="background: #F3E8FF; color: #7C3AED;">&#128197;</span>
+            <div class="app-card-info">
+              <div class="app-card-name">勤怠管理</div>
+              <div class="app-card-count">2,400件</div>
+            </div>
+          </div>
+          <div class="app-card">
+            <span class="app-icon" style="background: #FEE2E2; color: #DC2626;">&#128196;</span>
+            <div class="app-card-info">
+              <div class="app-card-name">経費申請</div>
+              <div class="app-card-count">189件</div>
+            </div>
+          </div>
+          <div class="app-card">
+            <span class="app-icon" style="background: #E0F2FE; color: #0284C7;">&#128295;</span>
+            <div class="app-card-info">
+              <div class="app-card-name">タスク管理</div>
+              <div class="app-card-count">567件</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <a href="#">アプリ一覧 &rarr;</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

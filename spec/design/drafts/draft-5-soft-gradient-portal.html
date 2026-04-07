@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDesk - ポータル | Soft Gradient</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    min-width: 1200px;
+    background: linear-gradient(135deg, #F3E8FF 0%, #EDE9FE 30%, #DBEAFE 70%, #E0F2FE 100%);
+    min-height: 100vh;
+    color: #1E1B4B;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========== Header ========== */
+  .header {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 40%, #4F46E5 70%, #3B82F6 100%);
+    padding: 0 40px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(124, 58, 237, 0.25);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    backdrop-filter: blur(4px);
+  }
+
+  .nav {
+    display: flex;
+    gap: 6px;
+  }
+
+  .nav-item {
+    padding: 7px 18px;
+    border-radius: 100px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+  }
+
+  .nav-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+    backdrop-filter: blur(4px);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .search-input {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 100px;
+    padding: 8px 16px 8px 38px;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    width: 260px;
+    outline: none;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+  }
+
+  .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .search-input:focus {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    width: 300px;
+  }
+
+  .search-wrapper {
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+  }
+
+  .header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .header-icon:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+  }
+
+  .notification-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background: #F472B6;
+    border-radius: 50%;
+    border: 2px solid #7C3AED;
+  }
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E9D5FF, #BFDBFE);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6D28D9;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  /* ========== Page ========== */
+  .page {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 36px 40px 60px;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1E1B4B;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .page-title-bar {
+    width: 5px;
+    height: 32px;
+    background: linear-gradient(180deg, #7C3AED, #3B82F6);
+    border-radius: 4px;
+  }
+
+  /* ========== Content Layout ========== */
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 28px;
+    align-items: start;
+  }
+
+  /* ========== Floating Card ========== */
+  .card {
+    background: #FFFFFF;
+    border-radius: 18px;
+    box-shadow:
+      0 1px 3px rgba(124, 58, 237, 0.06),
+      0 8px 24px rgba(124, 58, 237, 0.08),
+      0 20px 48px rgba(59, 130, 246, 0.04);
+    overflow: hidden;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+
+  .card:hover {
+    box-shadow:
+      0 1px 3px rgba(124, 58, 237, 0.08),
+      0 12px 32px rgba(124, 58, 237, 0.12),
+      0 24px 56px rgba(59, 130, 246, 0.06);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #F3F0FF;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1E1B4B;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-title-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .icon-purple {
+    background: linear-gradient(135deg, #EDE9FE, #F3E8FF);
+    color: #7C3AED;
+  }
+
+  .icon-blue {
+    background: linear-gradient(135deg, #DBEAFE, #E0F2FE);
+    color: #3B82F6;
+  }
+
+  .icon-violet {
+    background: linear-gradient(135deg, #F3E8FF, #EDE9FE);
+    color: #8B5CF6;
+  }
+
+  .card-action {
+    font-size: 13px;
+    font-weight: 500;
+    color: #7C3AED;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .card-action:hover {
+    color: #6D28D9;
+  }
+
+  .card-body {
+    padding: 16px 24px 20px;
+  }
+
+  /* ========== Announcements ========== */
+  .announcement-item {
+    padding: 16px 0;
+    border-bottom: 1px solid #F5F3FF;
+    display: flex;
+    gap: 16px;
+  }
+
+  .announcement-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .announcement-item:first-child {
+    padding-top: 0;
+  }
+
+  .announcement-date {
+    flex-shrink: 0;
+    width: 56px;
+    text-align: center;
+  }
+
+  .announcement-date-month {
+    font-size: 11px;
+    font-weight: 600;
+    color: #7C3AED;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .announcement-date-day {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1E1B4B;
+    line-height: 1.1;
+  }
+
+  .announcement-content {
+    flex: 1;
+  }
+
+  .announcement-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .badge-important {
+    background: linear-gradient(135deg, #FEE2E2, #FECACA);
+    color: #DC2626;
+  }
+
+  .badge-info {
+    background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+    color: #2563EB;
+  }
+
+  .badge-event {
+    background: linear-gradient(135deg, #EDE9FE, #E9D5FF);
+    color: #7C3AED;
+  }
+
+  .badge-update {
+    background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+    color: #059669;
+  }
+
+  .announcement-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #1E1B4B;
+    margin-bottom: 4px;
+    line-height: 1.5;
+  }
+
+  .announcement-excerpt {
+    font-size: 13px;
+    color: #6B7280;
+    line-height: 1.6;
+  }
+
+  .announcement-author {
+    font-size: 12px;
+    color: #9CA3AF;
+    margin-top: 6px;
+  }
+
+  /* ========== Sidebar ========== */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ========== Notifications ========== */
+  .notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F5F3FF;
+  }
+
+  .notification-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .notification-item:first-child {
+    padding-top: 0;
+  }
+
+  .notification-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .notification-text {
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.5;
+  }
+
+  .notification-text strong {
+    color: #1E1B4B;
+    font-weight: 600;
+  }
+
+  .notification-time {
+    font-size: 11.5px;
+    color: #9CA3AF;
+    margin-top: 3px;
+  }
+
+  .unread-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7C3AED, #3B82F6);
+    flex-shrink: 0;
+    margin-top: 6px;
+    margin-left: auto;
+  }
+
+  /* ========== Spaces ========== */
+  .space-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #F5F3FF;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .space-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .space-item:first-child {
+    padding-top: 0;
+  }
+
+  .space-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    flex-shrink: 0;
+  }
+
+  .space-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .space-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1E1B4B;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .space-desc {
+    font-size: 12px;
+    color: #9CA3AF;
+    margin-top: 1px;
+  }
+
+  .space-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: #7C3AED;
+    background: #F3E8FF;
+    padding: 2px 8px;
+    border-radius: 100px;
+    flex-shrink: 0;
+  }
+
+  /* ========== Apps ========== */
+  .app-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .app-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #FAFAFE;
+    border: 1px solid transparent;
+  }
+
+  .app-item:hover {
+    background: #F5F3FF;
+    border-color: #EDE9FE;
+  }
+
+  .app-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .app-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== Header ========== -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">
+      <div class="logo-icon">&#9671;</div>
+      OpenDesk
+    </div>
+    <nav class="nav">
+      <a class="nav-item active" href="#">ポータル</a>
+      <a class="nav-item" href="#">スペース</a>
+      <a class="nav-item" href="#">アプリ</a>
+      <a class="nav-item" href="#">管理</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div class="search-wrapper">
+      <span class="search-icon">&#128269;</span>
+      <input class="search-input" type="text" placeholder="検索...">
+    </div>
+    <div class="header-icon">
+      &#128276;
+      <span class="notification-dot"></span>
+    </div>
+    <div class="header-icon">&#9881;</div>
+    <div class="avatar">田中</div>
+  </div>
+</header>
+
+<!-- ========== Page Content ========== -->
+<main class="page">
+  <h1 class="page-title">
+    <span class="page-title-bar"></span>
+    ポータル
+  </h1>
+
+  <div class="content">
+    <!-- Left Column: Announcements -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-title-icon icon-purple">&#128227;</span>
+          お知らせ掲示板
+        </div>
+        <a class="card-action" href="#">すべて表示 &rarr;</a>
+      </div>
+      <div class="card-body">
+        <div class="announcement-item">
+          <div class="announcement-date">
+            <div class="announcement-date-month">4月</div>
+            <div class="announcement-date-day">07</div>
+          </div>
+          <div class="announcement-content">
+            <span class="announcement-badge badge-important">重要</span>
+            <div class="announcement-title">【重要】新セキュリティポリシーの適用について</div>
+            <div class="announcement-excerpt">4月15日より、全社員を対象とした新しいセキュリティポリシーが適用されます。パスワードの変更と二要素認証の設定をお願いいたします。</div>
+            <div class="announcement-author">情報システム部 / 鈴木一郎</div>
+          </div>
+        </div>
+
+        <div class="announcement-item">
+          <div class="announcement-date">
+            <div class="announcement-date-month">4月</div>
+            <div class="announcement-date-day">05</div>
+          </div>
+          <div class="announcement-content">
+            <span class="announcement-badge badge-event">イベント</span>
+            <div class="announcement-title">第2四半期キックオフミーティングのご案内</div>
+            <div class="announcement-excerpt">4月10日（金）14:00より、全社キックオフミーティングを開催します。各部門の目標発表と懇親会を予定しております。</div>
+            <div class="announcement-author">経営企画部 / 山田花子</div>
+          </div>
+        </div>
+
+        <div class="announcement-item">
+          <div class="announcement-date">
+            <div class="announcement-date-month">4月</div>
+            <div class="announcement-date-day">03</div>
+          </div>
+          <div class="announcement-content">
+            <span class="announcement-badge badge-update">更新</span>
+            <div class="announcement-title">社内ワークフローシステムのバージョンアップ完了</div>
+            <div class="announcement-excerpt">申請フォームのUI改善とレスポンス速度の向上を行いました。新機能の詳細はマニュアルをご確認ください。</div>
+            <div class="announcement-author">情報システム部 / 佐藤健太</div>
+          </div>
+        </div>
+
+        <div class="announcement-item">
+          <div class="announcement-date">
+            <div class="announcement-date-month">4月</div>
+            <div class="announcement-date-day">01</div>
+          </div>
+          <div class="announcement-content">
+            <span class="announcement-badge badge-info">お知らせ</span>
+            <div class="announcement-title">新入社員の配属先について</div>
+            <div class="announcement-excerpt">本年度の新入社員12名の配属先が決定しました。各部門での受け入れ準備をお願いいたします。配属先一覧は添付資料をご確認ください。</div>
+            <div class="announcement-author">人事部 / 中村美咲</div>
+          </div>
+        </div>
+
+        <div class="announcement-item">
+          <div class="announcement-date">
+            <div class="announcement-date-month">3月</div>
+            <div class="announcement-date-day">28</div>
+          </div>
+          <div class="announcement-content">
+            <span class="announcement-badge badge-event">イベント</span>
+            <div class="announcement-title">社内勉強会「生成AIの業務活用」開催のお知らせ</div>
+            <div class="announcement-excerpt">4月18日（金）に生成AIの業務活用をテーマにした勉強会を開催します。外部講師をお招きする予定です。</div>
+            <div class="announcement-author">技術推進室 / 高橋亮太</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Sidebar Widgets -->
+    <div class="sidebar">
+      <!-- Notifications -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon icon-purple">&#128276;</span>
+            通知
+          </div>
+          <a class="card-action" href="#">すべて &rarr;</a>
+        </div>
+        <div class="card-body">
+          <div class="notification-item">
+            <div class="notification-icon icon-purple">&#128172;</div>
+            <div style="flex:1;">
+              <div class="notification-text"><strong>佐藤健太</strong>さんが「営業報告」にコメントしました</div>
+              <div class="notification-time">5分前</div>
+            </div>
+            <div class="unread-indicator"></div>
+          </div>
+          <div class="notification-item">
+            <div class="notification-icon icon-blue">&#9989;</div>
+            <div style="flex:1;">
+              <div class="notification-text"><strong>山田花子</strong>さんが経費申請を承認しました</div>
+              <div class="notification-time">30分前</div>
+            </div>
+            <div class="unread-indicator"></div>
+          </div>
+          <div class="notification-item">
+            <div class="notification-icon icon-violet">&#128221;</div>
+            <div style="flex:1;">
+              <div class="notification-text"><strong>高橋亮太</strong>さんが「案件管理」のレコードを更新しました</div>
+              <div class="notification-time">1時間前</div>
+            </div>
+          </div>
+          <div class="notification-item">
+            <div class="notification-icon icon-purple">&#128101;</div>
+            <div style="flex:1;">
+              <div class="notification-text">「製品開発チーム」スペースに招待されました</div>
+              <div class="notification-time">3時間前</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spaces -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon icon-blue">&#128506;</span>
+            スペース
+          </div>
+          <a class="card-action" href="#">すべて &rarr;</a>
+        </div>
+        <div class="card-body">
+          <div class="space-item">
+            <div class="space-avatar" style="background: linear-gradient(135deg, #7C3AED, #6D28D9);">営</div>
+            <div class="space-info">
+              <div class="space-name">営業部</div>
+              <div class="space-desc">メンバー 24人</div>
+            </div>
+            <span class="space-count">3 新着</span>
+          </div>
+          <div class="space-item">
+            <div class="space-avatar" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">開</div>
+            <div class="space-info">
+              <div class="space-name">製品開発チーム</div>
+              <div class="space-desc">メンバー 18人</div>
+            </div>
+            <span class="space-count">1 新着</span>
+          </div>
+          <div class="space-item">
+            <div class="space-avatar" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">人</div>
+            <div class="space-info">
+              <div class="space-name">人事・総務</div>
+              <div class="space-desc">メンバー 12人</div>
+            </div>
+          </div>
+          <div class="space-item">
+            <div class="space-avatar" style="background: linear-gradient(135deg, #06B6D4, #0891B2);">企</div>
+            <div class="space-info">
+              <div class="space-name">経営企画室</div>
+              <div class="space-desc">メンバー 8人</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Apps -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon icon-violet">&#9881;</span>
+            アプリ
+          </div>
+          <a class="card-action" href="#">すべて &rarr;</a>
+        </div>
+        <div class="card-body">
+          <div class="app-grid">
+            <div class="app-item">
+              <div class="app-icon" style="background: linear-gradient(135deg, #EDE9FE, #F3E8FF); color: #7C3AED;">&#128203;</div>
+              <div class="app-name">顧客管理</div>
+            </div>
+            <div class="app-item">
+              <div class="app-icon" style="background: linear-gradient(135deg, #DBEAFE, #E0F2FE); color: #3B82F6;">&#128200;</div>
+              <div class="app-name">案件管理</div>
+            </div>
+            <div class="app-item">
+              <div class="app-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669;">&#128176;</div>
+              <div class="app-name">経費申請</div>
+            </div>
+            <div class="app-item">
+              <div class="app-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706;">&#128197;</div>
+              <div class="app-name">勤怠管理</div>
+            </div>
+            <div class="app-item">
+              <div class="app-icon" style="background: linear-gradient(135deg, #FCE7F3, #FBCFE8); color: #DB2777;">&#128220;</div>
+              <div class="app-name">契約書管理</div>
+            </div>
+            <div class="app-item">
+              <div class="app-icon" style="background: linear-gradient(135deg, #FFEDD5, #FED7AA); color: #EA580C;">&#128230;</div>
+              <div class="app-name">在庫管理</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
