@@ -8,6 +8,7 @@ import {
   error,
 } from "@/lib/compositeAction";
 import { handleUseCase } from "@/lib/handleUseCase";
+import { createSessionCookie } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
 const loginSchema = z.object({
@@ -38,8 +39,15 @@ export const handlers = {
           },
         }),
       ).match(
-        (_result) => {
-          throw redirect("/portal");
+        (result) => {
+          throw redirect("/portal", {
+            headers: {
+              "Set-Cookie": createSessionCookie(
+                result.sessionId,
+                result.expiresAt,
+              ),
+            },
+          });
         },
         (e) => error({ "": [e.message] }),
       );

@@ -34,9 +34,17 @@ export function handleUseCase<T>(
   return ResultAsync.fromPromise(fn(), (error) => ({
     message: formatErrorMessage(error),
     status: getErrorStatusCode(error),
-  })).orTee((error) => {
-    // TODO: ログ戦略を考える
-    console.error("Use case error:", error);
+  })).orTee((handleError) => {
+    if (handleError.status >= 500) {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          message: handleError.message,
+          status: handleError.status,
+          timestamp: new Date().toISOString(),
+        }),
+      );
+    }
   });
 }
 

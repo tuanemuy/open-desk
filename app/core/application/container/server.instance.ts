@@ -1,12 +1,7 @@
-import type { Container } from "./server";
-
 /**
  * Server-side dependency injection container singleton.
  *
- * This instance is initialized at server startup and provides
- * all dependencies needed by application services.
- *
- * Each adapter implementation should be wired here once
- * the infrastructure layer is configured.
+ * Re-exports the container created by the DI module,
+ * which initializes all adapters from environment configuration.
  */
-export const container: Container = null as unknown as Container;
+export { container } from "@/core/di/server";
