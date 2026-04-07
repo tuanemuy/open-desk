@@ -311,6 +311,34 @@ export const Language = {
 };
 
 // ============================================
+// TimeFormat
+// ============================================
+
+const VALID_TIME_FORMATS = ["12h", "24h"] as const;
+
+type TimeFormatValue = (typeof VALID_TIME_FORMATS)[number];
+
+type _TimeFormat = TimeFormatValue & { readonly brand: "TimeFormat" };
+
+export type TimeFormat = _TimeFormat;
+
+export const TimeFormat = {
+  create: (value: string): _TimeFormat => {
+    if (!VALID_TIME_FORMATS.includes(value as TimeFormatValue)) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.InvalidTimeFormat,
+        `Invalid time format: ${value}`,
+      );
+    }
+    return value as _TimeFormat;
+  },
+  default: (): _TimeFormat => {
+    return "24h" as _TimeFormat;
+  },
+  validValues: VALID_TIME_FORMATS,
+};
+
+// ============================================
 // Password (plain-text, validated against a PasswordPolicy)
 // ============================================
 

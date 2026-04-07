@@ -42,6 +42,8 @@ export class DrizzleSqliteUserRepository implements UserRepository {
         data.timezone as import("@/core/domain/identity/valueObject").Timezone,
       language:
         data.language as import("@/core/domain/identity/valueObject").Language,
+      timeFormat:
+        data.timeFormat as import("@/core/domain/identity/valueObject").TimeFormat,
       isActive: data.isActive,
       avatarFileKey:
         data.avatarFileKey !== null
@@ -209,6 +211,7 @@ export class DrizzleSqliteUserRepository implements UserRepository {
           primaryOrganizationId: user.primaryOrganizationId,
           timezone: user.timezone,
           language: user.language,
+          timeFormat: user.timeFormat,
           isActive: user.isActive,
           avatarFileKey: user.avatarFileKey,
           createdAt: user.createdAt,
@@ -223,6 +226,7 @@ export class DrizzleSqliteUserRepository implements UserRepository {
             primaryOrganizationId: user.primaryOrganizationId,
             timezone: user.timezone,
             language: user.language,
+            timeFormat: user.timeFormat,
             isActive: user.isActive,
             avatarFileKey: user.avatarFileKey,
             updatedAt: user.updatedAt,

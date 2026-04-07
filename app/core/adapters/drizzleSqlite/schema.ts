@@ -32,6 +32,7 @@ export const users = sqliteTable(
     ),
     timezone: text("timezone").notNull().default("Asia/Tokyo"),
     language: text("language").notNull().default("ja"),
+    timeFormat: text("time_format").notNull().default("24h"),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
     avatarFileKey: text("avatar_file_key"),
     failedLoginAttempts: integer("failed_login_attempts").notNull().default(0),
@@ -1910,4 +1911,26 @@ export const bookmarks = sqliteTable(
     index("idx_bookmarks_user_id_created_at").on(table.userId, table.createdAt),
     index("idx_bookmarks_user_id_category").on(table.userId, table.category),
   ],
+);
+
+// ============================================================
+// 12. Common ドメイン
+// ============================================================
+
+/**
+ * eventOutbox - イベントアウトボックステーブル（Outbox パターン）
+ */
+export const eventOutbox = sqliteTable(
+  "event_outbox",
+  {
+    id: text("id").primaryKey(),
+    eventType: text("event_type").notNull(),
+    eventPayload: text("event_payload").notNull(),
+    occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    processedAt: integer("processed_at", { mode: "timestamp" }),
+  },
+  (table) => [index("idx_event_outbox_pending").on(table.processedAt)],
 );

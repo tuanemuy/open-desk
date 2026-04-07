@@ -25,6 +25,7 @@ export type UpdateUserProfileOutput = {
   displayName: string;
   timezone: string;
   language: string;
+  timeFormat: string;
   updatedAt: Date;
 };
 

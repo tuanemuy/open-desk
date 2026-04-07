@@ -41,6 +41,7 @@ describe("updateUserProfile", () => {
         displayName: "Updated Name",
         timezone: "America/New_York",
         language: "en",
+        timeFormat: "12h",
       },
     });
 
@@ -48,6 +49,7 @@ describe("updateUserProfile", () => {
     expect(result.displayName).toBe("Updated Name");
     expect(result.timezone).toBe("America/New_York");
     expect(result.language).toBe("en");
+    expect(result.timeFormat).toBe("12h");
     expect(result.updatedAt).toBeInstanceOf(Date);
   });
 
@@ -63,12 +65,14 @@ describe("updateUserProfile", () => {
         displayName: "Only Name Changed",
         timezone: "Asia/Tokyo",
         language: "ja",
+        timeFormat: "24h",
       },
     });
 
     expect(result.displayName).toBe("Only Name Changed");
     expect(result.timezone).toBe("Asia/Tokyo");
     expect(result.language).toBe("ja");
+    expect(result.timeFormat).toBe("24h");
   });
 
   it("should throw ValidationError when userId is empty", async () => {
@@ -83,6 +87,7 @@ describe("updateUserProfile", () => {
           displayName: "Test",
           timezone: "Asia/Tokyo",
           language: "ja",
+          timeFormat: "24h",
         },
       }),
     ).rejects.toThrow(ValidationError);
@@ -100,6 +105,7 @@ describe("updateUserProfile", () => {
           displayName: "Test",
           timezone: "Asia/Tokyo",
           language: "ja",
+          timeFormat: "24h",
         },
       }),
     ).rejects.toThrow();
@@ -118,6 +124,7 @@ describe("updateUserProfile", () => {
           displayName: "",
           timezone: "Asia/Tokyo",
           language: "ja",
+          timeFormat: "24h",
         },
       }),
     ).rejects.toThrow(BusinessRuleError);
@@ -136,6 +143,7 @@ describe("updateUserProfile", () => {
           displayName: "Test",
           timezone: "Invalid/Zone",
           language: "ja",
+          timeFormat: "24h",
         },
       }),
     ).rejects.toThrow(BusinessRuleError);
@@ -154,6 +162,7 @@ describe("updateUserProfile", () => {
           displayName: "Test",
           timezone: "Asia/Tokyo",
           language: "de",
+          timeFormat: "24h",
         },
       }),
     ).rejects.toThrow(BusinessRuleError);
@@ -171,6 +180,7 @@ describe("updateUserProfile", () => {
           displayName: "Test",
           timezone: "Asia/Tokyo",
           language: "ja",
+          timeFormat: "24h",
         },
       }),
     ).rejects.toThrow(NotFoundError);
@@ -188,6 +198,7 @@ describe("updateUserProfile", () => {
         displayName: "Test User",
         timezone: "UTC",
         language: "ja",
+        timeFormat: "24h",
       },
     });
 
@@ -206,6 +217,7 @@ describe("updateUserProfile", () => {
         displayName: "Test User",
         timezone: "Asia/Tokyo",
         language: "en",
+        timeFormat: "24h",
       },
     });
 

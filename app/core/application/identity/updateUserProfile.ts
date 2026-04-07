@@ -6,7 +6,12 @@ import {
 } from "@/core/application/error";
 import type { ServiceArgs } from "@/core/application/types";
 import { User } from "@/core/domain/identity/entity";
-import { Language, Timezone, UserId } from "@/core/domain/identity/valueObject";
+import {
+  Language,
+  TimeFormat,
+  Timezone,
+  UserId,
+} from "@/core/domain/identity/valueObject";
 import type { UpdateUserProfileOutput } from "./dto";
 
 export type UpdateUserProfileInput = {
@@ -14,6 +19,7 @@ export type UpdateUserProfileInput = {
   displayName: string;
   timezone: string;
   language: string;
+  timeFormat: string;
 };
 
 export async function updateUserProfile({
@@ -30,6 +36,7 @@ export async function updateUserProfile({
   const userId = UserId.create(input.userId);
   const timezone = Timezone.create(input.timezone);
   const language = Language.create(input.language);
+  const timeFormat = TimeFormat.create(input.timeFormat);
 
   const existingUser = await container.unitOfWorkProvider.transaction(
     async (ctx) => {
@@ -48,6 +55,7 @@ export async function updateUserProfile({
     displayName: input.displayName,
     timezone,
     language,
+    timeFormat,
   });
 
   await container.unitOfWorkProvider.transaction(async (ctx) => {
@@ -59,6 +67,7 @@ export async function updateUserProfile({
     displayName: updatedUser.displayName,
     timezone: updatedUser.timezone,
     language: updatedUser.language,
+    timeFormat: updatedUser.timeFormat,
     updatedAt: updatedUser.updatedAt,
   };
 }

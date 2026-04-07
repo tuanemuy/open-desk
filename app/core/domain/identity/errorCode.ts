@@ -20,6 +20,7 @@ export const IdentityErrorCode = {
   InvalidLoginName: "IDENTITY_INVALID_LOGIN_NAME",
   InvalidTimezone: "IDENTITY_INVALID_TIMEZONE",
   InvalidLanguage: "IDENTITY_INVALID_LANGUAGE",
+  InvalidTimeFormat: "IDENTITY_INVALID_TIME_FORMAT",
   EmptyFileKey: "IDENTITY_EMPTY_FILE_KEY",
   InvalidPasswordMinLength: "IDENTITY_INVALID_PASSWORD_MIN_LENGTH",
   InvalidPasswordComplexity: "IDENTITY_INVALID_PASSWORD_COMPLEXITY",

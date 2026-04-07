@@ -17,6 +17,7 @@ import type {
   LoginName as LoginNameType,
   OrganizationId as OrganizationIdType,
   SessionId as SessionIdType,
+  TimeFormat as TimeFormatType,
   Timezone as TimezoneType,
   UserId as UserIdType,
 } from "./valueObject";
@@ -26,6 +27,7 @@ import {
   Language,
   OrganizationId,
   SessionId,
+  TimeFormat,
   Timezone,
   UserId,
 } from "./valueObject";
@@ -42,6 +44,7 @@ type _User = Readonly<{
   primaryOrganizationId: OrganizationIdType | null;
   timezone: TimezoneType;
   language: LanguageType;
+  timeFormat: TimeFormatType;
   isActive: boolean;
   avatarFileKey: FileKeyType | null;
   createdAt: Date;
@@ -61,6 +64,7 @@ export const User = {
     email: EmailType;
     timezone?: TimezoneType;
     language?: LanguageType;
+    timeFormat?: TimeFormatType;
   }): WithEvents<_User, UserEvent> => {
     const now = new Date();
     const user: _User = {
@@ -71,6 +75,7 @@ export const User = {
       primaryOrganizationId: null,
       timezone: params.timezone ?? Timezone.default(),
       language: params.language ?? Language.default(),
+      timeFormat: params.timeFormat ?? TimeFormat.default(),
       isActive: true,
       avatarFileKey: null,
       createdAt: now,
@@ -139,6 +144,7 @@ export const User = {
       displayName: string;
       timezone: TimezoneType;
       language: LanguageType;
+      timeFormat: TimeFormatType;
     },
   ): WithEvents<_User, UserEvent> => {
     return {
@@ -147,6 +153,7 @@ export const User = {
         displayName: DisplayName.create(params.displayName),
         timezone: params.timezone,
         language: params.language,
+        timeFormat: params.timeFormat,
         updatedAt: new Date(),
       },
       events: [IdentityEvents.userProfileUpdated(user.userId)],
