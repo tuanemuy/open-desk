@@ -1,11 +1,13 @@
+import { Settings } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import type { BookmarkListByCategoryOutput } from "@/core/application/bookmark/dto";
 import { BookmarkPanel } from "./BookmarkPanel";
 
 const navItems = [
-  { label: "Portal", to: "/portal" },
-  { label: "Notifications", to: "/notifications" },
-  { label: "Messages", to: "/messages" },
+  { label: "ポータル", to: "/portal" },
+  { label: "通知", to: "/notifications" },
+  { label: "メッセージ", to: "/messages" },
 ] as const;
 
 type GlobalHeaderProps = {
@@ -16,6 +18,22 @@ type GlobalHeaderProps = {
 export function GlobalHeader({ displayName, bookmarks }: GlobalHeaderProps) {
   const location = useLocation();
   const initial = displayName?.charAt(0) ?? "?";
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showSettingsMenu) return;
+    function handleOutside(e: MouseEvent) {
+      if (
+        settingsRef.current &&
+        !settingsRef.current.contains(e.target as Node)
+      ) {
+        setShowSettingsMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [showSettingsMenu]);
 
   return (
     <header className="sticky top-0 z-100 flex h-[56px] items-center border-b border-neutral-200 bg-bg-header">
@@ -64,24 +82,61 @@ export function GlobalHeader({ displayName, bookmarks }: GlobalHeaderProps) {
               aria-hidden="true"
               role="img"
             >
-              <title>Search</title>
+              <title>検索</title>
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
             </svg>
             <input
               type="text"
-              placeholder="Search"
+              placeholder="全体検索"
               className="h-[34px] w-60 rounded-full border border-neutral-200 bg-neutral-100 pl-9 pr-md font-body text-sm text-neutral-800 outline-none transition-[border-color,background-color,box-shadow] duration-[var(--transition-default)] placeholder:text-neutral-400 hover:border-neutral-300 hover:bg-bg-card focus:border-primary focus:bg-bg-card focus:shadow-[0_0_0_3px_var(--color-primary-lighter)]"
             />
           </div>
 
-          <Link
-            to="/settings"
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-primary-light text-sm font-[var(--weight-medium)] text-primary-darker no-underline transition-shadow duration-[var(--transition-default)] hover:shadow-md"
+          <div ref={settingsRef} className="relative">
+            <button
+              type="button"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-bg-card text-neutral-500 transition-[color,background-color,shadow] duration-[var(--transition-default)] hover:bg-neutral-100 hover:text-neutral-700 hover:shadow-sm"
+              title="設定"
+              aria-label="設定"
+              onClick={() => setShowSettingsMenu((v) => !v)}
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+
+            {showSettingsMenu && (
+              <div className="absolute top-full right-0 mt-sm w-56 rounded-lg border border-neutral-200 bg-bg-card shadow-md">
+                <Link
+                  to="/admin/system/apps"
+                  className="block px-md py-sm text-sm text-neutral-700 no-underline transition-colors duration-[var(--transition-default)] first:rounded-t-lg hover:bg-neutral-100"
+                  onClick={() => setShowSettingsMenu(false)}
+                >
+                  OpenDeskシステム管理
+                </Link>
+                <Link
+                  to="/admin"
+                  className="block border-t border-neutral-100 px-md py-sm text-sm text-neutral-700 no-underline transition-colors duration-[var(--transition-default)] hover:bg-neutral-100"
+                  onClick={() => setShowSettingsMenu(false)}
+                >
+                  cybozu.com共通管理
+                </Link>
+                <Link
+                  to="/settings"
+                  className="block border-t border-neutral-100 px-md py-sm text-sm text-neutral-700 no-underline transition-colors duration-[var(--transition-default)] last:rounded-b-lg hover:bg-neutral-100"
+                  onClick={() => setShowSettingsMenu(false)}
+                >
+                  個人設定
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-primary-light text-sm font-[var(--weight-medium)] text-primary-darker"
             title={displayName ?? "User"}
           >
             {initial}
-          </Link>
+          </div>
         </div>
       </div>
     </header>

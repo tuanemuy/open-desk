@@ -11,11 +11,9 @@ export type AppItem = {
   fieldCount: number;
 };
 
-export type LicenseInfo = {
-  label: string;
-  current: number;
-  limit: number | null;
-};
+import type { LicenseInfo } from "@/components/admin/LicenseCard";
+
+export type { LicenseInfo };
 
 export type AppsLoaderData = {
   licenses: LicenseInfo[];

@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { container } from "@/core/application/container/server.instance";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
@@ -213,9 +214,12 @@ export default function AdminHomePage({ loaderData }: Route.ComponentProps) {
             <div className="text-sm leading-normal text-neutral-500">
               {service.description}
             </div>
-            <span className="mt-sm inline-block text-sm font-[var(--weight-medium)] text-primary no-underline transition-colors duration-[var(--transition-default)] hover:text-primary-dark hover:underline">
+            <Link
+              to="#"
+              className="mt-sm inline-block text-sm font-[var(--weight-medium)] text-primary no-underline transition-colors duration-[var(--transition-default)] hover:text-primary-dark hover:underline"
+            >
               詳細を見る
-            </span>
+            </Link>
           </div>
         ))}
       </div>
