@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>通知の絞り込み - OpenDesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary-lighter: oklch(0.95 0.03 250);
+      --color-primary-light: oklch(0.82 0.07 250);
+      --color-primary: oklch(0.65 0.12 250);
+      --color-primary-dark: oklch(0.52 0.12 250);
+      --color-primary-darker: oklch(0.40 0.12 250);
+      --color-accent: oklch(0.65 0.15 270);
+      --color-accent-light: oklch(0.90 0.05 270);
+      --color-neutral-50: oklch(0.98 0.002 250);
+      --color-neutral-100: oklch(0.96 0.004 250);
+      --color-neutral-150: oklch(0.94 0.004 250);
+      --color-neutral-200: oklch(0.92 0.005 250);
+      --color-neutral-300: oklch(0.86 0.008 250);
+      --color-neutral-400: oklch(0.72 0.015 250);
+      --color-neutral-500: oklch(0.60 0.02 250);
+      --color-neutral-600: oklch(0.50 0.02 250);
+      --color-neutral-700: oklch(0.40 0.02 250);
+      --color-neutral-800: oklch(0.30 0.02 250);
+      --color-neutral-900: oklch(0.20 0.02 250);
+      --color-success: oklch(0.60 0.15 155);
+      --color-success-light: oklch(0.95 0.04 155);
+      --color-warning: oklch(0.75 0.15 80);
+      --color-warning-light: oklch(0.95 0.05 80);
+      --color-error: oklch(0.60 0.20 25);
+      --color-error-light: oklch(0.95 0.04 25);
+      --color-info: oklch(0.65 0.12 250);
+      --color-info-light: oklch(0.95 0.03 250);
+      --color-bg-page: oklch(0.98 0.002 250);
+      --color-bg-card: oklch(1.0 0 0);
+      --color-bg-section: oklch(0.96 0.004 250);
+      --color-bg-header: oklch(1.0 0 0);
+      --color-on-primary: oklch(1.0 0 0);
+      --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --text-xs: clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);
+      --text-sm: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
+      --text-base: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+      --text-lg: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --text-xl: clamp(1.125rem, 1.05rem + 0.2vw, 1.25rem);
+      --text-2xl: clamp(1.375rem, 1.25rem + 0.3vw, 1.5rem);
+      --text-3xl: clamp(1.75rem, 1.6rem + 0.4vw, 2rem);
+      --weight-normal: 400;
+      --weight-medium: 500;
+      --weight-semibold: 600;
+      --leading-tight: 1.3;
+      --leading-normal: 1.6;
+      --leading-relaxed: 1.8;
+      --tracking-tight: -0.02em;
+      --tracking-normal: 0;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-section: 48px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px oklch(0.20 0 0 / 0.04);
+      --shadow-md: 0 2px 8px oklch(0.20 0 0 / 0.06);
+      --shadow-lg: 0 4px 16px oklch(0.20 0 0 / 0.08);
+      --transition-fast: 0.1s ease;
+      --transition-default: 0.15s ease;
+      --transition-slow: 0.25s ease;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      line-height: var(--leading-normal);
+      color: var(--color-neutral-800);
+      background-color: var(--color-bg-page);
+      min-height: 100vh;
+    }
+
+    /* ========== Global Header ========== */
+    .global-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: var(--color-bg-header);
+      border-bottom: 1px solid var(--color-neutral-200);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-normal);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-neutral-800);
+      text-decoration: none;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .logo strong {
+      font-weight: var(--weight-semibold);
+      color: var(--color-primary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .header-nav a {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      text-decoration: none;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .header-nav a:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .header-nav a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .header-nav a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .search-input {
+      height: 34px;
+      width: 240px;
+      padding: 0 var(--space-md);
+      padding-left: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      outline: none;
+      transition: border-color var(--transition-default), background-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .search-input:hover {
+      background: var(--color-bg-card);
+      border-color: var(--color-neutral-300);
+    }
+
+    .search-input:focus {
+      background: var(--color-bg-card);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary-darker);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      transition: box-shadow var(--transition-default);
+      border: 1px solid var(--color-neutral-200);
+    }
+
+    .user-avatar:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ========== Page Layout ========== */
+    .page-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+    }
+
+    /* ========== Page Title ========== */
+    .page-title {
+      padding: var(--space-lg) 0 var(--space-md);
+    }
+
+    .page-title h2 {
+      font-family: var(--font-heading);
+      font-size: var(--text-xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    /* ========== Filter Bar ========== */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .filter-dropdown-wrapper {
+      position: relative;
+    }
+
+    .filter-trigger {
+      height: 34px;
+      padding: 0 var(--space-md);
+      padding-right: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      position: relative;
+      user-select: none;
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .filter-trigger::after {
+      content: '';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%) rotate(180deg);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-bottom: 5px solid var(--color-neutral-500);
+    }
+
+    /* ========== Filter Dropdown ========== */
+    .filter-dropdown {
+      position: absolute;
+      top: calc(100% + var(--space-xs));
+      left: 0;
+      min-width: 280px;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      z-index: 200;
+      padding: var(--space-xs) 0;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-700);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+      user-select: none;
+    }
+
+    .dropdown-item:hover {
+      background: var(--color-neutral-100);
+    }
+
+    .dropdown-item.selected {
+      color: var(--color-primary-dark);
+      font-weight: var(--weight-medium);
+      background: var(--color-primary-lighter);
+    }
+
+    .dropdown-item .check-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+
+    .dropdown-item .item-label {
+      flex: 1;
+    }
+
+    .dropdown-separator {
+      height: 1px;
+      background: var(--color-neutral-200);
+      margin: var(--space-xs) 0;
+    }
+
+    /* Custom filter item with edit/delete */
+    .dropdown-item-custom {
+      display: flex;
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-700);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+      user-select: none;
+      gap: var(--space-sm);
+    }
+
+    .dropdown-item-custom:hover {
+      background: var(--color-neutral-100);
+    }
+
+    .dropdown-item-custom .item-label {
+      flex: 1;
+    }
+
+    .dropdown-item-custom .item-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-shrink: 0;
+    }
+
+    .dropdown-item-custom .item-actions a {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+      text-decoration: none;
+      transition: color var(--transition-default);
+    }
+
+    .dropdown-item-custom .item-actions a:hover {
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+
+    .dropdown-item-custom .item-actions a.delete-link:hover {
+      color: var(--color-error);
+    }
+
+    /* Inline delete confirmation */
+    .dropdown-item-delete-confirm {
+      display: flex;
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-sm);
+      gap: var(--space-sm);
+      background: var(--color-error-light);
+    }
+
+    .dropdown-item-delete-confirm .confirm-label {
+      flex: 1;
+      color: var(--color-neutral-700);
+      font-size: var(--text-xs);
+    }
+
+    .dropdown-item-delete-confirm .confirm-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-shrink: 0;
+    }
+
+    .btn-cancel-sm {
+      height: 26px;
+      padding: 0 var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color var(--transition-default), border-color var(--transition-default);
+    }
+
+    .btn-cancel-sm:hover {
+      background: var(--color-neutral-100);
+      border-color: var(--color-neutral-400);
+    }
+
+    .btn-delete-sm {
+      height: 26px;
+      padding: 0 var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-on-primary);
+      background: var(--color-error);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: opacity var(--transition-default);
+    }
+
+    .btn-delete-sm:hover {
+      opacity: 0.85;
+    }
+
+    /* Create filter action link */
+    .dropdown-action {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-primary);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+      user-select: none;
+      text-decoration: none;
+    }
+
+    .dropdown-action:hover {
+      background: var(--color-primary-lighter);
+    }
+
+    .dropdown-action svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ========== Toggle Group ========== */
+    .toggle-group {
+      display: flex;
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .toggle-btn {
+      height: 32px;
+      padding: 0 var(--space-md);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+      background: var(--color-bg-card);
+      border: none;
+      cursor: pointer;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .toggle-btn:hover {
+      color: var(--color-neutral-700);
+      background: var(--color-neutral-50);
+    }
+
+    .toggle-btn.active {
+      color: var(--color-primary-dark);
+      background: var(--color-primary-lighter);
+    }
+
+    .toggle-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .toggle-btn + .toggle-btn {
+      border-left: 1px solid var(--color-neutral-200);
+    }
+
+    /* ========== Options Bar ========== */
+    .options-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .options-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-600);
+      cursor: pointer;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-default);
+      user-select: none;
+    }
+
+    .checkbox-label:hover {
+      color: var(--color-neutral-800);
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .view-toggle {
+      display: flex;
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .view-toggle-btn {
+      height: 30px;
+      width: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-400);
+      background: var(--color-bg-card);
+      border: none;
+      cursor: pointer;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .view-toggle-btn:hover {
+      color: var(--color-neutral-600);
+      background: var(--color-neutral-50);
+    }
+
+    .view-toggle-btn.active {
+      color: var(--color-primary-dark);
+      background: var(--color-primary-lighter);
+    }
+
+    .view-toggle-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .view-toggle-btn + .view-toggle-btn {
+      border-left: 1px solid var(--color-neutral-200);
+    }
+
+    .view-toggle-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ========== Notification List ========== */
+    .notification-list {
+      list-style: none;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .notification-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--color-neutral-100);
+      transition: background-color var(--transition-default);
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .notification-item:hover {
+      background: var(--color-neutral-50);
+    }
+
+    .notification-item.unread {
+      background: var(--color-primary-lighter);
+    }
+
+    .notification-item.unread:hover {
+      background: var(--color-primary-lighter);
+    }
+
+    .notif-actions {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      margin-top: 2px;
+    }
+
+    .notif-icon-btn {
+      width: 28px;
+      height: 28px;
+      background: none;
+      border: none;
+      color: var(--color-neutral-400);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .notif-icon-btn:hover {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .notif-icon-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .notif-icon-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .notif-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .notif-content a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .notif-content a:hover .notif-title {
+      text-decoration: underline;
+    }
+
+    .notif-content a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+
+    .notif-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: 2px;
+    }
+
+    .unread-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: var(--color-primary);
+      border-radius: var(--radius-full);
+      flex-shrink: 0;
+    }
+
+    .notif-app-name {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+    }
+
+    .notif-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-800);
+      line-height: var(--leading-tight);
+      margin-bottom: var(--space-xs);
+    }
+
+    .notif-desc {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-600);
+      line-height: var(--leading-normal);
+      margin-bottom: var(--space-xs);
+    }
+
+    .notif-meta {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-400);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .notif-user {
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+    }
+
+    /* ========== Modal Overlay ========== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: oklch(0.20 0 0 / 0.5);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ========== Modal Dialog ========== */
+    .modal-dialog {
+      width: 560px;
+      max-width: calc(100vw - var(--space-xl) * 2);
+      max-height: calc(100vh - var(--space-xl) * 2);
+      background: var(--color-bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--color-neutral-200);
+      flex-shrink: 0;
+    }
+
+    .modal-header h3 {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      letter-spacing: var(--tracking-normal);
+    }
+
+    .modal-close-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--color-neutral-400);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .modal-close-btn:hover {
+      color: var(--color-neutral-700);
+      background: var(--color-neutral-100);
+    }
+
+    .modal-close-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .modal-close-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .modal-body {
+      padding: var(--space-lg);
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--color-neutral-200);
+      flex-shrink: 0;
+    }
+
+    /* ========== Form Fields ========== */
+    .form-group {
+      margin-bottom: var(--space-lg);
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      margin-bottom: var(--space-sm);
+    }
+
+    .form-input {
+      display: block;
+      width: 100%;
+      height: 36px;
+      padding: 0 var(--space-md);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .form-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .form-input:hover {
+      border-color: var(--color-neutral-400);
+    }
+
+    .form-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .form-input.has-error {
+      border-color: var(--color-error);
+      border-width: 2px;
+    }
+
+    .form-input.has-error:focus {
+      box-shadow: 0 0 0 3px var(--color-error-light);
+    }
+
+    .form-error {
+      display: block;
+      font-size: var(--text-xs);
+      color: var(--color-error);
+      margin-top: var(--space-xs);
+      line-height: var(--leading-normal);
+    }
+
+    /* ========== Radio Buttons ========== */
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      cursor: pointer;
+      padding: var(--space-xs) 0;
+      user-select: none;
+    }
+
+    .radio-label input[type="radio"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--color-neutral-300);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .radio-label input[type="radio"]:hover {
+      border-color: var(--color-neutral-400);
+    }
+
+    .radio-label input[type="radio"]:checked {
+      border-color: var(--color-primary);
+    }
+
+    .radio-label input[type="radio"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 8px;
+      height: 8px;
+      background: var(--color-primary);
+      border-radius: var(--radius-full);
+    }
+
+    .radio-label input[type="radio"]:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ========== Condition Rows ========== */
+    .condition-rows {
+      margin-top: var(--space-sm);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .condition-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .condition-select {
+      height: 34px;
+      padding: 0 var(--space-md);
+      padding-right: 32px;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-700);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      outline: none;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+      flex-shrink: 0;
+    }
+
+    .condition-select:hover {
+      border-color: var(--color-neutral-400);
+    }
+
+    .condition-select:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .condition-select.type-select {
+      width: 120px;
+    }
+
+    .condition-select.target-select {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .condition-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: color var(--transition-default), background-color var(--transition-default), border-color var(--transition-default);
+      line-height: 1;
+    }
+
+    .condition-btn:hover {
+      color: var(--color-neutral-700);
+      background: var(--color-neutral-100);
+      border-color: var(--color-neutral-400);
+    }
+
+    .condition-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .condition-btn.add-btn:hover {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+      border-color: var(--color-primary-light);
+    }
+
+    .condition-btn.remove-btn:hover {
+      color: var(--color-error);
+      background: var(--color-error-light);
+      border-color: var(--color-error);
+    }
+
+    /* ========== Sender Search Section ========== */
+    .sender-search-wrapper {
+      position: relative;
+    }
+
+    .sender-search-input {
+      display: block;
+      width: 100%;
+      height: 36px;
+      padding: 0 var(--space-md);
+      padding-left: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .sender-search-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .sender-search-input:hover {
+      border-color: var(--color-neutral-400);
+    }
+
+    .sender-search-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .sender-search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    .sender-org-link {
+      display: inline-block;
+      margin-top: var(--space-sm);
+      font-size: var(--text-sm);
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: color var(--transition-default);
+    }
+
+    .sender-org-link:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    /* ========== Buttons ========== */
+    .btn-primary {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-on-primary);
+      background: var(--color-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-secondary {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color var(--transition-default), border-color var(--transition-default);
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-neutral-100);
+      border-color: var(--color-neutral-300);
+    }
+
+    .btn-secondary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ========== Dimmed Background ========== */
+    .page-dimmed {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== Global Header ========== -->
+  <header class="global-header">
+    <div class="header-inner">
+      <a href="#" class="logo">Open<strong>Desk</strong></a>
+      <nav class="header-nav">
+        <a href="#">ポータル</a>
+        <a href="#" class="active">通知</a>
+        <a href="#">ブックマーク</a>
+      </nav>
+      <div class="header-right">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="search-input" placeholder="全体検索">
+        </div>
+        <div class="user-avatar" title="山田 太郎">山</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== Page Content (dimmed behind modal) ========== -->
+  <div class="page-dimmed">
+    <div class="page-container">
+
+      <!-- Page Title -->
+      <div class="page-title">
+        <h2>通知</h2>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-dropdown-wrapper">
+          <!-- Filter trigger button (shown as open) -->
+          <button type="button" class="filter-trigger" aria-expanded="true" aria-haspopup="listbox">
+            自分宛
+          </button>
+
+          <!-- Filter Dropdown (open state) -->
+          <div class="filter-dropdown" role="listbox" aria-label="通知フィルター">
+
+            <!-- Built-in: 自分宛 (selected) -->
+            <div class="dropdown-item selected" role="option" aria-selected="true">
+              <span class="item-label">自分宛</span>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+
+            <!-- Built-in: あとで読む -->
+            <div class="dropdown-item" role="option" aria-selected="false">
+              <span class="item-label">あとで読む</span>
+            </div>
+
+            <!-- Built-in: すべて -->
+            <div class="dropdown-item" role="option" aria-selected="false">
+              <span class="item-label">すべて</span>
+            </div>
+
+            <!-- Separator -->
+            <div class="dropdown-separator" role="separator"></div>
+
+            <!-- Custom filter 1: 重要な通知のみ -->
+            <div class="dropdown-item-custom" role="option" aria-selected="false">
+              <span class="item-label">重要な通知のみ</span>
+              <span class="item-actions">
+                <a href="#" title="編集">編集</a>
+                <a href="#" class="delete-link" title="削除">削除</a>
+              </span>
+            </div>
+
+            <!-- Custom filter 2: アプリ通知 (with inline delete confirmation) -->
+            <div class="dropdown-item-delete-confirm">
+              <span class="confirm-label">「アプリ通知」を削除しますか?</span>
+              <span class="confirm-actions">
+                <button type="button" class="btn-cancel-sm">キャンセル</button>
+                <button type="button" class="btn-delete-sm">削除する</button>
+              </span>
+            </div>
+
+            <!-- Separator -->
+            <div class="dropdown-separator" role="separator"></div>
+
+            <!-- Create filter action -->
+            <a href="#" class="dropdown-action">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              絞り込みを作成する
+            </a>
+
+          </div>
+        </div>
+
+        <div class="toggle-group">
+          <button type="button" class="toggle-btn active">未読</button>
+          <button type="button" class="toggle-btn">既読</button>
+        </div>
+      </div>
+
+      <!-- Options Bar -->
+      <div class="options-bar">
+        <div class="options-left">
+          <label class="checkbox-label">
+            <input type="checkbox">
+            通知にボタンを常に表示する
+          </label>
+        </div>
+        <div class="view-toggle">
+          <button type="button" class="view-toggle-btn" title="詳細表示" aria-label="詳細表示">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          </button>
+          <button type="button" class="view-toggle-btn active" title="一覧表示" aria-label="一覧表示">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Notification List (partially visible behind overlay) -->
+      <ul class="notification-list">
+        <li class="notification-item unread">
+          <div class="notif-actions">
+            <button class="notif-icon-btn" type="button" title="あとで読む" aria-label="あとで読む">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+            </button>
+            <button class="notif-icon-btn" type="button" title="既読にする" aria-label="既読にする">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </button>
+          </div>
+          <div class="notif-content">
+            <a href="#">
+              <div class="notif-header">
+                <span class="unread-dot"></span>
+                <span class="notif-app-name">顧客リスト</span>
+              </div>
+              <div class="notif-title">鈴木 花子さんがレコード「株式会社アルファ」にコメントしました</div>
+              <div class="notif-desc">「次回の商談日程は4/15に変更でお願いします。担当の佐藤さんにも共有お願いします。」</div>
+              <div class="notif-meta">
+                <span>5分前</span>
+                <span class="notif-user">鈴木 花子</span>
+              </div>
+            </a>
+          </div>
+        </li>
+
+        <li class="notification-item unread">
+          <div class="notif-actions">
+            <button class="notif-icon-btn" type="button" title="あとで読む" aria-label="あとで読む">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+            </button>
+            <button class="notif-icon-btn" type="button" title="既読にする" aria-label="既読にする">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </button>
+          </div>
+          <div class="notif-content">
+            <a href="#">
+              <div class="notif-header">
+                <span class="unread-dot"></span>
+                <span class="notif-app-name">プロジェクト管理</span>
+              </div>
+              <div class="notif-title">佐藤 一郎さんがタスク「API設計書の作成」のステータスを「完了」に変更しました</div>
+              <div class="notif-desc">開発チーム &gt; プロジェクト管理 &gt; ステータス変更</div>
+              <div class="notif-meta">
+                <span>15分前</span>
+                <span class="notif-user">佐藤 一郎</span>
+              </div>
+            </a>
+          </div>
+        </li>
+
+        <li class="notification-item unread">
+          <div class="notif-actions">
+            <button class="notif-icon-btn" type="button" title="あとで読む" aria-label="あとで読む">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+            </button>
+            <button class="notif-icon-btn" type="button" title="既読にする" aria-label="既読にする">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </button>
+          </div>
+          <div class="notif-content">
+            <a href="#">
+              <div class="notif-header">
+                <span class="unread-dot"></span>
+                <span class="notif-app-name">ファイル管理</span>
+              </div>
+              <div class="notif-title">田中 美咲さんが「2026年度予算書.xlsx」をアップロードしました</div>
+              <div class="notif-desc">営業部 &gt; ファイル管理 &gt; ファイルアップロード</div>
+              <div class="notif-meta">
+                <span>30分前</span>
+                <span class="notif-user">田中 美咲</span>
+              </div>
+            </a>
+          </div>
+        </li>
+
+        <li class="notification-item unread">
+          <div class="notif-actions">
+            <button class="notif-icon-btn" type="button" title="あとで読む" aria-label="あとで読む">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+            </button>
+            <button class="notif-icon-btn" type="button" title="既読にする" aria-label="既読にする">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </button>
+          </div>
+          <div class="notif-content">
+            <a href="#">
+              <div class="notif-header">
+                <span class="unread-dot"></span>
+                <span class="notif-app-name">勤怠管理</span>
+              </div>
+              <div class="notif-title">高橋 健太さんがあなたの4月分勤怠を承認しました</div>
+              <div class="notif-desc">総務・人事 &gt; 勤怠管理 &gt; 承認完了</div>
+              <div class="notif-meta">
+                <span>1時間前</span>
+                <span class="notif-user">高橋 健太</span>
+              </div>
+            </a>
+          </div>
+        </li>
+      </ul>
+
+    </div><!-- /page-container -->
+  </div><!-- /page-dimmed -->
+
+  <!-- ========== Modal Overlay + Filter Settings Dialog ========== -->
+  <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-dialog">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 id="modal-title">絞り込みの設定</h3>
+        <button type="button" class="modal-close-btn" aria-label="閉じる">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+
+        <!-- Filter Name (with validation error example) -->
+        <div class="form-group">
+          <label class="form-label" for="filter-name">絞り込み名</label>
+          <input type="text" id="filter-name" class="form-input has-error" placeholder="絞り込み名を入力" value="">
+          <span class="form-error">1文字以上、100文字以下である必要があります。必須です。</span>
+        </div>
+
+        <!-- Notification Type -->
+        <div class="form-group">
+          <label class="form-label">通知の種類</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="notif-type" value="all" checked>
+              すべて
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="notif-type" value="mention">
+              自分宛
+            </label>
+          </div>
+        </div>
+
+        <!-- Filter by Location -->
+        <div class="form-group">
+          <label class="form-label">場所で絞り込む</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="location-filter" value="all">
+              すべての通知を表示する
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="location-filter" value="include" checked>
+              次の場所からの通知だけ表示
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="location-filter" value="exclude">
+              次の場所からの通知を除外
+            </label>
+          </div>
+
+          <!-- Location Condition Rows -->
+          <div class="condition-rows">
+            <!-- Row 1 -->
+            <div class="condition-row">
+              <select class="condition-select type-select" aria-label="場所の種類">
+                <option selected>アプリ</option>
+                <option>スペース</option>
+                <option>ピープル</option>
+                <option>メッセージ</option>
+              </select>
+              <select class="condition-select target-select" aria-label="対象">
+                <option selected>すべてのアプリ</option>
+                <option>顧客リスト</option>
+                <option>プロジェクト管理</option>
+                <option>ファイル管理</option>
+                <option>勤怠管理</option>
+                <option>問い合わせ管理</option>
+              </select>
+              <button type="button" class="condition-btn add-btn" title="行を追加" aria-label="条件行を追加">+</button>
+              <button type="button" class="condition-btn remove-btn" title="行を削除" aria-label="条件行を削除">&minus;</button>
+            </div>
+            <!-- Row 2 -->
+            <div class="condition-row">
+              <select class="condition-select type-select" aria-label="場所の種類">
+                <option>アプリ</option>
+                <option selected>スペース</option>
+                <option>ピープル</option>
+                <option>メッセージ</option>
+              </select>
+              <select class="condition-select target-select" aria-label="対象">
+                <option selected>すべてのスペース</option>
+                <option>開発チーム</option>
+                <option>営業部</option>
+                <option>総務・人事</option>
+              </select>
+              <button type="button" class="condition-btn add-btn" title="行を追加" aria-label="条件行を追加">+</button>
+              <button type="button" class="condition-btn remove-btn" title="行を削除" aria-label="条件行を削除">&minus;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter by Sender -->
+        <div class="form-group">
+          <label class="form-label">送信者で絞り込む</label>
+          <div class="sender-search-wrapper">
+            <svg class="sender-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" class="sender-search-input" placeholder="ユーザーを検索">
+          </div>
+          <a href="#" class="sender-org-link">組織やグループから選択</a>
+        </div>
+
+      </div><!-- /modal-body -->
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary">キャンセル</button>
+        <button type="button" class="btn-primary">保存</button>
+      </div>
+
+    </div><!-- /modal-dialog -->
+  </div><!-- /modal-overlay -->
+
+</body>
+</html>

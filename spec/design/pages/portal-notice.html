@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お知らせ掲示板の編集 - ポータル - OpenDesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary-lighter: oklch(0.95 0.03 250);
+      --color-primary-light: oklch(0.82 0.07 250);
+      --color-primary: oklch(0.65 0.12 250);
+      --color-primary-dark: oklch(0.52 0.12 250);
+      --color-primary-darker: oklch(0.40 0.12 250);
+      --color-accent: oklch(0.65 0.15 270);
+      --color-accent-light: oklch(0.90 0.05 270);
+      --color-neutral-50: oklch(0.98 0.002 250);
+      --color-neutral-100: oklch(0.96 0.004 250);
+      --color-neutral-150: oklch(0.94 0.004 250);
+      --color-neutral-200: oklch(0.92 0.005 250);
+      --color-neutral-300: oklch(0.86 0.008 250);
+      --color-neutral-400: oklch(0.72 0.015 250);
+      --color-neutral-500: oklch(0.60 0.02 250);
+      --color-neutral-600: oklch(0.50 0.02 250);
+      --color-neutral-700: oklch(0.40 0.02 250);
+      --color-neutral-800: oklch(0.30 0.02 250);
+      --color-neutral-900: oklch(0.20 0.02 250);
+      --color-success: oklch(0.60 0.15 155);
+      --color-success-light: oklch(0.95 0.04 155);
+      --color-warning: oklch(0.75 0.15 80);
+      --color-warning-light: oklch(0.95 0.05 80);
+      --color-error: oklch(0.60 0.20 25);
+      --color-error-light: oklch(0.95 0.04 25);
+      --color-info: oklch(0.65 0.12 250);
+      --color-info-light: oklch(0.95 0.03 250);
+      --color-bg-page: oklch(0.98 0.002 250);
+      --color-bg-card: oklch(1.0 0 0);
+      --color-bg-section: oklch(0.96 0.004 250);
+      --color-bg-header: oklch(1.0 0 0);
+      --color-on-primary: oklch(1.0 0 0);
+      --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --text-xs: clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);
+      --text-sm: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
+      --text-base: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+      --text-lg: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --text-xl: clamp(1.125rem, 1.05rem + 0.2vw, 1.25rem);
+      --text-2xl: clamp(1.375rem, 1.25rem + 0.3vw, 1.5rem);
+      --text-3xl: clamp(1.75rem, 1.6rem + 0.4vw, 2rem);
+      --weight-normal: 400;
+      --weight-medium: 500;
+      --weight-semibold: 600;
+      --leading-tight: 1.3;
+      --leading-normal: 1.6;
+      --leading-relaxed: 1.8;
+      --tracking-tight: -0.02em;
+      --tracking-normal: 0;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-section: 48px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px oklch(0.20 0 0 / 0.04);
+      --shadow-md: 0 2px 8px oklch(0.20 0 0 / 0.06);
+      --shadow-lg: 0 4px 16px oklch(0.20 0 0 / 0.08);
+      --transition-fast: 0.1s ease;
+      --transition-default: 0.15s ease;
+      --transition-slow: 0.25s ease;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      line-height: var(--leading-normal);
+      color: var(--color-neutral-800);
+      background-color: var(--color-bg-page);
+      min-height: 100vh;
+    }
+
+    /* ========== Global Header ========== */
+    .global-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: var(--color-bg-header);
+      border-bottom: 1px solid var(--color-neutral-200);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-normal);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-neutral-800);
+      text-decoration: none;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .logo strong {
+      font-weight: var(--weight-semibold);
+      color: var(--color-primary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .header-nav a {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      text-decoration: none;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .header-nav a:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .header-nav a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .header-nav a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .search-input {
+      height: 34px;
+      width: 240px;
+      padding: 0 var(--space-md);
+      padding-left: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      outline: none;
+      transition: border-color var(--transition-default), background-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .search-input:hover {
+      background: var(--color-bg-card);
+      border-color: var(--color-neutral-300);
+    }
+
+    .search-input:focus {
+      background: var(--color-bg-card);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary-darker);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      transition: box-shadow var(--transition-default);
+      border: 1px solid var(--color-neutral-200);
+    }
+
+    .user-avatar:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ========== Page Layout ========== */
+    .page-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+    }
+
+    /* ========== Title Bar ========== */
+    .title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-lg) 0;
+    }
+
+    .title-bar h2 {
+      font-family: var(--font-heading);
+      font-size: var(--text-xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      height: 34px;
+      padding: 0 var(--space-md);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: border-color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-neutral-50);
+      border-color: var(--color-neutral-300);
+    }
+
+    .btn-secondary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-secondary svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ========== 2-Column Layout ========== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 65% 35%;
+      gap: var(--space-lg);
+      padding-bottom: var(--space-2xl);
+    }
+
+    /* ========== Card ========== */
+    .card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .card-header h3 {
+      font-family: var(--font-heading);
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+    }
+
+    .card-header-link {
+      font-size: var(--text-xs);
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: color var(--transition-default);
+    }
+
+    .card-header-link:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    .card-body {
+      padding: var(--space-lg);
+    }
+
+    /* ========== Announcements ========== */
+    .announcement-content h4 {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      margin-bottom: var(--space-md);
+    }
+
+    .announcement-content p {
+      font-size: var(--text-base);
+      color: var(--color-neutral-700);
+      line-height: var(--leading-relaxed);
+      margin-bottom: var(--space-md);
+    }
+
+    .announcement-content ol {
+      margin-left: var(--space-lg);
+      margin-bottom: var(--space-md);
+      color: var(--color-neutral-700);
+      line-height: var(--leading-relaxed);
+    }
+
+    .announcement-content ol li {
+      margin-bottom: var(--space-sm);
+      font-size: var(--text-base);
+    }
+
+    .announcement-content a {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .announcement-content a:hover {
+      text-decoration: underline;
+    }
+
+    .announcement-image-placeholder {
+      width: 100%;
+      height: 200px;
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-neutral-400);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .announcement-meta {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--color-neutral-200);
+    }
+
+    /* ========== Sidebar Widgets ========== */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+    }
+
+    .widget-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .widget-select {
+      height: 28px;
+      padding: 0 var(--space-sm);
+      padding-right: 28px;
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      background: var(--color-neutral-50);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      transition: border-color var(--transition-default);
+    }
+
+    .widget-select:hover {
+      border-color: var(--color-neutral-300);
+    }
+
+    .widget-select:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .toggle-group {
+      display: flex;
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .toggle-btn {
+      height: 26px;
+      padding: 0 var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+      background: var(--color-bg-card);
+      border: none;
+      cursor: pointer;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .toggle-btn:hover {
+      color: var(--color-neutral-700);
+      background: var(--color-neutral-50);
+    }
+
+    .toggle-btn.active {
+      color: var(--color-primary-dark);
+      background: var(--color-primary-lighter);
+    }
+
+    .toggle-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .toggle-btn + .toggle-btn {
+      border-left: 1px solid var(--color-neutral-200);
+    }
+
+    /* ========== Notification Items ========== */
+    .notification-list {
+      list-style: none;
+    }
+
+    .notification-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--color-neutral-100);
+      transition: background-color var(--transition-default);
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+
+    .notification-item:hover {
+      background: var(--color-neutral-50);
+    }
+
+    .notification-item.unread {
+      background: var(--color-primary-lighter);
+    }
+
+    .notification-item.unread:hover {
+      background: var(--color-primary-lighter);
+    }
+
+    .notif-read-btn {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      margin-top: 2px;
+      background: none;
+      border: none;
+      color: var(--color-neutral-400);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .notif-read-btn:hover {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .notif-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .notif-content a {
+      text-decoration: none;
+      color: var(--color-neutral-800);
+    }
+
+    .notif-content a:hover {
+      text-decoration: underline;
+    }
+
+    .notif-text {
+      font-size: var(--text-sm);
+      line-height: var(--leading-normal);
+      color: var(--color-neutral-700);
+    }
+
+    .notif-text .app-name {
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-800);
+    }
+
+    .notif-meta {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+      margin-top: 2px;
+    }
+
+    .unread-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: var(--color-primary);
+      border-radius: var(--radius-full);
+      margin-right: var(--space-xs);
+      vertical-align: middle;
+    }
+
+    /* ========== Space Items ========== */
+    .space-list {
+      list-style: none;
+    }
+
+    .space-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--color-neutral-100);
+      transition: background-color var(--transition-default);
+    }
+
+    .space-item:last-child {
+      border-bottom: none;
+    }
+
+    .space-item:hover {
+      background: var(--color-neutral-50);
+    }
+
+    .space-icon {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-on-primary);
+    }
+
+    .space-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .space-info a {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-800);
+      text-decoration: none;
+    }
+
+    .space-info a:hover {
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+
+    .space-desc {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ========== Widget Footer ========== */
+    .widget-footer {
+      padding: var(--space-sm) var(--space-lg);
+      border-top: 1px solid var(--color-neutral-200);
+    }
+
+    .widget-footer-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-sm);
+      transition: background-color var(--transition-default), color var(--transition-default);
+    }
+
+    .widget-footer-btn:hover {
+      background: var(--color-primary-lighter);
+      color: var(--color-primary-dark);
+    }
+
+    .widget-footer-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ========== Modal Overlay ========== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ========== Modal Dialog ========== */
+    .modal-dialog {
+      position: relative;
+      width: 100%;
+      max-width: 700px;
+      max-height: 90vh;
+      background: var(--color-bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--color-neutral-200);
+      flex-shrink: 0;
+    }
+
+    .modal-header h2 {
+      font-family: var(--font-heading);
+      font-size: var(--text-xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .modal-close-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--color-neutral-500);
+      cursor: pointer;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .modal-close-btn:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .modal-close-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .modal-close-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--color-neutral-200);
+      flex-shrink: 0;
+    }
+
+    /* ========== Form Elements ========== */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .form-label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+    }
+
+    .form-input {
+      height: 36px;
+      padding: 0 var(--space-md);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .form-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .form-input:hover {
+      border-color: var(--color-neutral-400);
+    }
+
+    .form-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    /* ========== Toolbar ========== */
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2px;
+      padding: var(--space-xs) var(--space-sm);
+      background: var(--color-neutral-50);
+      border: 1px solid var(--color-neutral-200);
+      border-bottom: none;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      position: relative;
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 20px;
+      background: var(--color-neutral-200);
+      margin: 0 var(--space-xs);
+      flex-shrink: 0;
+    }
+
+    .toolbar-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 var(--space-xs);
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      background: none;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: color var(--transition-default), background-color var(--transition-default);
+      white-space: nowrap;
+      gap: 2px;
+    }
+
+    .toolbar-btn:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .toolbar-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .toolbar-btn.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .toolbar-btn svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
+    .toolbar-btn .caret {
+      width: 10px;
+      height: 10px;
+      flex-shrink: 0;
+    }
+
+    /* ========== WYSIWYG Editor ========== */
+    .editor-area {
+      min-height: 300px;
+      padding: var(--space-md);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      line-height: var(--leading-relaxed);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      outline: none;
+      overflow-y: auto;
+    }
+
+    .editor-area:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .editor-area p {
+      margin-bottom: var(--space-sm);
+    }
+
+    .editor-area strong {
+      font-weight: var(--weight-semibold);
+    }
+
+    .editor-area .editor-heading {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      margin-bottom: var(--space-sm);
+    }
+
+    .editor-area a {
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+
+    /* ========== Embedded App Widget ========== */
+    .embedded-app-widget {
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      margin: var(--space-sm) 0;
+      overflow: hidden;
+    }
+
+    .embedded-app-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-neutral-50);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .embedded-app-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-sm);
+      background: var(--color-neutral-150);
+      color: var(--color-neutral-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .embedded-app-icon svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .embedded-app-name {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+    }
+
+    .embedded-app-badge {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+    }
+
+    .embedded-app-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-xs);
+    }
+
+    .embedded-app-table th {
+      text-align: left;
+      padding: var(--space-xs) var(--space-sm);
+      background: var(--color-bg-section);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .embedded-app-table td {
+      padding: var(--space-xs) var(--space-sm);
+      color: var(--color-neutral-700);
+      border-bottom: 1px solid var(--color-neutral-100);
+    }
+
+    .embedded-app-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ========== Buttons ========== */
+    .btn-cancel {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 34px;
+      padding: 0 var(--space-md);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: border-color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .btn-cancel:hover {
+      background: var(--color-neutral-50);
+      border-color: var(--color-neutral-300);
+    }
+
+    .btn-cancel:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 34px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-on-primary);
+      background: var(--color-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ========== Emoji Picker ========== */
+    .emoji-picker {
+      position: absolute;
+      top: 36px;
+      left: 88px;
+      z-index: 300;
+      width: 220px;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-sm);
+    }
+
+    .emoji-picker-header {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+      padding: var(--space-xs) var(--space-xs);
+      margin-bottom: var(--space-xs);
+    }
+
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+    }
+
+    .emoji-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+      background: none;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+    }
+
+    .emoji-btn:hover {
+      background: var(--color-neutral-100);
+    }
+
+    .emoji-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== Global Header ========== -->
+  <header class="global-header">
+    <div class="header-inner">
+      <a href="#" class="logo">Open<strong>Desk</strong></a>
+      <nav class="header-nav">
+        <a href="#" class="active">ポータル</a>
+        <a href="#">通知</a>
+        <a href="#">ブックマーク</a>
+      </nav>
+      <div class="header-right">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="search-input" placeholder="全体検索">
+        </div>
+        <div class="user-avatar" title="山田 太郎">山</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== Page Content (dimmed behind modal) ========== -->
+  <div class="page-container">
+
+    <!-- Title Bar -->
+    <div class="title-bar">
+      <h2>ポータル</h2>
+      <button class="btn-secondary" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        オプション
+      </button>
+    </div>
+
+    <!-- 2-Column Grid -->
+    <div class="main-grid">
+
+      <!-- Left: Announcements -->
+      <div class="card">
+        <div class="card-header">
+          <h3>お知らせ</h3>
+          <a href="#" class="card-header-link">お知らせ掲示板を編集する</a>
+        </div>
+        <div class="card-body">
+          <div class="announcement-content">
+            <h4>OpenDeskへようこそ</h4>
+            <p>
+              OpenDeskは、チームの情報を一元管理し、業務の効率化を実現するクラウドプラットフォームです。
+              以下のステップに沿って、はじめてのアプリを作成してみましょう。
+            </p>
+            <div class="announcement-image-placeholder">
+              <span>アプリ作成手順 スクリーンショット</span>
+            </div>
+            <ol>
+              <li>画面上部の「オプション」ボタンから「<a href="#">アプリを作成</a>」を選択します。</li>
+              <li>テンプレートを選ぶか、「はじめから作成」でカスタムアプリを構築できます。</li>
+              <li>フィールドをドラッグ&ドロップして、フォームのレイアウトを設定します。</li>
+              <li>「公開」ボタンをクリックすると、チームメンバーがアプリを利用できるようになります。</li>
+            </ol>
+            <p>
+              詳しい使い方は<a href="#">ヘルプセンター</a>をご覧ください。
+              不明点があれば、スペースの<a href="#">サポートチャンネル</a>でお気軽にご質問ください。
+            </p>
+            <div class="announcement-meta">
+              2026/4/1 9:30 山田 太郎
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Sidebar Widgets -->
+      <div class="sidebar">
+
+        <!-- Notifications Widget -->
+        <div class="card">
+          <div class="card-header">
+            <h3>通知</h3>
+            <div class="widget-controls">
+              <select class="widget-select" aria-label="表示する通知を切り替える">
+                <option>すべて</option>
+                <option selected>自分宛</option>
+                <option>あとで読む</option>
+              </select>
+              <div class="toggle-group">
+                <button type="button" class="toggle-btn active">未読</button>
+                <button type="button" class="toggle-btn">既読</button>
+              </div>
+            </div>
+          </div>
+          <ul class="notification-list">
+            <li class="notification-item unread">
+              <button class="notif-read-btn" type="button" title="既読にする" aria-label="既読にする">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              </button>
+              <div class="notif-content">
+                <a href="#">
+                  <div class="notif-text"><span class="unread-dot"></span><span class="app-name">顧客リスト</span> - 鈴木 花子さんがレコードにコメントしました</div>
+                  <div class="notif-meta">10分前 &middot; 鈴木 花子</div>
+                </a>
+              </div>
+            </li>
+            <li class="notification-item unread">
+              <button class="notif-read-btn" type="button" title="既読にする" aria-label="既読にする">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              </button>
+              <div class="notif-content">
+                <a href="#">
+                  <div class="notif-text"><span class="unread-dot"></span><span class="app-name">プロジェクト管理</span> - タスク「API設計書の作成」が完了しました</div>
+                  <div class="notif-meta">30分前 &middot; 佐藤 一郎</div>
+                </a>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Spaces Widget -->
+        <div class="card">
+          <div class="card-header">
+            <h3>スペース</h3>
+            <div class="widget-controls">
+              <select class="widget-select" aria-label="スペースの一覧を切り替える">
+                <option selected>参加中のスペース</option>
+              </select>
+            </div>
+          </div>
+          <ul class="space-list">
+            <li class="space-item">
+              <div class="space-icon" style="background: var(--color-primary);">開</div>
+              <div class="space-info">
+                <a href="#">開発チーム</a>
+                <div class="space-desc">プロダクト開発に関する情報共有スペース</div>
+              </div>
+            </li>
+            <li class="space-item">
+              <div class="space-icon" style="background: var(--color-success);">営</div>
+              <div class="space-info">
+                <a href="#">営業部</a>
+                <div class="space-desc">営業活動の管理と情報共有</div>
+              </div>
+            </li>
+          </ul>
+          <div class="widget-footer">
+            <button type="button" class="widget-footer-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              スペースを作成
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /sidebar -->
+
+    </div><!-- /main-grid -->
+
+  </div><!-- /page-container -->
+
+  <!-- ========== Modal Overlay ========== -->
+  <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-dialog">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h2 id="modal-title">お知らせ掲示板の編集</h2>
+        <button class="modal-close-btn" type="button" aria-label="閉じる">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+
+        <!-- Title Input -->
+        <div class="form-group">
+          <label class="form-label" for="notice-title">タイトル</label>
+          <input type="text" id="notice-title" class="form-input" value="お知らせ">
+        </div>
+
+        <!-- Toolbar + Editor -->
+        <div class="form-group">
+          <label class="form-label">本文</label>
+
+          <!-- Toolbar -->
+          <div class="editor-toolbar">
+            <!-- App embed -->
+            <button class="toolbar-btn" type="button" title="アプリ貼り付け">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </button>
+            <!-- File attach -->
+            <button class="toolbar-btn" type="button" title="ファイルを添付する">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            </button>
+            <!-- Emoji (active - picker open) -->
+            <button class="toolbar-btn active" type="button" title="絵文字">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </button>
+
+            <div class="toolbar-separator"></div>
+
+            <!-- Bold -->
+            <button class="toolbar-btn" type="button" title="太字">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
+            </button>
+            <!-- Italic -->
+            <button class="toolbar-btn" type="button" title="斜体">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+            </button>
+            <!-- Underline -->
+            <button class="toolbar-btn" type="button" title="下線">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" y1="20" x2="20" y2="20"/></svg>
+            </button>
+
+            <div class="toolbar-separator"></div>
+
+            <!-- Text color -->
+            <button class="toolbar-btn" type="button" title="文字色">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="m8.5 4 7 12"/><path d="M15.5 4 12 10.5"/><path d="m6 16 2.5-4"/></svg>
+              <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <!-- Background color -->
+            <button class="toolbar-btn" type="button" title="文字背景色">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m8 12 3 6 3-6"/><path d="M9.5 15h5"/></svg>
+              <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <!-- Font size -->
+            <button class="toolbar-btn" type="button" title="文字サイズ">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+              <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+
+            <div class="toolbar-separator"></div>
+
+            <!-- Link -->
+            <button class="toolbar-btn" type="button" title="リンク">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </button>
+            <!-- Undo -->
+            <button class="toolbar-btn" type="button" title="元に戻す">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+            </button>
+            <!-- Redo -->
+            <button class="toolbar-btn" type="button" title="やり直す">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+            </button>
+
+            <div class="toolbar-separator"></div>
+
+            <!-- Bullet list -->
+            <button class="toolbar-btn" type="button" title="箇条書き">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+            <!-- Numbered list -->
+            <button class="toolbar-btn" type="button" title="番号リスト">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+            </button>
+            <!-- Align left -->
+            <button class="toolbar-btn" type="button" title="左揃え">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+            </button>
+            <!-- Align center -->
+            <button class="toolbar-btn" type="button" title="中央揃え">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/></svg>
+            </button>
+            <!-- Clear formatting -->
+            <button class="toolbar-btn" type="button" title="フォーマット削除">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3 7 21"/><path d="M4 7h16"/><line x1="3" y1="3" x2="21" y2="21"/></svg>
+            </button>
+
+            <!-- Emoji Picker (floating) -->
+            <div class="emoji-picker">
+              <div class="emoji-picker-header">よく使う絵文字</div>
+              <div class="emoji-grid">
+                <button class="emoji-btn" type="button">&#x1F44D;</button>
+                <button class="emoji-btn" type="button">&#x1F44F;</button>
+                <button class="emoji-btn" type="button">&#x1F389;</button>
+                <button class="emoji-btn" type="button">&#x2728;</button>
+                <button class="emoji-btn" type="button">&#x1F525;</button>
+                <button class="emoji-btn" type="button">&#x2705;</button>
+                <button class="emoji-btn" type="button">&#x274C;</button>
+                <button class="emoji-btn" type="button">&#x26A0;</button>
+                <button class="emoji-btn" type="button">&#x1F4DD;</button>
+                <button class="emoji-btn" type="button">&#x1F4AC;</button>
+                <button class="emoji-btn" type="button">&#x1F4E2;</button>
+                <button class="emoji-btn" type="button">&#x1F3AF;</button>
+                <button class="emoji-btn" type="button">&#x1F4A1;</button>
+                <button class="emoji-btn" type="button">&#x1F680;</button>
+                <button class="emoji-btn" type="button">&#x2764;</button>
+                <button class="emoji-btn" type="button">&#x1F60A;</button>
+                <button class="emoji-btn" type="button">&#x1F914;</button>
+                <button class="emoji-btn" type="button">&#x1F4C5;</button>
+                <button class="emoji-btn" type="button">&#x1F4CC;</button>
+                <button class="emoji-btn" type="button">&#x1F50D;</button>
+              </div>
+            </div>
+
+          </div><!-- /editor-toolbar -->
+
+          <!-- WYSIWYG Editor Area -->
+          <div class="editor-area" contenteditable="true">
+            <div class="editor-heading"><strong>お知らせ</strong></div>
+            <p>4月の全社ミーティングは4/15(火) 14:00からです。</p>
+
+            <!-- Embedded App Widget -->
+            <div class="embedded-app-widget" contenteditable="false">
+              <div class="embedded-app-header">
+                <div class="embedded-app-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <span class="embedded-app-name">顧客リスト</span>
+                <span class="embedded-app-badge">- レコード一覧</span>
+              </div>
+              <table class="embedded-app-table">
+                <thead>
+                  <tr>
+                    <th>会社名</th>
+                    <th>担当者</th>
+                    <th>ステータス</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>株式会社ABC</td>
+                    <td>田中 太郎</td>
+                    <td>対応中</td>
+                  </tr>
+                  <tr>
+                    <td>DEF株式会社</td>
+                    <td>鈴木 花子</td>
+                    <td>完了</td>
+                  </tr>
+                  <tr>
+                    <td>GHI商事</td>
+                    <td>佐藤 次郎</td>
+                    <td>未対応</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><a href="#">詳細はこちら</a></p>
+          </div>
+
+        </div><!-- /form-group -->
+
+      </div><!-- /modal-body -->
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button class="btn-cancel" type="button">キャンセル</button>
+        <button class="btn-primary" type="button">保存</button>
+      </div>
+
+    </div><!-- /modal-dialog -->
+  </div><!-- /modal-overlay -->
+
+</body>
+</html>

@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アプリの設定 > その他の設定 - 顧客リスト - OpenDesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary-lighter: oklch(0.95 0.03 250);
+      --color-primary-light: oklch(0.82 0.07 250);
+      --color-primary: oklch(0.65 0.12 250);
+      --color-primary-dark: oklch(0.52 0.12 250);
+      --color-primary-darker: oklch(0.40 0.12 250);
+      --color-accent: oklch(0.65 0.15 270);
+      --color-accent-light: oklch(0.90 0.05 270);
+      --color-neutral-50: oklch(0.98 0.002 250);
+      --color-neutral-100: oklch(0.96 0.004 250);
+      --color-neutral-150: oklch(0.94 0.004 250);
+      --color-neutral-200: oklch(0.92 0.005 250);
+      --color-neutral-300: oklch(0.86 0.008 250);
+      --color-neutral-400: oklch(0.72 0.015 250);
+      --color-neutral-500: oklch(0.60 0.02 250);
+      --color-neutral-600: oklch(0.50 0.02 250);
+      --color-neutral-700: oklch(0.40 0.02 250);
+      --color-neutral-800: oklch(0.30 0.02 250);
+      --color-neutral-900: oklch(0.20 0.02 250);
+      --color-success: oklch(0.60 0.15 155);
+      --color-success-light: oklch(0.95 0.04 155);
+      --color-warning: oklch(0.75 0.15 80);
+      --color-warning-light: oklch(0.95 0.05 80);
+      --color-error: oklch(0.60 0.20 25);
+      --color-error-light: oklch(0.95 0.04 25);
+      --color-info: oklch(0.65 0.12 250);
+      --color-info-light: oklch(0.95 0.03 250);
+      --color-bg-page: oklch(0.98 0.002 250);
+      --color-bg-card: oklch(1.0 0 0);
+      --color-bg-section: oklch(0.96 0.004 250);
+      --color-bg-header: oklch(1.0 0 0);
+      --color-on-primary: oklch(1.0 0 0);
+      --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --text-xs: clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);
+      --text-sm: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
+      --text-base: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+      --text-lg: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --text-xl: clamp(1.125rem, 1.05rem + 0.2vw, 1.25rem);
+      --text-2xl: clamp(1.375rem, 1.25rem + 0.3vw, 1.5rem);
+      --text-3xl: clamp(1.75rem, 1.6rem + 0.4vw, 2rem);
+      --weight-normal: 400;
+      --weight-medium: 500;
+      --weight-semibold: 600;
+      --leading-tight: 1.3;
+      --leading-normal: 1.6;
+      --leading-relaxed: 1.8;
+      --tracking-tight: -0.02em;
+      --tracking-normal: 0;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-section: 48px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px oklch(0.20 0 0 / 0.04);
+      --shadow-md: 0 2px 8px oklch(0.20 0 0 / 0.06);
+      --shadow-lg: 0 4px 16px oklch(0.20 0 0 / 0.08);
+      --transition-fast: 0.1s ease;
+      --transition-default: 0.15s ease;
+      --transition-slow: 0.25s ease;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      line-height: var(--leading-normal);
+      color: var(--color-neutral-800);
+      background-color: var(--color-bg-page);
+      min-height: 100vh;
+    }
+
+    /* ========== Global Header ========== */
+    .global-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: var(--color-bg-header);
+      border-bottom: 1px solid var(--color-neutral-200);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-normal);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-neutral-800);
+      text-decoration: none;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .logo strong {
+      font-weight: var(--weight-semibold);
+      color: var(--color-primary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .header-nav a {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      text-decoration: none;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .header-nav a:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .header-nav a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .header-nav a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .search-input {
+      height: 34px;
+      width: 240px;
+      padding: 0 var(--space-md);
+      padding-left: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      outline: none;
+      transition: border-color var(--transition-default), background-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .search-input:hover {
+      background: var(--color-bg-card);
+      border-color: var(--color-neutral-300);
+    }
+
+    .search-input:focus {
+      background: var(--color-bg-card);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary-darker);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      transition: box-shadow var(--transition-default);
+      border: 1px solid var(--color-neutral-200);
+    }
+
+    .user-avatar:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== Page Layout ===== */
+    .page-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-lg) var(--space-xl) var(--space-3xl);
+    }
+
+    /* ===== Breadcrumb ===== */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+      margin-bottom: var(--space-md);
+      list-style: none;
+    }
+
+    .breadcrumb a {
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: color var(--transition-default);
+    }
+
+    .breadcrumb a:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    .breadcrumb a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+
+    .breadcrumb-separator {
+      color: var(--color-neutral-400);
+      font-size: var(--text-xs);
+    }
+
+    .breadcrumb-current {
+      color: var(--color-neutral-700);
+      font-weight: var(--weight-medium);
+    }
+
+    /* ===== Page Header ===== */
+    .page-header {
+      margin-bottom: var(--space-lg);
+    }
+
+    .page-header h1 {
+      font-family: var(--font-heading);
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .page-header h1 small {
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      color: var(--color-neutral-500);
+      margin-left: var(--space-sm);
+    }
+
+    /* ===== Tab Bar ===== */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--color-neutral-200);
+      margin-bottom: var(--space-lg);
+    }
+
+    .tab-bar a {
+      display: flex;
+      align-items: center;
+      padding: var(--space-sm) var(--space-lg);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color var(--transition-default), border-color var(--transition-default);
+    }
+
+    .tab-bar a:hover {
+      color: var(--color-neutral-700);
+    }
+
+    .tab-bar a.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    .tab-bar a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ===== Settings Layout (Sidebar + Content) ===== */
+    .settings-layout {
+      display: flex;
+      gap: var(--space-lg);
+      align-items: flex-start;
+    }
+
+    /* ===== Settings Sidebar ===== */
+    .settings-sidebar {
+      width: 220px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-nav {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .sidebar-nav a {
+      display: block;
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      text-decoration: none;
+      border-bottom: 1px solid var(--color-neutral-200);
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .sidebar-nav a:last-child {
+      border-bottom: none;
+    }
+
+    .sidebar-nav a:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .sidebar-nav a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .sidebar-nav a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    /* ===== Settings Content ===== */
+    .settings-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .settings-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+    }
+
+    /* ===== Section Headings ===== */
+    .section-heading {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      line-height: var(--leading-tight);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .section-divider {
+      margin-top: var(--space-2xl);
+    }
+
+    /* ===== Checkbox / Radio ===== */
+    .form-checkbox,
+    .form-radio {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      cursor: pointer;
+    }
+
+    .form-checkbox input[type="checkbox"],
+    .form-radio input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .form-checkbox span,
+    .form-radio span {
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+    }
+
+    /* ===== Category List ===== */
+    .category-list {
+      margin-top: var(--space-md);
+    }
+
+    .category-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      background: var(--color-bg-card);
+      margin-bottom: var(--space-sm);
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .category-item:hover {
+      border-color: var(--color-primary-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .category-item.level-1 {
+      margin-left: 0;
+    }
+
+    .category-item.level-2 {
+      margin-left: var(--space-xl);
+    }
+
+    .category-item.level-3 {
+      margin-left: var(--space-3xl);
+    }
+
+    .drag-handle {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-neutral-400);
+      cursor: grab;
+      flex-shrink: 0;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .category-indent-marker {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-400);
+      flex-shrink: 0;
+      width: 20px;
+      text-align: center;
+    }
+
+    .category-name-input {
+      flex: 1;
+      min-width: 0;
+      height: 32px;
+      padding: 0 var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .category-name-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .category-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-sm);
+      color: var(--color-neutral-500);
+      cursor: pointer;
+      transition: color var(--transition-default), background-color var(--transition-default), border-color var(--transition-default);
+    }
+
+    .icon-btn:hover {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+      border-color: var(--color-primary-light);
+    }
+
+    .icon-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 1px;
+    }
+
+    .icon-btn.danger:hover {
+      color: var(--color-error);
+      background: var(--color-error-light);
+      border-color: var(--color-error);
+    }
+
+    /* ===== Sub Tabs (Language section) ===== */
+    .sub-tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--color-neutral-200);
+      margin-bottom: var(--space-lg);
+    }
+
+    .sub-tab-bar a {
+      display: flex;
+      align-items: center;
+      padding: var(--space-xs) var(--space-md);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color var(--transition-default), border-color var(--transition-default);
+    }
+
+    .sub-tab-bar a:hover {
+      color: var(--color-neutral-700);
+    }
+
+    .sub-tab-bar a.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    .sub-tab-bar a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ===== Translation Table ===== */
+    .translation-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .translation-table th {
+      background: var(--color-bg-section);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      text-align: left;
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .translation-table td {
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-base);
+      border-bottom: 1px solid var(--color-neutral-200);
+      vertical-align: top;
+    }
+
+    .translation-table tr:nth-child(even) td {
+      background: var(--color-neutral-150);
+    }
+
+    .translation-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .translation-table .field-label {
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      white-space: nowrap;
+      min-width: 80px;
+    }
+
+    .translation-table .default-value {
+      color: var(--color-neutral-500);
+      background: var(--color-neutral-100);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+    }
+
+    .translation-input {
+      width: 100%;
+      height: 32px;
+      padding: 0 var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .translation-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .translation-textarea {
+      width: 100%;
+      min-height: 60px;
+      padding: var(--space-xs) var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      resize: vertical;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .translation-textarea:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    /* ===== Record Title Section ===== */
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+    }
+
+    .radio-option input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .radio-option-content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .radio-option-label {
+      font-size: var(--text-base);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-800);
+      cursor: pointer;
+    }
+
+    .radio-option-desc {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+      line-height: var(--leading-normal);
+    }
+
+    .field-dropdown-wrapper {
+      margin-top: var(--space-sm);
+      margin-left: var(--space-lg);
+    }
+
+    .field-dropdown-label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      margin-bottom: var(--space-xs);
+    }
+
+    .combobox-wrapper {
+      position: relative;
+      width: 300px;
+    }
+
+    .combobox-input {
+      width: 100%;
+      height: 36px;
+      padding: 0 var(--space-md);
+      padding-right: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .combobox-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .combobox-arrow {
+      position: absolute;
+      right: var(--space-sm);
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    /* ===== Advanced Settings ===== */
+    .advanced-setting-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .advanced-setting-item:first-child {
+      padding-top: 0;
+    }
+
+    .advanced-setting-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .setting-label-area {
+      width: 240px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding-top: 2px;
+    }
+
+    .setting-section-name {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+    }
+
+    .help-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-full);
+      color: var(--color-neutral-500);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      cursor: help;
+      flex-shrink: 0;
+      transition: color var(--transition-default), border-color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .help-icon:hover {
+      color: var(--color-primary);
+      border-color: var(--color-primary-light);
+      background: var(--color-primary-lighter);
+    }
+
+    .setting-control-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .setting-description {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+      line-height: var(--leading-normal);
+    }
+
+    .setting-warning {
+      font-size: var(--text-sm);
+      color: var(--color-warning);
+      line-height: var(--leading-normal);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-xs);
+    }
+
+    .setting-warning svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .text-input {
+      height: 36px;
+      width: 240px;
+      padding: 0 var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .text-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .text-input.narrow {
+      width: 100px;
+    }
+
+    .select-input {
+      height: 36px;
+      min-width: 200px;
+      padding: 0 var(--space-md);
+      padding-right: 32px;
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .select-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .inline-fields {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .inline-field {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .inline-field-label {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-600);
+      font-weight: var(--weight-medium);
+      white-space: nowrap;
+    }
+
+    .inline-field-unit {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+    }
+
+    /* ===== Buttons ===== */
+    .btn-primary {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-on-primary);
+      background: var(--color-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-primary:active {
+      background: var(--color-primary-darker);
+    }
+
+    .btn-secondary {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: border-color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-neutral-400);
+      background: var(--color-neutral-50);
+    }
+
+    .btn-secondary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-text {
+      height: 36px;
+      padding: 0 var(--space-md);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-primary);
+      background: none;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .btn-text:hover {
+      color: var(--color-primary-dark);
+      background: var(--color-primary-lighter);
+    }
+
+    .btn-text:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ===== Footer Actions ===== */
+    .footer-actions {
+      margin-top: var(--space-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--color-neutral-200);
+    }
+
+    .footer-actions .spacer {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Header -->
+  <header class="global-header">
+    <div class="header-inner">
+      <a href="#" class="logo">Open<strong>Desk</strong></a>
+      <nav class="header-nav">
+        <a href="#">ポータル</a>
+        <a href="#">通知</a>
+        <a href="#">ブックマーク</a>
+      </nav>
+      <div class="header-right">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="search-input" placeholder="アプリ内検索">
+        </div>
+        <div class="user-avatar" title="山田 太郎">山</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <div class="page-wrapper">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="パンくずリスト">
+      <ol class="breadcrumb">
+        <li><a href="#">ポータル</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li><a href="#">顧客リスト</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-current">アプリの設定</li>
+      </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>顧客リスト<small>アプリの設定</small></h1>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <a href="#">フォーム</a>
+      <a href="#">一覧</a>
+      <a href="#">グラフ</a>
+      <a href="#" class="active">設定</a>
+    </div>
+
+    <!-- Settings Layout: Sidebar + Content -->
+    <div class="settings-layout">
+
+      <!-- Settings Sidebar -->
+      <aside class="settings-sidebar">
+        <nav class="sidebar-nav">
+          <a href="#">一般設定</a>
+          <a href="#">通知</a>
+          <a href="#">カスタマイズ/サービス連携</a>
+          <a href="#">アクセス権</a>
+          <a href="#" class="active">その他の設定</a>
+          <a href="#">運用管理</a>
+        </nav>
+      </aside>
+
+      <!-- Settings Content -->
+      <main class="settings-content">
+        <div class="settings-card">
+
+          <!-- ============================== -->
+          <!-- a. カテゴリー -->
+          <!-- ============================== -->
+          <section>
+            <h2 class="section-heading">a. カテゴリー</h2>
+
+            <label class="form-checkbox">
+              <input type="checkbox" checked>
+              <span>カテゴリーを有効にする</span>
+            </label>
+
+            <div class="category-list">
+              <!-- Level 1: 営業 -->
+              <div class="category-item level-1">
+                <div class="drag-handle" title="ドラッグして並び替え">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                </div>
+                <input type="text" class="category-name-input" value="営業">
+                <div class="category-actions">
+                  <button class="icon-btn" type="button" title="同階層にカテゴリーを追加">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn" type="button" title="子階層としてカテゴリーを追加">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="14" y2="12"/><line x1="14" y1="6" x2="14" y2="18"/><line x1="14" y1="12" x2="19" y2="12"/><line x1="17" y1="9" x2="19" y2="12"/><line x1="17" y1="15" x2="19" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" type="button" title="削除">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Level 2: 営業 > 新規 -->
+              <div class="category-item level-2">
+                <div class="drag-handle" title="ドラッグして並び替え">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                </div>
+                <div class="category-indent-marker">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5v8h6"/></svg>
+                </div>
+                <input type="text" class="category-name-input" value="新規">
+                <div class="category-actions">
+                  <button class="icon-btn" type="button" title="同階層にカテゴリーを追加">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn" type="button" title="子階層としてカテゴリーを追加">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="14" y2="12"/><line x1="14" y1="6" x2="14" y2="18"/><line x1="14" y1="12" x2="19" y2="12"/><line x1="17" y1="9" x2="19" y2="12"/><line x1="17" y1="15" x2="19" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" type="button" title="削除">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Level 2: 営業 > 既存 -->
+              <div class="category-item level-2">
+                <div class="drag-handle" title="ドラッグして並び替え">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                </div>
+                <div class="category-indent-marker">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5v8h6"/></svg>
+                </div>
+                <input type="text" class="category-name-input" value="既存">
+                <div class="category-actions">
+                  <button class="icon-btn" type="button" title="同階層にカテゴリーを追加">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn" type="button" title="子階層としてカテゴリーを追加">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="14" y2="12"/><line x1="14" y1="6" x2="14" y2="18"/><line x1="14" y1="12" x2="19" y2="12"/><line x1="17" y1="9" x2="19" y2="12"/><line x1="17" y1="15" x2="19" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" type="button" title="削除">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Level 1: サポート -->
+              <div class="category-item level-1">
+                <div class="drag-handle" title="ドラッグして並び替え">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                </div>
+                <input type="text" class="category-name-input" value="サポート">
+                <div class="category-actions">
+                  <button class="icon-btn" type="button" title="同階層にカテゴリーを追加">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn" type="button" title="子階層としてカテゴリーを追加">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="14" y2="12"/><line x1="14" y1="6" x2="14" y2="18"/><line x1="14" y1="12" x2="19" y2="12"/><line x1="17" y1="9" x2="19" y2="12"/><line x1="17" y1="15" x2="19" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" type="button" title="削除">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============================== -->
+          <!-- b. 言語ごとの名称 -->
+          <!-- ============================== -->
+          <section class="section-divider">
+            <h2 class="section-heading">b. 言語ごとの名称</h2>
+
+            <!-- Sub Tabs -->
+            <div class="sub-tab-bar">
+              <a href="#" class="active">一般設定</a>
+              <a href="#">フォーム</a>
+              <a href="#">一覧</a>
+              <a href="#">プロセス管理</a>
+              <a href="#">グラフ</a>
+              <a href="#">カテゴリー</a>
+              <a href="#">アクション</a>
+            </div>
+
+            <!-- Translation Table -->
+            <table class="translation-table">
+              <thead>
+                <tr>
+                  <th style="width: 100px;">項目</th>
+                  <th style="width: 160px;">デフォルト</th>
+                  <th>English (US)</th>
+                  <th>日本語</th>
+                  <th>中文（简体）</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="field-label">アプリ名</td>
+                  <td><span class="default-value">顧客リスト</span></td>
+                  <td><input type="text" class="translation-input" placeholder="Customer List"></td>
+                  <td><input type="text" class="translation-input" value="顧客リスト"></td>
+                  <td><input type="text" class="translation-input" placeholder="客户列表"></td>
+                </tr>
+                <tr>
+                  <td class="field-label">説明</td>
+                  <td><span class="default-value">顧客情報を管理するアプリ</span></td>
+                  <td><textarea class="translation-textarea" placeholder="App for managing customer information"></textarea></td>
+                  <td><textarea class="translation-textarea">顧客情報を管理するアプリ</textarea></td>
+                  <td><textarea class="translation-textarea" placeholder="管理客户信息的应用"></textarea></td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <!-- ============================== -->
+          <!-- c. レコードのタイトル -->
+          <!-- ============================== -->
+          <section class="section-divider">
+            <h2 class="section-heading">c. レコードのタイトル</h2>
+
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" name="record-title" id="title-auto" value="auto">
+                <div class="radio-option-content">
+                  <label for="title-auto" class="radio-option-label">自動設定を利用する</label>
+                  <div class="radio-option-desc">「文字列（1行）」フィールドが1つ以上ある場合はその中で一番上のフィールド、なければ「レコード番号」がタイトルになります。</div>
+                </div>
+              </div>
+
+              <div class="radio-option">
+                <input type="radio" name="record-title" id="title-field" value="field" checked>
+                <div class="radio-option-content">
+                  <label for="title-field" class="radio-option-label">フィールドを選択する</label>
+                  <div class="radio-option-desc">タイトルとして使用するフィールドを手動で選択します。</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-dropdown-wrapper">
+              <div class="field-dropdown-label">タイトルフィールド</div>
+              <div class="combobox-wrapper">
+                <input type="text" class="combobox-input" value="レコード番号" placeholder="フィールドを検索...">
+                <svg class="combobox-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============================== -->
+          <!-- d. 高度な設定 -->
+          <!-- ============================== -->
+          <section class="section-divider">
+            <h2 class="section-heading">d. 高度な設定</h2>
+
+            <!-- 1. サムネイル -->
+            <div class="advanced-setting-item">
+              <div class="setting-label-area">
+                <span class="setting-section-name">画像</span>
+                <button class="help-icon" type="button" title="サムネイルについて">?</button>
+              </div>
+              <div class="setting-control-area">
+                <label class="form-checkbox">
+                  <input type="checkbox" checked>
+                  <span>サムネイルを表示する</span>
+                </label>
+                <div class="setting-description">レコード一覧にサムネイル画像を表示します。</div>
+              </div>
+            </div>
+
+            <!-- 2. アプリコード -->
+            <div class="advanced-setting-item">
+              <div class="setting-label-area">
+                <span class="setting-section-name">アプリコード</span>
+                <button class="help-icon" type="button" title="アプリコードについて">?</button>
+              </div>
+              <div class="setting-control-area">
+                <input type="text" class="text-input" placeholder="例: CUST" value="">
+                <div class="setting-description">アルファベットから始まる半角英数字を入力してください。設定するとレコード番号が「(アプリコード)-(レコード番号)」形式になります。</div>
+              </div>
+            </div>
+
+            <!-- 3. 一括削除 -->
+            <div class="advanced-setting-item">
+              <div class="setting-label-area">
+                <span class="setting-section-name">一括削除</span>
+                <button class="help-icon" type="button" title="一括削除について">?</button>
+              </div>
+              <div class="setting-control-area">
+                <label class="form-checkbox">
+                  <input type="checkbox">
+                  <span>レコード一括削除を有効にする</span>
+                </label>
+                <div class="setting-description">有効にするとレコード一覧にチェックボックス列が追加されます。</div>
+              </div>
+            </div>
+
+            <!-- 4. レコードの変更履歴 -->
+            <div class="advanced-setting-item">
+              <div class="setting-label-area">
+                <span class="setting-section-name">レコードの変更履歴</span>
+                <button class="help-icon" type="button" title="変更履歴について">?</button>
+              </div>
+              <div class="setting-control-area">
+                <label class="form-checkbox">
+                  <input type="checkbox" checked>
+                  <span>レコードの変更履歴を記録する</span>
+                </label>
+                <div class="setting-warning">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  OFFにすると過去の変更履歴が削除されます。
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. レコードのコメント -->
+            <div class="advanced-setting-item">
+              <div class="setting-label-area">
+                <span class="setting-section-name">レコードのコメント</span>
+              </div>
+              <div class="setting-control-area">
+                <label class="form-checkbox">
+                  <input type="checkbox" checked>
+                  <span>レコードのコメント機能を有効にする</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 6. レコードの再利用 -->
+            <div class="advanced-setting-item">
+              <div class="setting-label-area">
+                <span class="setting-section-name">レコードの再利用</span>
+                <button class="help-icon" type="button" title="再利用について">?</button>
+              </div>
+              <div class="setting-control-area">
+                <label class="form-checkbox">
+                  <input type="checkbox" checked>
+                  <span>「レコードを再利用する」機能を有効にする</span>
+                </label>
+                <div class="setting-description">「アクション」機能でも同様のことが可能です。</div>
+              </div>
+            </div>
+
+            <!-- 7. インライン編集 -->
+            <div class="advanced-setting-item">
+              <div class="setting-label-area">
+                <span class="setting-section-name">インライン編集</span>
+              </div>
+              <div class="setting-control-area">
+                <label class="form-checkbox">
+                  <input type="checkbox" checked>
+                  <span>レコード一覧でのレコードの直接編集と削除を有効にする</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 8. 数値と計算の精度 -->
+            <div class="advanced-setting-item">
+              <div class="setting-label-area">
+                <span class="setting-section-name">数値と計算の精度</span>
+                <button class="help-icon" type="button" title="数値精度について">?</button>
+              </div>
+              <div class="setting-control-area">
+                <div class="inline-fields">
+                  <div class="inline-field">
+                    <span class="inline-field-label">全体の桁数</span>
+                    <input type="number" class="text-input narrow" value="16">
+                    <span class="inline-field-unit">桁</span>
+                  </div>
+                  <div class="inline-field">
+                    <span class="inline-field-label">小数部の桁数</span>
+                    <input type="number" class="text-input narrow" value="4">
+                    <span class="inline-field-unit">桁</span>
+                    <button class="help-icon" type="button" title="小数部の桁数について">?</button>
+                  </div>
+                </div>
+                <div class="inline-fields" style="margin-top: var(--space-sm);">
+                  <div class="inline-field">
+                    <span class="inline-field-label">丸めかた</span>
+                    <select class="select-input">
+                      <option selected>最近接偶数への丸め</option>
+                      <option>切り上げ</option>
+                      <option>切り捨て</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 9. 第一四半期の開始月 -->
+            <div class="advanced-setting-item">
+              <div class="setting-label-area">
+                <span class="setting-section-name">第一四半期の開始月</span>
+              </div>
+              <div class="setting-control-area">
+                <div class="inline-field">
+                  <select class="select-input">
+                    <option>1月</option>
+                    <option>2月</option>
+                    <option>3月</option>
+                    <option selected>4月</option>
+                    <option>5月</option>
+                    <option>6月</option>
+                    <option>7月</option>
+                    <option>8月</option>
+                    <option>9月</option>
+                    <option>10月</option>
+                    <option>11月</option>
+                    <option>12月</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============================== -->
+          <!-- Footer Actions -->
+          <!-- ============================== -->
+          <div class="footer-actions">
+            <button class="btn-primary" type="button">保存</button>
+            <button class="btn-secondary" type="button">キャンセル</button>
+            <span class="spacer"></span>
+            <button class="btn-text" type="button">アプリの設定に戻る</button>
+          </div>
+
+        </div>
+      </main>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プロセス管理 - 顧客リスト - OpenDesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary-lighter: oklch(0.95 0.03 250);
+      --color-primary-light: oklch(0.82 0.07 250);
+      --color-primary: oklch(0.65 0.12 250);
+      --color-primary-dark: oklch(0.52 0.12 250);
+      --color-primary-darker: oklch(0.40 0.12 250);
+      --color-accent: oklch(0.65 0.15 270);
+      --color-accent-light: oklch(0.90 0.05 270);
+      --color-neutral-50: oklch(0.98 0.002 250);
+      --color-neutral-100: oklch(0.96 0.004 250);
+      --color-neutral-150: oklch(0.94 0.004 250);
+      --color-neutral-200: oklch(0.92 0.005 250);
+      --color-neutral-300: oklch(0.86 0.008 250);
+      --color-neutral-400: oklch(0.72 0.015 250);
+      --color-neutral-500: oklch(0.60 0.02 250);
+      --color-neutral-600: oklch(0.50 0.02 250);
+      --color-neutral-700: oklch(0.40 0.02 250);
+      --color-neutral-800: oklch(0.30 0.02 250);
+      --color-neutral-900: oklch(0.20 0.02 250);
+      --color-success: oklch(0.60 0.15 155);
+      --color-success-light: oklch(0.95 0.04 155);
+      --color-warning: oklch(0.75 0.15 80);
+      --color-warning-light: oklch(0.95 0.05 80);
+      --color-error: oklch(0.60 0.20 25);
+      --color-error-light: oklch(0.95 0.04 25);
+      --color-info: oklch(0.65 0.12 250);
+      --color-info-light: oklch(0.95 0.03 250);
+      --color-bg-page: oklch(0.98 0.002 250);
+      --color-bg-card: oklch(1.0 0 0);
+      --color-bg-section: oklch(0.96 0.004 250);
+      --color-bg-header: oklch(1.0 0 0);
+      --color-on-primary: oklch(1.0 0 0);
+      --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --text-xs: clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);
+      --text-sm: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
+      --text-base: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+      --text-lg: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --text-xl: clamp(1.125rem, 1.05rem + 0.2vw, 1.25rem);
+      --text-2xl: clamp(1.375rem, 1.25rem + 0.3vw, 1.5rem);
+      --text-3xl: clamp(1.75rem, 1.6rem + 0.4vw, 2rem);
+      --weight-normal: 400;
+      --weight-medium: 500;
+      --weight-semibold: 600;
+      --leading-tight: 1.3;
+      --leading-normal: 1.6;
+      --leading-relaxed: 1.8;
+      --tracking-tight: -0.02em;
+      --tracking-normal: 0;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-section: 48px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px oklch(0.20 0 0 / 0.04);
+      --shadow-md: 0 2px 8px oklch(0.20 0 0 / 0.06);
+      --shadow-lg: 0 4px 16px oklch(0.20 0 0 / 0.08);
+      --transition-fast: 0.1s ease;
+      --transition-default: 0.15s ease;
+      --transition-slow: 0.25s ease;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      line-height: var(--leading-normal);
+      color: var(--color-neutral-800);
+      background-color: var(--color-bg-page);
+      min-height: 100vh;
+    }
+
+    /* ========== Global Header ========== */
+    .global-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: var(--color-bg-header);
+      border-bottom: 1px solid var(--color-neutral-200);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-normal);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-neutral-800);
+      text-decoration: none;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .logo strong {
+      font-weight: var(--weight-semibold);
+      color: var(--color-primary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .header-nav a {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      text-decoration: none;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .header-nav a:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .header-nav a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .header-nav a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .search-input {
+      height: 34px;
+      width: 240px;
+      padding: 0 var(--space-md);
+      padding-left: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      outline: none;
+      transition: border-color var(--transition-default), background-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .search-input:hover {
+      background: var(--color-bg-card);
+      border-color: var(--color-neutral-300);
+    }
+
+    .search-input:focus {
+      background: var(--color-bg-card);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary-darker);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      transition: box-shadow var(--transition-default);
+      border: 1px solid var(--color-neutral-200);
+    }
+
+    .user-avatar:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== Page Layout ===== */
+    .page-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-lg) var(--space-xl) var(--space-3xl);
+    }
+
+    /* ===== Breadcrumb ===== */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+      margin-bottom: var(--space-md);
+      list-style: none;
+    }
+
+    .breadcrumb a {
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: color var(--transition-default);
+    }
+
+    .breadcrumb a:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    .breadcrumb a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+
+    .breadcrumb-separator {
+      color: var(--color-neutral-400);
+      font-size: var(--text-xs);
+    }
+
+    .breadcrumb-current {
+      color: var(--color-neutral-700);
+      font-weight: var(--weight-medium);
+    }
+
+    /* ===== Page Header ===== */
+    .page-header {
+      margin-bottom: var(--space-lg);
+    }
+
+    .page-header h1 {
+      font-family: var(--font-heading);
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .page-header h1 small {
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      color: var(--color-neutral-500);
+      margin-left: var(--space-sm);
+    }
+
+    /* ===== Tab Bar ===== */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--color-neutral-200);
+      margin-bottom: var(--space-lg);
+    }
+
+    .tab-bar a {
+      display: flex;
+      align-items: center;
+      padding: var(--space-sm) var(--space-lg);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color var(--transition-default), border-color var(--transition-default);
+    }
+
+    .tab-bar a:hover {
+      color: var(--color-neutral-700);
+    }
+
+    .tab-bar a.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    .tab-bar a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ===== Buttons ===== */
+    .btn-primary {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-on-primary);
+      background: var(--color-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-primary:active {
+      background: var(--color-primary-darker);
+    }
+
+    .btn-secondary {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: border-color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-neutral-400);
+      background: var(--color-neutral-50);
+    }
+
+    .btn-secondary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-sm {
+      height: 28px;
+      padding: 0 var(--space-sm);
+      font-size: var(--text-xs);
+    }
+
+    .btn-text {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .btn-text:hover {
+      color: var(--color-primary-dark);
+      background: var(--color-primary-lighter);
+    }
+
+    /* ===== Settings Layout ===== */
+    .settings-layout {
+      display: flex;
+      gap: var(--space-lg);
+      align-items: flex-start;
+    }
+
+    /* ===== Settings Sidebar ===== */
+    .settings-sidebar {
+      width: 220px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .sidebar-group-title {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: var(--space-md) var(--space-md) var(--space-sm);
+    }
+
+    .sidebar-nav {
+      list-style: none;
+    }
+
+    .sidebar-nav li a {
+      display: block;
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      text-decoration: none;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .sidebar-nav li a:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .sidebar-nav li a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+      border-right: 3px solid var(--color-primary);
+    }
+
+    .sidebar-nav li a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    /* ===== Settings Main ===== */
+    .settings-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .settings-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+    }
+
+    .settings-card + .settings-card {
+      margin-top: var(--space-lg);
+    }
+
+    .settings-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      line-height: var(--leading-tight);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    /* ===== Checkbox ===== */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .checkbox-row label {
+      font-size: var(--text-base);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-800);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* ===== Status List ===== */
+    .status-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm) var(--space-md);
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .status-item:hover {
+      border-color: var(--color-neutral-300);
+    }
+
+    .status-item.first {
+      background: var(--color-neutral-50);
+      border-style: dashed;
+    }
+
+    .drag-handle {
+      color: var(--color-neutral-400);
+      cursor: grab;
+      font-size: var(--text-lg);
+      line-height: 1;
+      user-select: none;
+      flex-shrink: 0;
+      width: 20px;
+      text-align: center;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+      color: var(--color-neutral-600);
+    }
+
+    .drag-handle-placeholder {
+      width: 20px;
+      flex-shrink: 0;
+    }
+
+    .status-input {
+      flex: 1;
+      height: 32px;
+      padding: 0 var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .status-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .status-item.first .status-input {
+      background: var(--color-neutral-50);
+    }
+
+    .status-badge {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      color: var(--color-neutral-400);
+      transition: color var(--transition-default), background-color var(--transition-default), border-color var(--transition-default);
+      flex-shrink: 0;
+    }
+
+    .icon-btn:hover {
+      color: var(--color-neutral-700);
+      background: var(--color-neutral-100);
+      border-color: var(--color-neutral-200);
+    }
+
+    .icon-btn.add:hover {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+      border-color: var(--color-primary-light);
+    }
+
+    .icon-btn.delete:hover {
+      color: var(--color-error);
+      background: var(--color-error-light);
+      border-color: var(--color-error);
+    }
+
+    .icon-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 1px;
+    }
+
+    /* ===== Flow Diagram ===== */
+    .flow-section {
+      margin-top: var(--space-lg);
+    }
+
+    .flow-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+
+    .flow-section-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+    }
+
+    .zoom-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .zoom-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      transition: background-color var(--transition-default), border-color var(--transition-default);
+    }
+
+    .zoom-btn:hover {
+      background: var(--color-neutral-100);
+      border-color: var(--color-neutral-400);
+    }
+
+    .zoom-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 1px;
+    }
+
+    .flow-container {
+      background: var(--color-neutral-50);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      overflow-x: auto;
+    }
+
+    .flow-chart {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-width: max-content;
+    }
+
+    .flow-node {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .flow-node.status {
+      background: var(--color-primary-lighter);
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary-darker);
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .flow-node.action {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      color: var(--color-neutral-700);
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      padding: 0 var(--space-xs);
+      flex-shrink: 0;
+    }
+
+    .flow-arrow-line {
+      width: 24px;
+      height: 2px;
+      background: var(--color-neutral-300);
+      position: relative;
+    }
+
+    .flow-arrow-line::after {
+      content: '';
+      position: absolute;
+      right: -1px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 7px solid var(--color-neutral-300);
+    }
+
+    /* ===== Transition Table ===== */
+    .transition-section {
+      margin-top: var(--space-lg);
+    }
+
+    .transition-table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+    }
+
+    .transition-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+
+    .transition-table thead th {
+      background: var(--color-bg-section);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      padding: var(--space-sm) var(--space-md);
+      text-align: left;
+      border-bottom: 1px solid var(--color-neutral-200);
+      white-space: nowrap;
+      font-size: var(--text-xs);
+    }
+
+    .transition-table tbody td {
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--color-neutral-200);
+      vertical-align: top;
+    }
+
+    .transition-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .transition-table tbody tr:hover {
+      background: var(--color-neutral-50);
+    }
+
+    .td-status {
+      min-width: 200px;
+    }
+
+    .td-condition {
+      min-width: 240px;
+    }
+
+    .td-action {
+      min-width: 280px;
+    }
+
+    .table-select {
+      width: 100%;
+      height: 32px;
+      padding: 0 var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      cursor: pointer;
+      transition: border-color var(--transition-default);
+      appearance: auto;
+    }
+
+    .table-select:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .table-input {
+      width: 100%;
+      height: 32px;
+      padding: 0 var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-default);
+    }
+
+    .table-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .td-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .td-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .td-label {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+      font-weight: var(--weight-medium);
+      white-space: nowrap;
+      min-width: 60px;
+    }
+
+    .worker-setting {
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--color-neutral-200);
+    }
+
+    .worker-label {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+      font-weight: var(--weight-medium);
+      margin-bottom: var(--space-xs);
+    }
+
+    .condition-badge {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 var(--space-sm);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-sm);
+    }
+
+    .action-row-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .action-row {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .action-row + .action-row {
+      padding-top: var(--space-md);
+      border-top: 1px dashed var(--color-neutral-200);
+    }
+
+    .transition-row-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      margin-top: var(--space-sm);
+    }
+
+    /* ===== Form Actions ===== */
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-top: var(--space-lg);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--color-neutral-200);
+    }
+
+    /* ======================================================
+       Section 2: Record Detail with Process UI
+       ====================================================== */
+    .section-divider {
+      margin: var(--space-3xl) 0;
+      border: none;
+      border-top: 3px dashed var(--color-neutral-300);
+      position: relative;
+    }
+
+    .section-divider-label {
+      text-align: center;
+      margin-bottom: var(--space-lg);
+    }
+
+    .section-divider-label span {
+      display: inline-block;
+      background: var(--color-bg-page);
+      padding: 0 var(--space-lg);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+    }
+
+    /* ===== Record Detail Card ===== */
+    .record-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .record-card-header {
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .record-card-body {
+      padding: var(--space-lg);
+    }
+
+    /* ===== Status Display ===== */
+    .status-display {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+      padding: var(--space-md);
+      background: var(--color-info-light);
+      border: 1px solid var(--color-primary-light);
+      border-radius: var(--radius-md);
+    }
+
+    .status-display-label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+    }
+
+    .status-display-value {
+      display: inline-flex;
+      align-items: center;
+      height: 26px;
+      padding: 0 var(--space-md);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-primary-darker);
+      background: var(--color-primary-lighter);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-full);
+    }
+
+    .status-history-link {
+      color: var(--color-primary);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      text-decoration: none;
+      margin-left: auto;
+      transition: color var(--transition-default);
+    }
+
+    .status-history-link:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    /* ===== Record Toolbar ===== */
+    .record-toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+      flex-wrap: wrap;
+    }
+
+    .record-toolbar .spacer {
+      flex: 1;
+    }
+
+    .toolbar-link {
+      color: var(--color-primary);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      text-decoration: none;
+      transition: color var(--transition-default);
+    }
+
+    .toolbar-link:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 20px;
+      background: var(--color-neutral-200);
+    }
+
+    /* ===== Confirmation Popover ===== */
+    .popover-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .popover {
+      position: absolute;
+      top: calc(100% + var(--space-sm));
+      left: 0;
+      z-index: 50;
+      min-width: 260px;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-md);
+    }
+
+    .popover-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      margin-bottom: var(--space-sm);
+    }
+
+    .popover-detail {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-600);
+      margin-bottom: var(--space-md);
+    }
+
+    .popover-detail strong {
+      color: var(--color-neutral-800);
+      font-weight: var(--weight-medium);
+    }
+
+    .popover-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--space-sm);
+    }
+
+    /* ===== Record Fields (simplified) ===== */
+    .record-fields {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .record-field-row {
+      display: flex;
+      gap: var(--space-lg);
+    }
+
+    .record-field {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .record-field-label {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-500);
+      margin-bottom: var(--space-xs);
+    }
+
+    .record-field-value {
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--color-neutral-200);
+      min-height: 32px;
+    }
+
+    /* ===== Status History Panel ===== */
+    .history-panel {
+      margin-top: var(--space-lg);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .history-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-bg-section);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .history-panel-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+
+    .history-table thead th {
+      background: var(--color-bg-section);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      padding: var(--space-sm) var(--space-md);
+      text-align: left;
+      border-bottom: 1px solid var(--color-neutral-200);
+      font-size: var(--text-xs);
+    }
+
+    .history-table tbody td {
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 1px solid var(--color-neutral-200);
+      vertical-align: middle;
+    }
+
+    .history-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .history-table tbody tr:hover {
+      background: var(--color-neutral-50);
+    }
+
+    .history-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .history-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary-darker);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      flex-shrink: 0;
+    }
+
+    .history-status-badge {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 var(--space-sm);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      border-radius: var(--radius-full);
+    }
+
+    .history-status-badge.processing {
+      color: var(--color-primary-darker);
+      background: var(--color-primary-lighter);
+      border: 1px solid var(--color-primary-light);
+    }
+
+    .history-status-badge.pending {
+      color: var(--color-warning);
+      background: var(--color-warning-light);
+      border: 1px solid var(--color-warning);
+    }
+
+    .history-status-badge.done {
+      color: var(--color-success);
+      background: var(--color-success-light);
+      border: 1px solid var(--color-success);
+    }
+
+    .history-action-name {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Header -->
+  <header class="global-header">
+    <div class="header-inner">
+      <a href="#" class="logo">Open<strong>Desk</strong></a>
+      <nav class="header-nav">
+        <a href="#">ポータル</a>
+        <a href="#">通知</a>
+        <a href="#">ブックマーク</a>
+      </nav>
+      <div class="header-right">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="search-input" placeholder="アプリ内検索">
+        </div>
+        <div class="user-avatar" title="山田 太郎">山</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ====================================================
+       SECTION 1: Process Management Settings
+       ==================================================== -->
+  <div class="page-wrapper">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="パンくずリスト">
+      <ol class="breadcrumb">
+        <li><a href="#">ポータル</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li><a href="#">顧客リスト</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-current">アプリの設定</li>
+      </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>顧客リスト<small>アプリの設定</small></h1>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <a href="#">フォーム</a>
+      <a href="#">一覧</a>
+      <a href="#">グラフ</a>
+      <a href="#" class="active">設定</a>
+    </div>
+
+    <!-- Settings Layout -->
+    <div class="settings-layout">
+
+      <!-- Settings Sidebar -->
+      <aside class="settings-sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-group-title">一般設定</div>
+          <ul class="sidebar-nav">
+            <li><a href="#">アプリ名と説明</a></li>
+            <li><a href="#" class="active">プロセス管理</a></li>
+            <li><a href="#">アクセス権</a></li>
+            <li><a href="#">通知</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Settings Main Content -->
+      <main class="settings-main">
+
+        <!-- Enable Process Management -->
+        <div class="settings-card">
+          <div class="settings-title">プロセス管理</div>
+
+          <div class="checkbox-row">
+            <input type="checkbox" id="enable-process" checked>
+            <label for="enable-process">プロセス管理を有効にする</label>
+          </div>
+
+          <!-- Status List -->
+          <div style="margin-bottom: var(--space-lg);">
+            <div style="font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-neutral-700); margin-bottom: var(--space-sm);">ステータス一覧</div>
+            <div class="status-list">
+
+              <!-- Status 1: 未処理 (initial, no drag, no delete) -->
+              <div class="status-item first">
+                <div class="drag-handle-placeholder"></div>
+                <input type="text" class="status-input" value="未処理" readonly>
+                <span class="status-badge">初期ステータス</span>
+              </div>
+
+              <!-- Status 2: 処理中 -->
+              <div class="status-item">
+                <div class="drag-handle" title="ドラッグで並べ替え">&#x2807;</div>
+                <input type="text" class="status-input" value="処理中">
+                <button class="icon-btn add" type="button" title="下にステータスを追加">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+                </button>
+                <button class="icon-btn delete" type="button" title="ステータスを削除">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                </button>
+              </div>
+
+              <!-- Status 3: 承認待ち -->
+              <div class="status-item">
+                <div class="drag-handle" title="ドラッグで並べ替え">&#x2807;</div>
+                <input type="text" class="status-input" value="承認待ち">
+                <button class="icon-btn add" type="button" title="下にステータスを追加">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+                </button>
+                <button class="icon-btn delete" type="button" title="ステータスを削除">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                </button>
+              </div>
+
+              <!-- Status 4: 完了 -->
+              <div class="status-item">
+                <div class="drag-handle" title="ドラッグで並べ替え">&#x2807;</div>
+                <input type="text" class="status-input" value="完了">
+                <button class="icon-btn add" type="button" title="下にステータスを追加">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+                </button>
+                <button class="icon-btn delete" type="button" title="ステータスを削除">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Flow Diagram -->
+          <div class="flow-section">
+            <div class="flow-section-header">
+              <div class="flow-section-title">プロセスフロー図</div>
+              <div class="zoom-controls">
+                <button class="zoom-btn" type="button" title="縮小">-</button>
+                <button class="zoom-btn" type="button" title="拡大">+</button>
+                <button class="zoom-btn" type="button" title="全体表示" style="width: auto; padding: 0 var(--space-sm); font-size: var(--text-xs);">Fit</button>
+              </div>
+            </div>
+            <div class="flow-container">
+              <div class="flow-chart">
+                <div class="flow-node status">未処理</div>
+                <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+                <div class="flow-node action">処理開始</div>
+                <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+                <div class="flow-node status">処理中</div>
+                <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+                <div class="flow-node action">承認依頼</div>
+                <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+                <div class="flow-node status">承認待ち</div>
+                <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+                <div class="flow-node action">承認する</div>
+                <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+                <div class="flow-node status">完了</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Process Transition Table -->
+          <div class="transition-section">
+            <div style="font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-neutral-700); margin-bottom: var(--space-sm);">プロセス（遷移）設定</div>
+            <div class="transition-table-wrapper">
+              <table class="transition-table">
+                <thead>
+                  <tr>
+                    <th class="td-status">アクション実行前のステータス</th>
+                    <th class="td-condition">アクションが実行できる条件</th>
+                    <th class="td-action">アクション名（ボタン名）/ 実行後のステータス</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Row 1: 未処理 → 処理開始 → 処理中 -->
+                  <tr>
+                    <td class="td-status">
+                      <div class="td-group">
+                        <select class="table-select">
+                          <option selected>未処理</option>
+                          <option>処理中</option>
+                          <option>承認待ち</option>
+                          <option>完了</option>
+                        </select>
+                        <div class="worker-setting">
+                          <div class="worker-label">作業者</div>
+                          <select class="table-select" style="font-size: var(--text-xs);">
+                            <option selected>作業者を設定しない</option>
+                            <option>次のユーザーから作業者を選択</option>
+                          </select>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="td-condition">
+                      <div class="td-group">
+                        <span class="condition-badge">すべてのレコード</span>
+                      </div>
+                    </td>
+                    <td class="td-action">
+                      <div class="action-row-group">
+                        <div class="action-row">
+                          <div class="td-row">
+                            <span class="td-label">ボタン名</span>
+                            <input type="text" class="table-input" value="処理開始" style="flex: 1;">
+                          </div>
+                          <div class="td-row">
+                            <span class="td-label">遷移先</span>
+                            <select class="table-select" style="flex: 1;">
+                              <option>未処理</option>
+                              <option selected>処理中</option>
+                              <option>承認待ち</option>
+                              <option>完了</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="transition-row-actions">
+                        <button class="btn-text" type="button" style="font-size: var(--text-xs);">+ アクションを追加</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Row 2: 処理中 → 承認依頼 → 承認待ち -->
+                  <tr>
+                    <td class="td-status">
+                      <div class="td-group">
+                        <select class="table-select">
+                          <option>未処理</option>
+                          <option selected>処理中</option>
+                          <option>承認待ち</option>
+                          <option>完了</option>
+                        </select>
+                        <div class="worker-setting">
+                          <div class="worker-label">作業者</div>
+                          <select class="table-select" style="font-size: var(--text-xs);">
+                            <option selected>作業者を設定しない</option>
+                            <option>次のユーザーから作業者を選択</option>
+                          </select>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="td-condition">
+                      <div class="td-group">
+                        <span class="condition-badge">すべてのレコード</span>
+                      </div>
+                    </td>
+                    <td class="td-action">
+                      <div class="action-row-group">
+                        <div class="action-row">
+                          <div class="td-row">
+                            <span class="td-label">ボタン名</span>
+                            <input type="text" class="table-input" value="承認依頼" style="flex: 1;">
+                          </div>
+                          <div class="td-row">
+                            <span class="td-label">遷移先</span>
+                            <select class="table-select" style="flex: 1;">
+                              <option>未処理</option>
+                              <option>処理中</option>
+                              <option selected>承認待ち</option>
+                              <option>完了</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="transition-row-actions">
+                        <button class="btn-text" type="button" style="font-size: var(--text-xs);">+ アクションを追加</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Row 3: 承認待ち → 承認する → 完了 -->
+                  <tr>
+                    <td class="td-status">
+                      <div class="td-group">
+                        <select class="table-select">
+                          <option>未処理</option>
+                          <option>処理中</option>
+                          <option selected>承認待ち</option>
+                          <option>完了</option>
+                        </select>
+                        <div class="worker-setting">
+                          <div class="worker-label">作業者</div>
+                          <select class="table-select" style="font-size: var(--text-xs);">
+                            <option>作業者を設定しない</option>
+                            <option selected>次のユーザーから作業者を選択</option>
+                          </select>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="td-condition">
+                      <div class="td-group">
+                        <span class="condition-badge">すべてのレコード</span>
+                      </div>
+                    </td>
+                    <td class="td-action">
+                      <div class="action-row-group">
+                        <div class="action-row">
+                          <div class="td-row">
+                            <span class="td-label">ボタン名</span>
+                            <input type="text" class="table-input" value="承認する" style="flex: 1;">
+                          </div>
+                          <div class="td-row">
+                            <span class="td-label">遷移先</span>
+                            <select class="table-select" style="flex: 1;">
+                              <option>未処理</option>
+                              <option>処理中</option>
+                              <option>承認待ち</option>
+                              <option selected>完了</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="transition-row-actions">
+                        <button class="btn-text" type="button" style="font-size: var(--text-xs);">+ アクションを追加</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="margin-top: var(--space-sm);">
+              <button class="btn-text" type="button">+ プロセス行を追加</button>
+            </div>
+          </div>
+
+          <!-- Save / Cancel -->
+          <div class="form-actions">
+            <button class="btn-primary" type="button">保存</button>
+            <button class="btn-secondary" type="button">キャンセル</button>
+          </div>
+        </div>
+
+      </main>
+
+    </div>
+
+    <!-- ====================================================
+         SECTION 2: Record Detail with Process UI
+         ==================================================== -->
+    <hr class="section-divider">
+    <div class="section-divider-label">
+      <span>レコード詳細画面でのプロセス管理 UI</span>
+    </div>
+
+    <!-- Record Detail Card -->
+    <div class="record-card">
+
+      <div class="record-card-header">
+        <!-- Breadcrumb for record -->
+        <nav aria-label="パンくずリスト">
+          <ol class="breadcrumb" style="margin-bottom: 0;">
+            <li><a href="#">ポータル</a></li>
+            <li class="breadcrumb-separator">/</li>
+            <li><a href="#">顧客リスト</a></li>
+            <li class="breadcrumb-separator">/</li>
+            <li class="breadcrumb-current">レコード詳細</li>
+          </ol>
+        </nav>
+      </div>
+
+      <div class="record-card-body">
+
+        <!-- Status Display -->
+        <div class="status-display">
+          <span class="status-display-label">ステータス:</span>
+          <span class="status-display-value">処理中</span>
+          <a href="#history-panel" class="status-history-link">ステータスの履歴</a>
+        </div>
+
+        <!-- Record Toolbar with Action Buttons -->
+        <div class="record-toolbar">
+          <div class="popover-wrapper">
+            <button class="btn-primary btn-sm" type="button" style="height: 32px; padding: 0 var(--space-md);">承認依頼</button>
+            <!-- Confirmation Popover (shown inline) -->
+            <div class="popover">
+              <div class="popover-title">承認依頼</div>
+              <div class="popover-detail">次のステータス: <strong>承認待ち</strong></div>
+              <div class="popover-actions">
+                <button class="btn-secondary btn-sm" type="button">キャンセル</button>
+                <button class="btn-primary btn-sm" type="button">実行</button>
+              </div>
+            </div>
+          </div>
+          <a href="#" class="toolbar-link">現在の作業者を変更</a>
+          <div class="toolbar-separator"></div>
+          <button class="btn-secondary btn-sm" type="button" style="height: 32px; padding: 0 var(--space-md);">レコードを編集する</button>
+          <button class="btn-secondary btn-sm" type="button" style="height: 32px; padding: 0 var(--space-md);">レコードを再利用する</button>
+        </div>
+
+        <!-- Simplified Record Fields -->
+        <div class="record-fields">
+          <div class="record-field-row">
+            <div class="record-field">
+              <div class="record-field-label">会社名</div>
+              <div class="record-field-value">株式会社サンプル</div>
+            </div>
+            <div class="record-field">
+              <div class="record-field-label">部署名</div>
+              <div class="record-field-value">営業部</div>
+            </div>
+            <div class="record-field">
+              <div class="record-field-label">担当者名</div>
+              <div class="record-field-value">佐藤 花子</div>
+            </div>
+          </div>
+          <div class="record-field-row">
+            <div class="record-field" style="flex: 2;">
+              <div class="record-field-label">住所</div>
+              <div class="record-field-value">東京都渋谷区神宮前1-2-3</div>
+            </div>
+            <div class="record-field" style="flex: 1;">
+              <div class="record-field-label">顧客ランク</div>
+              <div class="record-field-value">A</div>
+            </div>
+          </div>
+          <div class="record-field-row">
+            <div class="record-field">
+              <div class="record-field-label">TEL</div>
+              <div class="record-field-value">03-1234-5678</div>
+            </div>
+            <div class="record-field">
+              <div class="record-field-label">メールアドレス</div>
+              <div class="record-field-value">sato@example.com</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status History Panel (expanded) -->
+        <div class="history-panel" id="history-panel">
+          <div class="history-panel-header">
+            <div class="history-panel-title">ステータスの履歴</div>
+            <button class="btn-text" type="button" style="font-size: var(--text-xs);">閉じる</button>
+          </div>
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th style="width: 180px;">日時</th>
+                <th style="width: 180px;">作業した人</th>
+                <th style="width: 120px;">アクション</th>
+                <th>ステータス</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="font-size: var(--text-sm); color: var(--color-neutral-800);">2026/04/08 14:30</div>
+                </td>
+                <td>
+                  <div class="history-user">
+                    <div class="history-avatar">鈴</div>
+                    <span>鈴木 一郎</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="history-action-name">処理開始</span>
+                </td>
+                <td>
+                  <span class="history-status-badge processing">処理中</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-size: var(--text-sm); color: var(--color-neutral-800);">2026/04/07 10:15</div>
+                </td>
+                <td>
+                  <div class="history-user">
+                    <div class="history-avatar">山</div>
+                    <span>山田 太郎</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="history-action-name">-</span>
+                </td>
+                <td>
+                  <span class="history-status-badge" style="color: var(--color-neutral-600); background: var(--color-neutral-100); border: 1px solid var(--color-neutral-200);">未処理</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cybozu.com共通管理 - OpenDesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary-lighter: oklch(0.95 0.03 250);
+      --color-primary-light: oklch(0.82 0.07 250);
+      --color-primary: oklch(0.65 0.12 250);
+      --color-primary-dark: oklch(0.52 0.12 250);
+      --color-primary-darker: oklch(0.40 0.12 250);
+      --color-accent: oklch(0.65 0.15 270);
+      --color-accent-light: oklch(0.90 0.05 270);
+      --color-neutral-50: oklch(0.98 0.002 250);
+      --color-neutral-100: oklch(0.96 0.004 250);
+      --color-neutral-150: oklch(0.94 0.004 250);
+      --color-neutral-200: oklch(0.92 0.005 250);
+      --color-neutral-300: oklch(0.86 0.008 250);
+      --color-neutral-400: oklch(0.72 0.015 250);
+      --color-neutral-500: oklch(0.60 0.02 250);
+      --color-neutral-600: oklch(0.50 0.02 250);
+      --color-neutral-700: oklch(0.40 0.02 250);
+      --color-neutral-800: oklch(0.30 0.02 250);
+      --color-neutral-900: oklch(0.20 0.02 250);
+      --color-success: oklch(0.60 0.15 155);
+      --color-success-light: oklch(0.95 0.04 155);
+      --color-warning: oklch(0.75 0.15 80);
+      --color-warning-light: oklch(0.95 0.05 80);
+      --color-error: oklch(0.60 0.20 25);
+      --color-error-light: oklch(0.95 0.04 25);
+      --color-info: oklch(0.65 0.12 250);
+      --color-info-light: oklch(0.95 0.03 250);
+      --color-bg-page: oklch(0.98 0.002 250);
+      --color-bg-card: oklch(1.0 0 0);
+      --color-bg-section: oklch(0.96 0.004 250);
+      --color-bg-header: oklch(1.0 0 0);
+      --color-on-primary: oklch(1.0 0 0);
+      --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --text-xs: clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);
+      --text-sm: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
+      --text-base: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+      --text-lg: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --text-xl: clamp(1.125rem, 1.05rem + 0.2vw, 1.25rem);
+      --text-2xl: clamp(1.375rem, 1.25rem + 0.3vw, 1.5rem);
+      --text-3xl: clamp(1.75rem, 1.6rem + 0.4vw, 2rem);
+      --weight-normal: 400;
+      --weight-medium: 500;
+      --weight-semibold: 600;
+      --leading-tight: 1.3;
+      --leading-normal: 1.6;
+      --leading-relaxed: 1.8;
+      --tracking-tight: -0.02em;
+      --tracking-normal: 0;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-section: 48px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px oklch(0.20 0 0 / 0.04);
+      --shadow-md: 0 2px 8px oklch(0.20 0 0 / 0.06);
+      --shadow-lg: 0 4px 16px oklch(0.20 0 0 / 0.08);
+      --transition-fast: 0.1s ease;
+      --transition-default: 0.15s ease;
+      --transition-slow: 0.25s ease;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      line-height: var(--leading-normal);
+      color: var(--color-neutral-800);
+      background-color: var(--color-bg-page);
+      min-height: 100vh;
+    }
+
+    /* ========== Global Header ========== */
+    .global-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: var(--color-bg-header);
+      border-bottom: 1px solid var(--color-neutral-200);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-normal);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-neutral-800);
+      text-decoration: none;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .logo strong {
+      font-weight: var(--weight-semibold);
+      color: var(--color-primary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .header-nav a {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      text-decoration: none;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .header-nav a:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .header-nav a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .header-nav a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .search-input {
+      height: 34px;
+      width: 240px;
+      padding: 0 var(--space-md);
+      padding-left: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      outline: none;
+      transition: border-color var(--transition-default), background-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .search-input:hover {
+      background: var(--color-bg-card);
+      border-color: var(--color-neutral-300);
+    }
+
+    .search-input:focus {
+      background: var(--color-bg-card);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary-darker);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      transition: box-shadow var(--transition-default);
+      border: 1px solid var(--color-neutral-200);
+    }
+
+    .user-avatar:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ========== Admin Layout ========== */
+    .admin-layout {
+      display: flex;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* ========== Admin Sidebar ========== */
+    .admin-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--color-bg-card);
+      border-right: 1px solid var(--color-neutral-200);
+      overflow-y: auto;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+    }
+
+    .sidebar-title {
+      padding: var(--space-lg) var(--space-lg) var(--space-md);
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      letter-spacing: var(--tracking-tight);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .sidebar-nav {
+      padding: var(--space-sm) 0;
+    }
+
+    /* Level 1: Category */
+    .nav-category {
+      padding: var(--space-sm) var(--space-lg);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+      background: var(--color-neutral-100);
+      border-bottom: 1px solid var(--color-neutral-200);
+      border-top: 1px solid var(--color-neutral-200);
+      cursor: default;
+      user-select: none;
+      margin-top: var(--space-xs);
+    }
+
+    .nav-category:first-child {
+      margin-top: 0;
+      border-top: none;
+    }
+
+    /* Level 1: Top-level link (e.g. Home) */
+    .nav-item-l1 {
+      display: block;
+      padding: var(--space-sm) var(--space-lg);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+      text-decoration: none;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .nav-item-l1:hover {
+      background: var(--color-neutral-100);
+    }
+
+    .nav-item-l1.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    /* Level 2: Subcategory */
+    .nav-subcategory {
+      padding: var(--space-xs) var(--space-lg) var(--space-xs) calc(var(--space-lg) + 16px);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      cursor: default;
+      user-select: none;
+      margin-top: var(--space-xs);
+    }
+
+    /* Level 3: Item */
+    .nav-item {
+      display: block;
+      padding: var(--space-xs) var(--space-lg) var(--space-xs) calc(var(--space-lg) + 32px);
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      color: var(--color-neutral-800);
+      text-decoration: none;
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .nav-item:hover {
+      background: var(--color-neutral-100);
+    }
+
+    .nav-item.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .nav-item:focus-visible,
+    .nav-item-l1:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    /* ========== Main Content ========== */
+    .admin-main {
+      flex: 1;
+      min-width: 0;
+      padding: var(--space-xl) var(--space-2xl);
+      max-width: 1140px;
+    }
+
+    /* ========== Section ========== */
+    .admin-section {
+      margin-bottom: var(--space-section);
+    }
+
+    .admin-section:last-child {
+      margin-bottom: var(--space-xl);
+    }
+
+    .section-heading {
+      font-family: var(--font-heading);
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      letter-spacing: var(--tracking-tight);
+      margin-bottom: var(--space-lg);
+      line-height: var(--leading-tight);
+    }
+
+    .section-subheading {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+      margin-bottom: var(--space-md);
+      line-height: var(--leading-tight);
+    }
+
+    .section-description {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* ========== Card ========== */
+    .card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .card + .card {
+      margin-top: var(--space-md);
+    }
+
+    .card-body {
+      padding: var(--space-lg);
+    }
+
+    /* ========== Contract Table ========== */
+    .contract-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .contract-table th,
+    .contract-table td {
+      padding: var(--space-sm) var(--space-md);
+      text-align: left;
+      font-size: var(--text-base);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .contract-table thead th {
+      background: var(--color-bg-section);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      font-size: var(--text-sm);
+    }
+
+    .contract-table tbody tr:hover {
+      background: var(--color-neutral-100);
+    }
+
+    .contract-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .usage-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .usage-text {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-600);
+      white-space: nowrap;
+      min-width: 80px;
+    }
+
+    .progress-bar-wrapper {
+      flex: 1;
+      height: 8px;
+      background: var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      min-width: 80px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width var(--transition-slow);
+    }
+
+    .progress-bar.low {
+      background: var(--color-success);
+    }
+
+    .progress-bar.medium {
+      background: var(--color-warning);
+    }
+
+    .progress-bar.high {
+      background: var(--color-error);
+    }
+
+    .usage-percent {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .usage-percent.low {
+      color: var(--color-success);
+    }
+
+    .usage-percent.medium {
+      color: var(--color-warning);
+    }
+
+    .usage-percent.high {
+      color: var(--color-error);
+    }
+
+    /* ========== Disk Usage ========== */
+    .disk-usage-card {
+      margin-top: var(--space-md);
+    }
+
+    .disk-usage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-sm);
+    }
+
+    .disk-usage-label {
+      font-size: var(--text-base);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+    }
+
+    .disk-usage-value {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+    }
+
+    .disk-progress-bar-wrapper {
+      height: 12px;
+      background: var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .disk-progress-bar {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: var(--color-warning);
+      transition: width var(--transition-slow);
+    }
+
+    /* ========== Service Cards ========== */
+    .service-cards-heading {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+      margin-top: var(--space-xl);
+      margin-bottom: var(--space-md);
+    }
+
+    .service-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .service-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+      cursor: pointer;
+    }
+
+    .service-card:hover {
+      border-color: var(--color-primary-light);
+      box-shadow: var(--shadow-md);
+    }
+
+    .service-card-name {
+      font-size: var(--text-base);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-800);
+      margin-bottom: var(--space-xs);
+    }
+
+    .service-card-desc {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+      line-height: var(--leading-normal);
+    }
+
+    .service-card-link {
+      display: inline-block;
+      margin-top: var(--space-sm);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: color var(--transition-default);
+    }
+
+    .service-card-link:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    /* ========== Form Styles ========== */
+    .form-group {
+      margin-bottom: var(--space-lg);
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-section-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .form-section-desc {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+      margin-bottom: var(--space-md);
+      line-height: var(--leading-normal);
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .form-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      min-width: 240px;
+      flex-shrink: 0;
+    }
+
+    .form-select {
+      height: 34px;
+      min-width: 200px;
+      padding: 0 var(--space-xl) 0 var(--space-md);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .form-select:hover {
+      border-color: var(--color-neutral-400);
+    }
+
+    .form-select:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .form-checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .form-checkbox-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-checkbox {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .form-checkbox-label {
+      font-size: var(--text-base);
+      color: var(--color-neutral-800);
+      cursor: pointer;
+      line-height: var(--leading-normal);
+    }
+
+    .form-checkbox-hint {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-400);
+      margin-top: 2px;
+    }
+
+    /* ========== Buttons ========== */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      height: 36px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-on-primary);
+      background: var(--color-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      height: 36px;
+      padding: 0 var(--space-lg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-700);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: border-color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-neutral-50);
+      border-color: var(--color-neutral-300);
+    }
+
+    .btn-secondary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ========== Audit Log Table ========== */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .filter-label {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+    }
+
+    .filter-input {
+      height: 34px;
+      padding: 0 var(--space-md);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .filter-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .filter-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .date-range {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .date-range-separator {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-400);
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+
+    .audit-table th,
+    .audit-table td {
+      padding: var(--space-sm) var(--space-md);
+      text-align: left;
+      border-bottom: 1px solid var(--color-neutral-200);
+      white-space: nowrap;
+    }
+
+    .audit-table thead th {
+      background: var(--color-bg-section);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      font-size: var(--text-xs);
+    }
+
+    .audit-table tbody tr:hover {
+      background: var(--color-neutral-100);
+    }
+
+    .audit-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ========== Badges ========== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: 2px var(--space-sm);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      white-space: nowrap;
+    }
+
+    .badge-info {
+      background: var(--color-info-light);
+      color: var(--color-info);
+    }
+
+    .badge-warning {
+      background: var(--color-warning-light);
+      color: var(--color-warning);
+    }
+
+    .badge-success {
+      background: var(--color-success-light);
+      color: var(--color-success);
+    }
+
+    .badge-error {
+      background: var(--color-error-light);
+      color: var(--color-error);
+    }
+
+    /* ========== Toggle Switch ========== */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .toggle-row:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toggle-name {
+      font-size: var(--text-base);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-800);
+    }
+
+    .toggle-desc {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--color-neutral-300);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background-color var(--transition-default);
+    }
+
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: var(--color-bg-card);
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--transition-default);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--color-primary);
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    .toggle-switch input:focus-visible + .toggle-slider {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .toggle-status {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      margin-left: var(--space-sm);
+    }
+
+    .toggle-status.on {
+      color: var(--color-success);
+    }
+
+    .toggle-status.off {
+      color: var(--color-neutral-400);
+    }
+
+    /* ========== OAuth Section ========== */
+    .oauth-add-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      margin-top: var(--space-md);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: color var(--transition-default);
+    }
+
+    .oauth-add-link:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    .oauth-add-link svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ========== Section Divider ========== */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--color-neutral-200);
+      margin: var(--space-section) 0;
+    }
+
+    /* ========== Action Bar ========== */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-top: var(--space-lg);
+    }
+
+    /* ========== Scrollbar ========== */
+    .admin-sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .admin-sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .admin-sidebar::-webkit-scrollbar-thumb {
+      background: var(--color-neutral-300);
+      border-radius: var(--radius-full);
+    }
+
+    .admin-sidebar::-webkit-scrollbar-thumb:hover {
+      background: var(--color-neutral-400);
+    }
+
+    /* ========== Responsive table wrapper ========== */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== Global Header ========== -->
+  <header class="global-header">
+    <div class="header-inner">
+      <a href="#" class="logo">Open<strong>Desk</strong></a>
+      <nav class="header-nav">
+        <a href="#">ポータル</a>
+        <a href="#">通知</a>
+        <a href="#">ブックマーク</a>
+      </nav>
+      <div class="header-right">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="search-input" placeholder="全体検索">
+        </div>
+        <div class="user-avatar" title="山田 太郎">山</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== Admin Layout ========== -->
+  <div class="admin-layout">
+
+    <!-- ========== Sidebar ========== -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-title">cybozu.com共通管理</div>
+      <nav class="sidebar-nav">
+
+        <!-- Home (top-level link) -->
+        <a href="#" class="nav-item-l1 active">ホーム</a>
+
+        <!-- User Management -->
+        <div class="nav-category">ユーザー管理</div>
+        <a href="#" class="nav-item">組織/ユーザー</a>
+        <a href="#" class="nav-item">サービスの利用ユーザー</a>
+        <a href="#" class="nav-item">役職</a>
+        <a href="#" class="nav-item">グループ（ロール）</a>
+        <div class="nav-subcategory">一括操作</div>
+        <a href="#" class="nav-item">ファイルからの読み込み</a>
+        <a href="#" class="nav-item">ファイルへの書き出し</a>
+        <a href="#" class="nav-item">ユーザーの一括削除</a>
+        <a href="#" class="nav-item">管理者の設定</a>
+        <a href="#" class="nav-item">組織の事前設定</a>
+        <a href="#" class="nav-item">組織間のアクセス権</a>
+        <a href="#" class="nav-item">プロビジョニング</a>
+
+        <!-- System Management -->
+        <div class="nav-category">システム管理</div>
+        <div class="nav-subcategory">セキュリティ</div>
+        <a href="#" class="nav-item">ログイン</a>
+        <a href="#" class="nav-item">アクセス制限</a>
+        <div class="nav-subcategory">監査ログ</div>
+        <a href="#" class="nav-item">閲覧とダウンロード</a>
+        <a href="#" class="nav-item">設定</a>
+        <div class="nav-subcategory">外部連携</div>
+        <a href="#" class="nav-item">OAuth</a>
+        <a href="#" class="nav-item">APIトークン</a>
+        <a href="#" class="nav-item">その他の設定</a>
+        <a href="#" class="nav-item">システムメール</a>
+        <a href="#" class="nav-item">ロケール</a>
+        <div class="nav-subcategory">カスタマイズ</div>
+        <a href="#" class="nav-item">ロゴ</a>
+        <a href="#" class="nav-item">ログインページ</a>
+        <a href="#" class="nav-item">アップデートオプション</a>
+
+        <!-- Service Settings -->
+        <div class="nav-category">各サービスの設定</div>
+        <a href="#" class="nav-item">OpenDesk</a>
+
+      </nav>
+    </aside>
+
+    <!-- ========== Main Content ========== -->
+    <main class="admin-main">
+
+      <!-- =============================== -->
+      <!-- Section 1: Contract Status       -->
+      <!-- =============================== -->
+      <section class="admin-section">
+        <h2 class="section-heading">契約状況</h2>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-wrapper">
+              <table class="contract-table">
+                <thead>
+                  <tr>
+                    <th>項目</th>
+                    <th>利用中</th>
+                    <th>上限</th>
+                    <th style="min-width: 200px;">使用状況</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- User count -->
+                  <tr>
+                    <td style="font-weight: var(--weight-medium); color: var(--color-neutral-700);">ユーザー</td>
+                    <td>25</td>
+                    <td>50</td>
+                    <td>
+                      <div class="usage-cell">
+                        <div class="progress-bar-wrapper">
+                          <div class="progress-bar medium" style="width: 50%;"></div>
+                        </div>
+                        <span class="usage-percent medium">50%</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <!-- App count -->
+                  <tr>
+                    <td style="font-weight: var(--weight-medium); color: var(--color-neutral-700);">アプリ</td>
+                    <td>15</td>
+                    <td>1,000</td>
+                    <td>
+                      <div class="usage-cell">
+                        <div class="progress-bar-wrapper">
+                          <div class="progress-bar low" style="width: 1.5%;"></div>
+                        </div>
+                        <span class="usage-percent low">1.5%</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <!-- Space count -->
+                  <tr>
+                    <td style="font-weight: var(--weight-medium); color: var(--color-neutral-700);">スペース</td>
+                    <td>8</td>
+                    <td>500</td>
+                    <td>
+                      <div class="usage-cell">
+                        <div class="progress-bar-wrapper">
+                          <div class="progress-bar low" style="width: 1.6%;"></div>
+                        </div>
+                        <span class="usage-percent low">1.6%</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Disk Usage -->
+            <div class="disk-usage-card">
+              <div class="disk-usage-header">
+                <span class="disk-usage-label">ディスク使用量</span>
+                <span class="disk-usage-value">2.3 GB / 5 GB</span>
+              </div>
+              <div class="disk-progress-bar-wrapper">
+                <div class="disk-progress-bar" style="width: 46%;"></div>
+              </div>
+            </div>
+
+            <!-- Course info -->
+            <p style="font-size: var(--text-xs); color: var(--color-neutral-500); margin-top: var(--space-md);">OpenDesk スタンダードコース</p>
+          </div>
+        </div>
+
+        <!-- Additional Services -->
+        <div class="service-cards-heading">追加契約可能なサービス</div>
+        <div class="service-cards-grid">
+          <div class="service-card">
+            <div class="service-card-name">Garoon</div>
+            <div class="service-card-desc">スケジュール、ワークフロー、掲示板等を備えた中堅・大企業向けグループウェア</div>
+            <a href="#" class="service-card-link">詳細を見る</a>
+          </div>
+          <div class="service-card">
+            <div class="service-card-name">サイボウズ Office</div>
+            <div class="service-card-desc">中小企業向けの使いやすいグループウェア</div>
+            <a href="#" class="service-card-link">詳細を見る</a>
+          </div>
+          <div class="service-card">
+            <div class="service-card-name">OpenDesk メール共有オプション</div>
+            <div class="service-card-desc">メール共有・管理機能をOpenDeskに追加するオプション</div>
+            <a href="#" class="service-card-link">詳細を見る</a>
+          </div>
+          <div class="service-card">
+            <div class="service-card-name">メールワイズ</div>
+            <div class="service-card-desc">チームでのメール対応を効率化するメール共有システム</div>
+            <a href="#" class="service-card-link">詳細を見る</a>
+          </div>
+          <div class="service-card">
+            <div class="service-card-name">セキュアアクセス</div>
+            <div class="service-card-desc">クライアント証明書によるアクセス制御オプション</div>
+            <a href="#" class="service-card-link">詳細を見る</a>
+          </div>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- =============================== -->
+      <!-- Section 2: Login Security        -->
+      <!-- =============================== -->
+      <section class="admin-section">
+        <h2 class="section-heading">ログインのセキュリティ設定</h2>
+
+        <div class="card">
+          <div class="card-body">
+
+            <!-- SAML & 2FA -->
+            <div class="form-group">
+              <div class="form-section-title">認証方式</div>
+              <div class="form-checkbox-row">
+                <input type="checkbox" class="form-checkbox" id="saml">
+                <div>
+                  <label for="saml" class="form-checkbox-label">SAML認証を有効にする</label>
+                  <div class="form-checkbox-hint">SSO（シングルサインオン）用のSAML認証を有効にします</div>
+                </div>
+              </div>
+              <div class="form-checkbox-row">
+                <input type="checkbox" class="form-checkbox" id="2fa">
+                <div>
+                  <label for="2fa" class="form-checkbox-label">2要素認証の利用をユーザーに許可する</label>
+                  <div class="form-checkbox-hint">TOTP方式の2要素認証を有効にします</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Password Policy -->
+            <div class="form-group">
+              <div class="form-section-title">パスワードポリシー</div>
+              <div class="form-section-desc">ユーザーおよび管理者のパスワードに対する要件を設定します。</div>
+              <div class="form-row">
+                <label class="form-label">ユーザーパスワードの最小文字数</label>
+                <select class="form-select">
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                  <option>6</option>
+                  <option>7</option>
+                  <option selected>8</option>
+                  <option>9</option>
+                  <option>10</option>
+                  <option>12</option>
+                  <option>15</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label class="form-label">管理者パスワードの最小文字数</label>
+                <select class="form-select">
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                  <option>6</option>
+                  <option>7</option>
+                  <option selected>8</option>
+                  <option>9</option>
+                  <option>10</option>
+                  <option>12</option>
+                  <option>15</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label class="form-label">複雑さ</label>
+                <select class="form-select">
+                  <option>制限なし</option>
+                  <option selected>アルファベットと数字</option>
+                  <option>アルファベット＋数字＋特殊文字</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Account Lockout -->
+            <div class="form-group">
+              <div class="form-section-title">アカウントロックアウト</div>
+              <div class="form-section-desc">ログイン失敗時のアカウントロック条件を設定します。</div>
+              <div class="form-row">
+                <label class="form-label">ログイン失敗回数</label>
+                <select class="form-select">
+                  <option>3回</option>
+                  <option>5回</option>
+                  <option selected>10回</option>
+                  <option>ロックアウトしない</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label class="form-label">解除までの時間</label>
+                <select class="form-select">
+                  <option selected>3分</option>
+                  <option>15分</option>
+                  <option>30分</option>
+                  <option>60分</option>
+                  <option>解除しない</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Session -->
+            <div class="form-group">
+              <div class="form-section-title">セッション</div>
+              <div class="form-row">
+                <label class="form-label">有効期間</label>
+                <select class="form-select">
+                  <option>15分</option>
+                  <option>30分</option>
+                  <option>1時間</option>
+                  <option>2時間</option>
+                  <option>4時間</option>
+                  <option>8時間</option>
+                  <option>12時間</option>
+                  <option selected>24時間</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Save -->
+            <div class="action-bar">
+              <button type="button" class="btn-primary">保存</button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- =============================== -->
+      <!-- Section 3: Audit Log             -->
+      <!-- =============================== -->
+      <section class="admin-section">
+        <h2 class="section-heading">監査ログの閲覧とダウンロード</h2>
+
+        <div class="card">
+          <div class="card-body">
+
+            <!-- Filters -->
+            <div class="filter-bar">
+              <div class="filter-group">
+                <span class="filter-label">日時範囲</span>
+                <div class="date-range">
+                  <input type="datetime-local" class="filter-input" value="2026-04-01T00:00">
+                  <span class="date-range-separator">~</span>
+                  <input type="datetime-local" class="filter-input" value="2026-04-08T23:59">
+                </div>
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">レベル</span>
+                <select class="form-select" style="min-width: 140px;">
+                  <option selected>情報以上</option>
+                  <option>重要以上</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">ユーザー</span>
+                <input type="text" class="filter-input" placeholder="ユーザーを検索" style="width: 160px;">
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">サービス</span>
+                <select class="form-select" style="min-width: 140px;">
+                  <option selected>すべて</option>
+                  <option>サービス共通</option>
+                  <option>OpenDesk</option>
+                  <option>Garoon</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrapper">
+              <table class="audit-table">
+                <thead>
+                  <tr>
+                    <th>レベル</th>
+                    <th>日時</th>
+                    <th>接続元</th>
+                    <th>ユーザー</th>
+                    <th>サービス</th>
+                    <th>モジュール</th>
+                    <th>アクション</th>
+                    <th>結果</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="badge badge-info">情報</span></td>
+                    <td>2026-04-08 14:32:01</td>
+                    <td>192.168.1.10</td>
+                    <td>山田 太郎</td>
+                    <td>OpenDesk</td>
+                    <td>Authentication</td>
+                    <td>login</td>
+                    <td><span class="badge badge-success">SUCCESS</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-warning">重要</span></td>
+                    <td>2026-04-08 13:15:42</td>
+                    <td>10.0.0.55</td>
+                    <td>佐藤 花子</td>
+                    <td>サービス共通</td>
+                    <td>App management</td>
+                    <td>App create</td>
+                    <td><span class="badge badge-success">SUCCESS</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-info">情報</span></td>
+                    <td>2026-04-08 10:05:18</td>
+                    <td>172.16.0.22</td>
+                    <td>鈴木 一郎</td>
+                    <td>OpenDesk</td>
+                    <td>Authentication</td>
+                    <td>login</td>
+                    <td><span class="badge badge-error">FAILURE</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Download -->
+            <div class="action-bar">
+              <button type="button" class="btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                ダウンロード
+              </button>
+              <span style="font-size: var(--text-xs); color: var(--color-neutral-400);">10万件までダウンロード可能（保持期間: 6週間）</span>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- =============================== -->
+      <!-- Section 4: OAuth                 -->
+      <!-- =============================== -->
+      <section class="admin-section">
+        <h2 class="section-heading">外部連携 &gt; OAuth</h2>
+
+        <div class="card">
+          <div class="card-body">
+
+            <!-- Toggle: Power Automate -->
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-name">Microsoft Power Automate</span>
+                <span class="toggle-desc">Power Automateとの連携を有効にします</span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-status on">ON</span>
+              </div>
+            </div>
+
+            <!-- Toggle: Slack -->
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-name">Slack</span>
+                <span class="toggle-desc">Slackとの連携を有効にします</span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <label class="toggle-switch">
+                  <input type="checkbox">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-status off">OFF</span>
+              </div>
+            </div>
+
+            <!-- Add OAuth Client -->
+            <a href="#" class="oauth-add-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              OAuthクライアントの追加
+            </a>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+</html>
