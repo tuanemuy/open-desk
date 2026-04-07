@@ -7,7 +7,7 @@ import {
 } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Paperclip } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 import { handlers } from "./action";
@@ -22,6 +22,7 @@ export function meta({ data }: Route.MetaArgs) {
 
 export default function NewRecordPage({ loaderData }: Route.ComponentProps) {
   const { app, rankOptions } = loaderData;
+  const navigate = useNavigate();
 
   const fetcher = useCompositeAction<typeof handlers>();
 
@@ -38,8 +39,8 @@ export default function NewRecordPage({ loaderData }: Route.ComponentProps) {
   });
 
   fetcher.register("createRecord", {
-    onSuccess: () => {
-      // Will navigate to the new record on actual implementation
+    onSuccess: (data) => {
+      navigate(`/apps/${app.id}/records/${data.data.recordId}`);
     },
   });
 
