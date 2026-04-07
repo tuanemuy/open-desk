@@ -1,5 +1,6 @@
 import type {
   AppCreationPermission,
+  AppId,
   CommentFile,
   CoverImage,
   MemberEntity,
@@ -120,4 +121,38 @@ export type RelatedLinkDto = {
 
 export type ToggleLikeOutput = {
   readonly liked: boolean;
+};
+
+export type CreateSpaceTemplateOutput = {
+  readonly templateId: string;
+  readonly name: string;
+  readonly sourceSpaceId: string;
+  readonly useMultiThread: boolean;
+  readonly fixedMember: boolean;
+  readonly appCreationPermission: AppCreationPermission;
+  readonly coverImage: CoverImage;
+  readonly portalDisplay: PortalDisplayConfig;
+  readonly threadNames: readonly string[];
+  readonly appIds: readonly AppId[];
+  readonly relatedLinks: readonly RelatedLinkDto[];
+  readonly announcementBody: string | undefined;
+  readonly createdAt: Date;
+};
+
+export type SpaceTemplateListOutput = {
+  readonly templates: readonly {
+    readonly templateId: string;
+    readonly name: string;
+    readonly sourceSpaceId: string;
+    readonly useMultiThread: boolean;
+    readonly createdAt: Date;
+  }[];
+  readonly totalCount: number;
+};
+
+export type AddGuestUserOutput = {
+  readonly userId: string;
+  readonly name: string;
+  readonly email: string;
+  readonly company: string | null;
 };
