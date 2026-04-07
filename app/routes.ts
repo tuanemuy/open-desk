@@ -10,11 +10,11 @@ export default [
   index("routes/index.tsx"),
   route("login", "routes/login/index.tsx"),
 
-  /* Resource routes (API) */
-  route("api/bookmarks", "routes/api/bookmarks.ts"),
-
   /* Authenticated routes — wrapped by AppLayout */
   layout("routes/layout.tsx", [
+    /* Resource routes (API) */
+    route("api/bookmarks", "routes/api/bookmarks.ts"),
+
     route("portal", "routes/portal/index.tsx"),
     route("apps", "routes/apps/index.tsx"),
     route("apps/:appId", "routes/apps/app/index.tsx"),
@@ -39,7 +39,7 @@ export default [
 
     /* Admin: cybozu.com共通管理 */
     layout("routes/admin/layout.tsx", [
-      index("routes/admin/index.tsx"),
+      route("admin", "routes/admin/index.tsx"),
       route("admin/directory", "routes/admin/directory/index.tsx"),
       route(
         "admin/directory/service",

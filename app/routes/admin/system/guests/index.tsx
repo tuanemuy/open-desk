@@ -1,3 +1,5 @@
+import type { LicenseInfo } from "@/components/admin/LicenseCard";
+import { LicenseCard } from "@/components/admin/LicenseCard";
 import { container } from "@/core/application/container/server.instance";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
@@ -5,12 +7,6 @@ import type { Route } from "./+types/index";
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "ゲストユーザー管理 - OpenDeskシステム管理" }];
 }
-
-type GuestLicense = {
-  label: string;
-  current: number;
-  limit: number | null;
-};
 
 type GuestUser = {
   id: string;
@@ -32,29 +28,9 @@ export async function loader({ request }: Route.LoaderArgs) {
       { label: "試用期間中のゲストユーザー数", current: 0, limit: null },
       { label: "有料ゲストユーザー数", current: 0, limit: null },
       { label: "有料ゲストユーザー数の契約数", current: 0, limit: null },
-    ] as GuestLicense[],
+    ] as LicenseInfo[],
     guests: [] as GuestUser[],
   };
-}
-
-function LicenseCard({ license }: { license: GuestLicense }) {
-  return (
-    <div className="rounded-lg border border-neutral-200 bg-bg-card p-lg">
-      <div className="mb-sm text-sm font-[var(--weight-medium)] text-neutral-600">
-        {license.label}
-      </div>
-      <div className="flex items-baseline gap-sm">
-        <span className="font-heading text-3xl font-[var(--weight-semibold)] leading-tight text-neutral-900">
-          {license.current.toLocaleString()}
-        </span>
-        {license.limit !== null && (
-          <span className="text-base text-neutral-500">
-            / {license.limit.toLocaleString()}
-          </span>
-        )}
-      </div>
-    </div>
-  );
 }
 
 export default function GuestsPage({ loaderData }: Route.ComponentProps) {

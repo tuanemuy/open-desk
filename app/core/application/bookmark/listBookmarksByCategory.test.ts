@@ -54,11 +54,11 @@ describe("listBookmarksByCategory", () => {
     await insertBookmark(container, userId, {
       category: "APP",
       appId: "1",
-      url: "https://example.com/k/1/",
+      url: "https://example.com/apps/1",
     });
     await insertBookmark(container, userId, {
       category: "SEARCH",
-      url: "https://example.com/k/search",
+      url: "https://example.com/search",
     });
     await insertBookmark(container, userId, {
       category: "OTHER",

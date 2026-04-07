@@ -81,7 +81,7 @@ describe("updateBookmark", () => {
       input: {
         operatorId: userId,
         bookmarkId,
-        url: "https://example.com/k/search?q=test",
+        url: "https://example.com/search?q=test",
       },
     });
 
@@ -100,12 +100,12 @@ describe("updateBookmark", () => {
         operatorId: userId,
         bookmarkId,
         name: "New Name",
-        url: "https://example.com/k/5/",
+        url: "https://example.com/apps/app5",
       },
     });
 
     expect(result.name).toBe("New Name");
-    expect(result.url).toBe("https://example.com/k/5/");
+    expect(result.url).toBe("https://example.com/apps/app5");
     expect(result.category).toBe("APP");
     expect(result.appId).toBeDefined();
   });
@@ -123,7 +123,7 @@ describe("updateBookmark", () => {
       input: {
         operatorId: userId,
         bookmarkId,
-        url: "https://example.com/k/10/",
+        url: "https://example.com/apps/app10",
       },
     });
 
@@ -135,9 +135,9 @@ describe("updateBookmark", () => {
     const container = getContainer();
     const userId = await insertUser(container);
     const bookmarkId = await insertBookmark(container, userId, {
-      url: "https://example.com/k/5/",
+      url: "https://example.com/apps/app5",
       category: "APP",
-      appId: "5",
+      appId: "app5",
     });
 
     const result = await updateBookmark({

@@ -27,53 +27,43 @@ export async function loader({
 }: Route.LoaderArgs): Promise<AppsLoaderData> {
   await requireAuth(request, container);
 
+  const result = await container.unitOfWorkProvider.transaction(async (ctx) => {
+    const apps = await ctx.appRepository.list({}, 0, 100);
+    const totalCount = await ctx.appRepository.countAll();
+
+    const appItems: AppItem[] = await Promise.all(
+      apps.map(async (app) => {
+        const fieldCount = await ctx.fieldRepository.countByAppId(app.appId);
+        const recordCount = await ctx.recordRepository.count(app.appId);
+
+        let spaceName = "-";
+        if (app.spaceId) {
+          const space = await ctx.spaceRepository.findById(app.spaceId);
+          if (space) {
+            spaceName = space.name;
+          }
+        }
+
+        return {
+          id: app.appId,
+          name: app.name,
+          space: spaceName,
+          status: app.status === "DELETED" ? "inactive" : ("active" as const),
+          recordCount,
+          fieldCount,
+        };
+      }),
+    );
+
+    return { appItems, totalCount };
+  });
+
   return {
     licenses: [
-      { label: "アプリ数", current: 15, limit: 1000 },
-      { label: "1日のAPIリクエスト数", current: 245, limit: 10000 },
-      { label: "カスタマイズ可能なアプリ数", current: 5, limit: null },
+      { label: "アプリ数", current: result.totalCount, limit: 1000 },
+      { label: "1日のAPIリクエスト数", current: 0, limit: 10000 },
+      { label: "カスタマイズ可能なアプリ数", current: 0, limit: null },
     ],
-    apps: [
-      {
-        id: "1",
-        name: "顧客リスト",
-        space: "営業部",
-        status: "active",
-        recordCount: 1248,
-        fieldCount: 18,
-      },
-      {
-        id: "2",
-        name: "ファイル管理",
-        space: "総務部",
-        status: "active",
-        recordCount: 532,
-        fieldCount: 12,
-      },
-      {
-        id: "3",
-        name: "勤怠管理",
-        space: "人事部",
-        status: "active",
-        recordCount: 8921,
-        fieldCount: 24,
-      },
-      {
-        id: "4",
-        name: "経費精算",
-        space: "経理部",
-        status: "inactive",
-        recordCount: 3456,
-        fieldCount: 15,
-      },
-      {
-        id: "5",
-        name: "案件管理",
-        space: "営業部",
-        status: "active",
-        recordCount: 672,
-        fieldCount: 22,
-      },
-    ],
+    apps: result.appItems,
   };
 }

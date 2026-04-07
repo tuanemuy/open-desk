@@ -10,7 +10,7 @@ const navItems = [
 
 type GlobalHeaderProps = {
   displayName?: string;
-  bookmarks?: BookmarkListByCategoryOutput;
+  bookmarks: BookmarkListByCategoryOutput;
 };
 
 export function GlobalHeader({ displayName, bookmarks }: GlobalHeaderProps) {
@@ -48,7 +48,7 @@ export function GlobalHeader({ displayName, bookmarks }: GlobalHeaderProps) {
             );
           })}
 
-          {bookmarks && <BookmarkPanel bookmarks={bookmarks} />}
+          <BookmarkPanel bookmarks={bookmarks} />
         </nav>
 
         <div className="ml-auto flex items-center gap-md">

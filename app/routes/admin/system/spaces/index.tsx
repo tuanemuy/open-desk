@@ -1,49 +1,12 @@
+import { LicenseCard } from "@/components/admin/LicenseCard";
 import type { SpaceUsageDto } from "@/core/application/space/dto";
+import { formatDate } from "@/lib/admin";
 import type { Route } from "./+types/index";
-import type { SpaceLicenseInfo } from "./loader";
 
 export { loader } from "./loader";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "スペース管理 - OpenDeskシステム管理" }];
-}
-
-function progressLevel(current: number, limit: number): string {
-  const ratio = current / limit;
-  if (ratio >= 0.8) return "bg-error";
-  if (ratio >= 0.5) return "bg-warning";
-  return "bg-success";
-}
-
-function LicenseCard({ license }: { license: SpaceLicenseInfo }) {
-  return (
-    <div className="rounded-lg border border-neutral-200 bg-bg-card p-lg">
-      <div className="mb-sm text-sm font-[var(--weight-medium)] text-neutral-600">
-        {license.label}
-      </div>
-      <div className="mb-md flex items-baseline gap-sm">
-        <span className="font-heading text-3xl font-[var(--weight-semibold)] leading-tight text-neutral-900">
-          {license.current.toLocaleString()}
-        </span>
-        <span className="text-base text-neutral-500">
-          / {license.limit.toLocaleString()}
-        </span>
-      </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200">
-        <div
-          className={`h-full rounded-full transition-[width] duration-[var(--transition-slow)] ${progressLevel(license.current, license.limit)}`}
-          style={{
-            width: `${Math.min((license.current / license.limit) * 100, 100)}%`,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function formatDate(date: Date): string {
-  const d = new Date(date);
-  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function SpaceTable({ spaces }: { spaces: readonly SpaceUsageDto[] }) {

@@ -1354,7 +1354,7 @@
 
   <!-- ========== Interactive color picker script ========== -->
   <script>
-    (function () {
+    (() => {
       var presets = document.querySelectorAll('.color-preset');
       var colorInput = document.getElementById('colorInput');
       var colorSwatch = document.getElementById('colorSwatch');
@@ -1364,12 +1364,12 @@
         colorInput.value = hex;
         colorSwatch.style.background = hex;
         headerPreview.style.background = hex;
-        presets.forEach(function (p) {
+        presets.forEach((p) => {
           p.classList.toggle('selected', p.getAttribute('data-color') === hex);
         });
       }
 
-      presets.forEach(function (preset) {
+      presets.forEach((preset) => {
         preset.addEventListener('click', function () {
           setColor(this.getAttribute('data-color'));
         });

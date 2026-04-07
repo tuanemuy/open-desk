@@ -1,6 +1,7 @@
 import { ChevronDown, LayoutGrid, Plus, Star, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
+import { toast } from "sonner";
 import type { BookmarkListByCategoryOutput } from "@/core/application/bookmark/dto";
 import type { BookmarkId } from "@/core/domain/bookmark/valueObject";
 import { useCompositeAction } from "@/lib/compositeAction";
@@ -33,18 +34,20 @@ export function BookmarkPanel({ bookmarks }: BookmarkPanelProps) {
   fetcher.register("create", {
     onSuccess: () => {
       setShowAddDialog(false);
+      toast.success("ブックマークに保存されました。");
     },
     onHandlerError: ({ error }) => {
-      console.error(error?.[""]?.[0] ?? "ブックマークの作成に失敗しました");
+      toast.error(error?.[""]?.[0] ?? "ブックマークの作成に失敗しました。");
     },
   });
 
   fetcher.register("delete", {
     onSuccess: () => {
       setDeletingId(null);
+      toast.success("ブックマークを削除しました。");
     },
     onHandlerError: ({ error }) => {
-      console.error(error?.[""]?.[0] ?? "ブックマークの削除に失敗しました");
+      toast.error(error?.[""]?.[0] ?? "ブックマークの削除に失敗しました。");
     },
   });
 
@@ -227,7 +230,6 @@ export function BookmarkPanel({ bookmarks }: BookmarkPanelProps) {
                       onDeleteClick={setDeletingId}
                       onDeleteCancel={() => setDeletingId(null)}
                       fetcher={fetcher}
-                      indented={false}
                     />
                   ))
                 )}
@@ -253,7 +255,6 @@ export function BookmarkPanel({ bookmarks }: BookmarkPanelProps) {
                       onDeleteClick={setDeletingId}
                       onDeleteCancel={() => setDeletingId(null)}
                       fetcher={fetcher}
-                      indented={false}
                     />
                   ))
                 )}
@@ -308,7 +309,7 @@ function groupByAppId(items: BookmarkListByCategoryOutput["app"]): AppGroup[] {
     } else {
       map.set(id, {
         appId: id,
-        appName: extractAppName(item.url),
+        appName: extractAppName(id),
         bookmarks: [
           {
             bookmarkId: item.bookmarkId,
@@ -322,12 +323,8 @@ function groupByAppId(items: BookmarkListByCategoryOutput["app"]): AppGroup[] {
   return Array.from(map.values());
 }
 
-function extractAppName(url: string): string {
-  const match = url.match(/\/apps\/([^/]+)/);
-  if (match) {
-    return `App ${match[1]}`;
-  }
-  return "アプリ";
+function extractAppName(appId: string): string {
+  return appId;
 }
 
 type FetcherType = ReturnType<typeof useCompositeAction<typeof handlers>>;
@@ -366,7 +363,7 @@ function AppAccordion({
       >
         <ChevronDown
           className={`h-3.5 w-3.5 shrink-0 text-neutral-400 transition-transform duration-[var(--transition-default)] ${
-            isExpanded ? "rotate-0" : "-rotate-90"
+            isExpanded ? "rotate-180" : "rotate-0"
           }`}
         />
         <LayoutGrid className="h-4 w-4 shrink-0 text-neutral-500" />
@@ -387,7 +384,6 @@ function AppAccordion({
               onDeleteClick={onDeleteClick}
               onDeleteCancel={onDeleteCancel}
               fetcher={fetcher}
-              indented
             />
           ))}
         </div>
@@ -404,7 +400,6 @@ type BookmarkItemProps = {
   onDeleteClick: (id: string) => void;
   onDeleteCancel: () => void;
   fetcher: FetcherType;
-  indented: boolean;
 };
 
 function BookmarkItem({
@@ -415,7 +410,6 @@ function BookmarkItem({
   onDeleteClick,
   onDeleteCancel,
   fetcher,
-  indented,
 }: BookmarkItemProps) {
   const isDeleting = deletingId === (bookmarkId as string);
   const idStr = bookmarkId as string;
@@ -429,9 +423,9 @@ function BookmarkItem({
 
   return (
     <div
-      className={`group relative flex items-center gap-sm px-md py-sm transition-[background-color] duration-[var(--transition-default)] hover:bg-neutral-100 [&+&]:border-t [&+&]:border-neutral-200 ${
-        indented ? "pl-xl" : ""
-      }`}
+      className={
+        "group relative flex items-center gap-sm px-md py-sm pl-xl transition-[background-color] duration-[var(--transition-default)] hover:bg-neutral-100 [&+&]:border-t [&+&]:border-neutral-200"
+      }
     >
       <a
         href={url}

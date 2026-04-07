@@ -2,6 +2,7 @@ import { FileUp } from "lucide-react";
 import { data } from "react-router";
 import { container } from "@/core/application/container/server.instance";
 import { listSpaceTemplates } from "@/core/application/space/listSpaceTemplates";
+import { formatDate } from "@/lib/admin";
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
@@ -27,11 +28,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
 
   return { templates: result.templates };
-}
-
-function formatDate(date: Date): string {
-  const d = new Date(date);
-  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export default function SpaceTemplatesPage({

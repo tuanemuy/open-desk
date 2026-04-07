@@ -47,22 +47,13 @@ const NAV_SECTIONS: NavSection[] = [
             { label: "ファイルからの読み込み", to: "/admin/csvimport" },
             { label: "ファイルへの書き出し", to: "/admin/csvexport" },
             { label: "ユーザーの一括削除", to: "/admin/directory/delete-user" },
+            { label: "管理者の設定", to: "/admin/administrators" },
+            { label: "組織の事前設定", to: "/admin/sandbox" },
+            { label: "組織間のアクセス権", to: "/admin/org-access-control" },
+            { label: "プロビジョニング", to: "/admin/provisioning" },
           ],
         },
       ],
-    },
-  },
-  {
-    kind: "category",
-    category: {
-      label: "ユーザー管理",
-      items: [
-        { label: "管理者の設定", to: "/admin/administrators" },
-        { label: "組織の事前設定", to: "/admin/sandbox" },
-        { label: "組織間のアクセス権", to: "/admin/org-access-control" },
-        { label: "プロビジョニング", to: "/admin/provisioning" },
-      ],
-      subcategories: [],
     },
   },
   {

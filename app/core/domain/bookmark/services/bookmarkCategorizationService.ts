@@ -2,16 +2,16 @@ import type { AppId as AppIdType, BookmarkCategory } from "../valueObject";
 import { AppId } from "../valueObject";
 
 /**
- * URL pattern for APP category: /k/{numeric_id}/ pattern
- * Matches paths like /k/4/, /k/4/show#record=1, etc.
+ * URL pattern for APP category: /apps/{appId} pattern
+ * Matches paths like /apps/abc123, /apps/abc123/records/new, etc.
  */
-const APP_URL_PATTERN = /\/k\/(\d+)\//;
+const APP_URL_PATTERN = /\/apps\/([^/]+)/;
 
 /**
- * URL pattern for SEARCH category: /k/search pattern
- * Matches paths like /k/search?keyword=テスト, etc.
+ * URL pattern for SEARCH category: /search pattern
+ * Matches paths like /search, /search?keyword=テスト, etc.
  */
-const SEARCH_URL_PATTERN = /\/k\/search(?:\?|$)/;
+const SEARCH_URL_PATTERN = /\/search(?:\?|$)/;
 
 /**
  * Categorization result containing the determined category and optional appId.
@@ -30,8 +30,8 @@ export const BookmarkCategorizationService = {
    * Categorize a URL into a BookmarkCategory.
    *
    * Rules:
-   * 1. APP: URL path matches /k/{numeric_id}/ -> category = APP, appId = matched numeric id
-   * 2. SEARCH: URL path matches /k/search -> category = SEARCH, appId = null
+   * 1. APP: URL path matches /apps/{appId} -> category = APP, appId = extracted appId
+   * 2. SEARCH: URL path matches /search -> category = SEARCH, appId = null
    * 3. OTHER: anything else -> category = OTHER, appId = null
    */
   categorize: (url: string): CategorizationResult => {

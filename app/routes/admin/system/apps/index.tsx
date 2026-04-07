@@ -1,51 +1,13 @@
 import { Download } from "lucide-react";
 import { Link } from "react-router";
+import { LicenseCard } from "@/components/admin/LicenseCard";
 import type { Route } from "./+types/index";
-import type { AppItem, LicenseInfo } from "./loader";
+import type { AppItem } from "./loader";
 
 export { loader } from "./loader";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "アプリ管理 - OpenDeskシステム管理" }];
-}
-
-function progressLevel(current: number, limit: number): string {
-  const ratio = current / limit;
-  if (ratio >= 0.8) return "bg-error";
-  if (ratio >= 0.5) return "bg-warning";
-  return "bg-success";
-}
-
-function LicenseCard({ license }: { license: LicenseInfo }) {
-  return (
-    <div className="rounded-lg border border-neutral-200 bg-bg-card p-lg">
-      <div className="mb-sm text-sm font-[var(--weight-medium)] text-neutral-600">
-        {license.label}
-      </div>
-      <div className="mb-md flex items-baseline gap-sm">
-        <span className="font-heading text-3xl font-[var(--weight-semibold)] leading-tight text-neutral-900">
-          {license.current.toLocaleString()}
-        </span>
-        {license.limit !== null && (
-          <span className="text-base text-neutral-500">
-            / {license.limit.toLocaleString()}
-          </span>
-        )}
-      </div>
-      {license.limit !== null ? (
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200">
-          <div
-            className={`h-full rounded-full transition-[width] duration-[var(--transition-slow)] ${progressLevel(license.current, license.limit)}`}
-            style={{
-              width: `${Math.min((license.current / license.limit) * 100, 100)}%`,
-            }}
-          />
-        </div>
-      ) : (
-        <div className="invisible h-1.5" />
-      )}
-    </div>
-  );
 }
 
 function StatusBadge({ status }: { status: "active" | "inactive" }) {
