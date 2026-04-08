@@ -16,6 +16,9 @@ import type { ProcessDefinitionRepository } from "@/core/domain/app/ports/proces
 import type { ReportRepository } from "@/core/domain/app/ports/reportRepository";
 import type { ViewRepository } from "@/core/domain/app/ports/viewRepository";
 import type { WebhookConfigRepository } from "@/core/domain/app/ports/webhookConfigRepository";
+import type { AuditLogRepository } from "@/core/domain/audit/ports/auditLogRepository";
+import type { AuditLogSettingRepository } from "@/core/domain/audit/ports/auditLogSettingRepository";
+import type { UserAccessUsageRepository } from "@/core/domain/audit/ports/userAccessUsageRepository";
 import type { BookmarkRepository } from "@/core/domain/bookmark/ports/bookmarkRepository";
 import type { FileRepository } from "@/core/domain/file/ports/fileRepository";
 import type { GroupRepository } from "@/core/domain/identity/ports/groupRepository";
@@ -47,8 +50,13 @@ import type { SpaceTemplateRepository } from "@/core/domain/space/ports/spaceTem
 import type { ThreadCommentRepository } from "@/core/domain/space/ports/threadCommentRepository";
 import type { ThreadFollowRepository } from "@/core/domain/space/ports/threadFollowRepository";
 import type { ThreadRepository } from "@/core/domain/space/ports/threadRepository";
+import type { SystemSettingsRepository } from "@/core/domain/system-settings/ports/systemSettingsRepository";
 
 export type Repositories = {
+  // audit
+  auditLogRepository: AuditLogRepository;
+  auditLogSettingRepository: AuditLogSettingRepository;
+  userAccessUsageRepository: UserAccessUsageRepository;
   // access-control
   appAclRepository: AppAclRepository;
   fieldAclRepository: FieldAclRepository;
@@ -109,6 +117,8 @@ export type Repositories = {
   threadCommentRepository: ThreadCommentRepository;
   threadFollowRepository: ThreadFollowRepository;
   threadRepository: ThreadRepository;
+  // system-settings
+  systemSettingsRepository: SystemSettingsRepository;
 };
 
 /**

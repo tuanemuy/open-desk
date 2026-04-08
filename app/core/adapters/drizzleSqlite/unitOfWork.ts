@@ -14,6 +14,9 @@ import { DrizzleSqliteAppCustomizationRepository } from "./repositories/appCusto
 import { DrizzleSqliteAppI18nConfigRepository } from "./repositories/appI18nConfigRepository";
 import { DrizzleSqliteAppNotificationConfigRepository } from "./repositories/appNotificationConfigRepository";
 import { DrizzleSqliteAppRepository } from "./repositories/appRepository";
+// audit
+import { DrizzleSqliteAuditLogRepository } from "./repositories/auditLogRepository";
+import { DrizzleSqliteAuditLogSettingRepository } from "./repositories/auditLogSettingRepository";
 // bookmark
 import { DrizzleSqliteBookmarkRepository } from "./repositories/bookmarkRepository";
 // space
@@ -58,9 +61,12 @@ import { DrizzleSqliteSpaceMemberRepository } from "./repositories/spaceMemberRe
 import { DrizzleSqliteSpaceRepository } from "./repositories/spaceRepository";
 import { DrizzleSqliteSpaceTemplateRepository } from "./repositories/spaceTemplateRepository";
 import { DrizzleSqliteSystemPermissionRepository } from "./repositories/systemPermissionRepository";
+// system-settings
+import { DrizzleSqliteSystemSettingsRepository } from "./repositories/systemSettingsRepository";
 import { DrizzleSqliteThreadCommentRepository } from "./repositories/threadCommentRepository";
 import { DrizzleSqliteThreadFollowRepository } from "./repositories/threadFollowRepository";
 import { DrizzleSqliteThreadRepository } from "./repositories/threadRepository";
+import { DrizzleSqliteUserAccessUsageRepository } from "./repositories/userAccessUsageRepository";
 import { DrizzleSqliteUserRepository } from "./repositories/userRepository";
 import { DrizzleSqliteViewRepository } from "./repositories/viewRepository";
 import { DrizzleSqliteWebhookConfigRepository } from "./repositories/webhookConfigRepository";
@@ -174,6 +180,10 @@ export class DrizzleSqliteUnitOfWorkProvider implements UnitOfWorkProvider {
  */
 function createRepositories(db: Executor): Repositories {
   return {
+    // audit
+    auditLogRepository: new DrizzleSqliteAuditLogRepository(db),
+    auditLogSettingRepository: new DrizzleSqliteAuditLogSettingRepository(db),
+    userAccessUsageRepository: new DrizzleSqliteUserAccessUsageRepository(db),
     // access-control
     appAclRepository: new DrizzleSqliteAppAclRepository(db),
     fieldAclRepository: new DrizzleSqliteFieldAclRepository(db),
@@ -244,5 +254,7 @@ function createRepositories(db: Executor): Repositories {
     threadCommentRepository: new DrizzleSqliteThreadCommentRepository(db),
     threadFollowRepository: new DrizzleSqliteThreadFollowRepository(db),
     threadRepository: new DrizzleSqliteThreadRepository(db),
+    // system-settings
+    systemSettingsRepository: new DrizzleSqliteSystemSettingsRepository(db),
   };
 }
