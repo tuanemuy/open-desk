@@ -42,6 +42,9 @@ App ドメインは、OpenDesk における業務アプリケーションのラ�
 | 通知条件設定 | AppNotificationConfig | アプリ・レコード・リマインダーの通知トリガー条件を定義する設定 |
 | カスタマイズ | AppCustomization | JavaScript/CSS ファイルによるアプリの外観・動作のカスタマイズ |
 | プラグイン | PluginConfig | アプリに追加するプラグインとその設定 |
+| アプリグループ | AppGroup | 複数アプリに一括でアクセス権を設定するためのグループ。デフォルトグループを1つ指定可能 |
+| アプリテンプレート | AppTemplate | アプリの設定を再利用可能なテンプレートとして保存したもの。作成・読み込み・書き出し・削除が可能 |
+| プラグイン（システム） | Plugin | システム全体で管理されるプラグイン。アプリへの追加はアプリ設定画面で行い、プラグイン自体のライフサイクルはシステム管理で管理する |
 
 ---
 
@@ -1744,3 +1747,362 @@ interface AppI18nConfigRepository {
 | プラグイン設定最大サイズ | 256KB |
 | アイコンファイル最大サイズ | 800KB |
 | カスタマイズファイル最大サイズ | 20MB |
+| アプリグループ名最大文字数 | 128 |
+| アプリテンプレート名最大文字数 | 128 |
+| プラグイン名最大文字数 | 256 |
+| プラグインファイル最大サイズ | 50MB |
+
+---
+
+## AppGroup（アプリグループ） — 追加エンティティ
+
+### 概要
+
+複数アプリに一括でアクセス権を設定するためのグループ。システム管理画面の「アプリグループ」で管理する。1つのアプリグループをデフォルトとして指定でき、新規アプリ作成時に自動的にデフォルトグループに所属させる。
+
+### エンティティ定義
+
+```typescript
+type AppGroup = {
+  appGroupId: AppGroupId;
+  name: AppGroupName;                    // アプリグループ名（1-128文字）
+  isDefault: boolean;                    // デフォルトグループフラグ（システム全体で1つのみ true）
+  appIds: AppId[];                       // 所属するアプリの一覧
+  createdAt: Date;                       // 作成日時
+  updatedAt: Date;                       // 最終更新日時
+};
+```
+
+### 振る舞い
+
+| メソッド | シグネチャ | 説明 |
+|----------|-----------|------|
+| rename | `rename(name: AppGroupName): void` | アプリグループ名を変更する |
+| setDefault | `setDefault(isDefault: boolean): void` | デフォルトフラグを変更する |
+| addApp | `addApp(appId: AppId): void` | アプリをグループに追加する |
+| removeApp | `removeApp(appId: AppId): void` | アプリをグループから削除する |
+| replaceApps | `replaceApps(appIds: AppId[]): void` | グループ所属アプリを一括置換する |
+
+### 不変条件
+
+- `name` は1文字以上128文字以下
+- `isDefault` が `true` のグループはシステム全体で1つのみ（ドメインサービスで保証）
+- 同一アプリが複数のアプリグループに所属可能
+- `createdAt <= updatedAt`
+
+### ライフサイクル
+
+1. **作成**: システム管理者がアプリグループを新規作成する
+2. **更新**: グループ名の変更、デフォルト指定の変更、所属アプリの追加・削除
+3. **削除**: システム管理者がアプリグループを削除する。所属アプリへの影響はない（アプリは削除されない）
+
+---
+
+## AppTemplate（アプリテンプレート） — 追加エンティティ
+
+### 概要
+
+アプリの設定を再利用可能なテンプレートとして保存したもの。テンプレートファイルとしての読み込み・書き出しにも対応する。
+
+### エンティティ定義
+
+```typescript
+type AppTemplate = {
+  templateId: AppTemplateId;
+  name: AppTemplateName;                 // テンプレート名（1-128文字）
+  description: string | null;            // テンプレートの説明
+  sourceAppId: AppId | null;             // 元となったアプリのID（ファイル読み込みの場合は null）
+  creatorId: UserId;                     // 作成者
+  createdAt: Date;                       // 作成日時
+};
+```
+
+### 振る舞い
+
+| メソッド | シグネチャ | 説明 |
+|----------|-----------|------|
+| rename | `rename(name: AppTemplateName): void` | テンプレート名を変更する |
+| setDescription | `setDescription(description: string \| null): void` | テンプレートの説明を設定する |
+
+### 不変条件
+
+- `name` は1文字以上128文字以下
+- `name` は空文字であってはならない
+
+### ライフサイクル
+
+1. **作成**: 既存アプリからテンプレートを作成する、またはファイルから読み込む
+2. **利用**: テンプレートからアプリを作成する
+3. **書き出し**: テンプレートをファイルとして書き出す
+4. **削除**: テンプレートを削除する
+
+---
+
+## Plugin（プラグイン/システム管理） — 追加エンティティ
+
+### 概要
+
+システム全体で管理されるプラグイン。システム管理画面の「プラグイン」で管理する。プラグインファイルの読み込みによって登録され、各アプリへの追加はアプリ設定画面で行う。プリインストール済みプラグインも存在する。
+
+### エンティティ定義
+
+```typescript
+type Plugin = {
+  pluginId: PluginId;
+  name: PluginName;                      // プラグイン名（1-256文字）
+  description: string | null;            // プラグインの説明
+  isActive: boolean;                     // 有効/無効
+  isPreinstalled: boolean;               // プリインストール済みかどうか
+  installedAppIds: AppId[];              // 追加されているアプリの一覧（読み取り専用、参照用）
+  createdAt: Date;                       // 登録日時
+  updatedAt: Date;                       // 最終更新日時
+};
+```
+
+### 振る舞い
+
+| メソッド | シグネチャ | 説明 |
+|----------|-----------|------|
+| activate | `activate(): void` | プラグインを有効化する |
+| deactivate | `deactivate(): void` | プラグインを無効化する。プリインストール済みプラグインは無効化不可 |
+| updateDescription | `updateDescription(description: string \| null): void` | 説明を変更する |
+
+### 不変条件
+
+- `name` は1文字以上256文字以下
+- `isPreinstalled === true` のプラグインは無効化・削除不可
+- `createdAt <= updatedAt`
+
+### ライフサイクル
+
+1. **登録**: システム管理者がプラグインファイルを読み込んで登録する
+2. **有効化/無効化**: システム管理者がステータスを変更する
+3. **削除**: システム管理者がプラグインを削除する（プリインストール済みは削除不可）
+
+---
+
+## 追加の値オブジェクト
+
+### 識別子
+
+```typescript
+type AppGroupId = { readonly _brand: "AppGroupId"; readonly value: string };
+type AppTemplateId = { readonly _brand: "AppTemplateId"; readonly value: string };
+// PluginId は既存（app.md の識別子セクションで定義済み）
+```
+
+### 構造値オブジェクト
+
+#### AppGroupName
+
+アプリグループ名。1-128文字。
+
+```typescript
+type AppGroupName = {
+  readonly value: string;
+};
+
+// 等価性: value が一致すれば等しい
+// バリデーション:
+//   - 空文字でないこと
+//   - 128文字以下であること
+```
+
+#### AppTemplateName
+
+アプリテンプレート名。1-128文字。
+
+```typescript
+type AppTemplateName = {
+  readonly value: string;
+};
+
+// 等価性: value が一致すれば等しい
+// バリデーション:
+//   - 空文字でないこと
+//   - 128文字以下であること
+```
+
+#### PluginName
+
+プラグイン名。1-256文字。
+
+```typescript
+type PluginName = {
+  readonly value: string;
+};
+
+// 等価性: value が一致すれば等しい
+// バリデーション:
+//   - 空文字でないこと
+//   - 256文字以下であること
+```
+
+### 列挙型
+
+```typescript
+// プラグインステータス
+type PluginStatus = "ACTIVE" | "INACTIVE";
+```
+
+---
+
+## 追加のドメインサービス
+
+### AppGroupDefaultService（アプリグループデフォルト管理サービス）
+
+デフォルトアプリグループの排他制御を提供する。
+
+#### 依存ポート
+
+- AppGroupRepository
+
+#### メソッド
+
+```typescript
+// デフォルトアプリグループを変更する
+setDefaultGroup(params: {
+  appGroupId: AppGroupId;
+}): Result<void, AppGroupError>
+// 処理:
+//   1. 現在デフォルトのアプリグループがある場合、isDefault を false に変更
+//   2. 指定されたアプリグループの isDefault を true に変更
+//   3. 両方を保存
+// エラー:
+//   - AppGroupNotFoundError: アプリグループが存在しない
+```
+
+---
+
+## 追加のポート
+
+### 15. AppGroupRepository（アプリグループリポジトリ）
+
+```typescript
+interface AppGroupRepository {
+  /** ID でアプリグループを取得する */
+  findById(appGroupId: AppGroupId): Promise<AppGroup | null>;
+
+  /** アプリグループ一覧を取得する */
+  list(offset: number, limit: number): Promise<{ groups: AppGroup[]; totalCount: number }>;
+
+  /** デフォルトのアプリグループを取得する */
+  findDefault(): Promise<AppGroup | null>;
+
+  /** アプリグループを保存する（新規作成・更新） */
+  save(group: AppGroup): Promise<void>;
+
+  /** アプリグループを削除する */
+  delete(appGroupId: AppGroupId): Promise<void>;
+  // エラー: アプリグループが存在しない場合は AppGroupNotFoundError
+}
+```
+
+### 16. AppTemplateRepository（アプリテンプレートリポジトリ）
+
+```typescript
+interface AppTemplateRepository {
+  /** ID でアプリテンプレートを取得する */
+  findById(templateId: AppTemplateId): Promise<AppTemplate | null>;
+
+  /** アプリテンプレート一覧を取得する */
+  list(offset: number, limit: number): Promise<{ templates: AppTemplate[]; totalCount: number }>;
+
+  /** アプリテンプレートを保存する（新規作成・更新） */
+  save(template: AppTemplate): Promise<void>;
+
+  /** アプリテンプレートを削除する */
+  delete(templateId: AppTemplateId): Promise<void>;
+  // エラー: テンプレートが存在しない場合は AppTemplateNotFoundError
+
+  /** テンプレートをファイルとして書き出す */
+  exportToFile(templateId: AppTemplateId): Promise<ArrayBuffer>;
+
+  /** ファイルからテンプレートを読み込む */
+  importFromFile(file: ArrayBuffer, name: AppTemplateName, creatorId: UserId): Promise<AppTemplate>;
+}
+```
+
+### 17. PluginRepository（プラグインリポジトリ）
+
+```typescript
+interface PluginRepository {
+  /** ID でプラグインを取得する */
+  findById(pluginId: PluginId): Promise<Plugin | null>;
+
+  /** プラグイン一覧を取得する */
+  list(offset: number, limit: number): Promise<{ plugins: Plugin[]; totalCount: number }>;
+
+  /** プリインストール済みプラグイン一覧を取得する */
+  findPreinstalled(): Promise<Plugin[]>;
+
+  /** プラグインを保存する（新規作成・更新） */
+  save(plugin: Plugin): Promise<void>;
+
+  /** プラグインを削除する */
+  delete(pluginId: PluginId): Promise<void>;
+  // エラー: プラグインが存在しない場合は PluginNotFoundError
+  // エラー: プリインストール済みの場合は PreinstalledPluginError
+
+  /** プラグインファイルを読み込んで登録する */
+  importFromFile(file: ArrayBuffer): Promise<Plugin>;
+}
+```
+
+---
+
+## 追加のエラー型
+
+```typescript
+// アプリグループエラー
+type AppGroupNotFoundError = { kind: "AppGroupNotFound"; appGroupId: AppGroupId };
+type EmptyAppGroupNameError = { kind: "EmptyAppGroupName" };
+type AppGroupNameTooLongError = { kind: "AppGroupNameTooLong"; length: number; maxLength: 128 };
+type DuplicateDefaultGroupError = { kind: "DuplicateDefaultGroup"; existingGroupId: AppGroupId; newGroupId: AppGroupId };
+
+// アプリテンプレートエラー
+type AppTemplateNotFoundError = { kind: "AppTemplateNotFound"; templateId: AppTemplateId };
+type EmptyAppTemplateNameError = { kind: "EmptyAppTemplateName" };
+type AppTemplateNameTooLongError = { kind: "AppTemplateNameTooLong"; length: number; maxLength: 128 };
+type AppTemplateImportError = { kind: "AppTemplateImportError"; reason: string };
+type AppTemplateExportError = { kind: "AppTemplateExportError"; reason: string };
+
+// プラグインエラー
+type PluginNotFoundError = { kind: "PluginNotFound"; pluginId: PluginId };
+type PreinstalledPluginError = { kind: "PreinstalledPlugin"; pluginId: PluginId };
+type PluginImportError = { kind: "PluginImportError"; reason: string };
+type EmptyPluginNameError = { kind: "EmptyPluginName" };
+type PluginNameTooLongError = { kind: "PluginNameTooLong"; length: number; maxLength: 256 };
+```
+
+---
+
+## 追加のユースケース（概要）
+
+### アプリテンプレート管理
+
+| ユースケース | 説明 | 主要ステップ |
+|-------------|------|-------------|
+| アプリテンプレート一覧取得 | アプリテンプレートの一覧を取得する | 権限チェック → テンプレート一覧取得 → 返却 |
+| アプリテンプレート作成 | 既存アプリの設定をテンプレートとして保存する | アプリ存在確認 → テンプレート名入力 → 設定コピー → 保存 |
+| アプリテンプレート読み込み | テンプレートファイルを読み込んでテンプレートを登録する | ファイル解析 → バリデーション → テンプレート生成 → 保存 |
+| アプリテンプレート書き出し | テンプレートをファイルとして書き出す | テンプレート存在確認 → ファイル生成 → 返却 |
+| アプリテンプレート削除 | テンプレートを削除する | 存在確認 → 削除 |
+
+### アプリグループ管理
+
+| ユースケース | 説明 | 主要ステップ |
+|-------------|------|-------------|
+| アプリグループ一覧取得 | アプリグループの一覧を取得する | アプリグループ閲覧/管理権限チェック → 一覧取得 → 返却 |
+| アプリグループ作成 | 新しいアプリグループを作成する | アプリグループ管理権限チェック → グループ名入力 → 保存 |
+| アプリグループ更新 | アプリグループの名前・デフォルト設定・所属アプリを変更する | 管理権限チェック → 設定変更 → デフォルト排他制御 → 保存 |
+| アプリグループ削除 | アプリグループを削除する | 管理権限チェック → 存在確認 → 削除 |
+
+### プラグイン管理
+
+| ユースケース | 説明 | 主要ステップ |
+|-------------|------|-------------|
+| プラグイン一覧取得 | システムに登録されたプラグインの一覧を取得する。プリインストール済みプラグインを含む | システム管理権限チェック → 一覧取得 → 返却 |
+| プラグイン読み込み | プラグインファイルを読み込んでシステムに登録する | システム管理権限チェック → ファイル解析 → バリデーション → 登録 |
+| プラグインステータス変更 | プラグインの有効/無効を切り替える。プリインストール済みプラグインは無効化不可 | システム管理権限チェック → 存在確認 → プリインストールチェック → ステータス変更 → 保存 |
+| プラグイン削除 | プラグインをシステムから削除する。プリインストール済みプラグインは削除不可 | システム管理権限チェック → 存在確認 → プリインストールチェック → 削除 |

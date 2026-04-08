@@ -1081,3 +1081,801 @@
 |------|----------|
 | userId が空文字または UUID 形式でない | バリデーションエラー |
 | ユーザーが存在しない | UserNotFoundError（ビジネスルール違反） |
+
+---
+
+## 役職管理
+
+---
+
+### UC-25: 役職の作成
+
+#### 概要
+
+システム管理者が新規役職を作成する。役職名はシステム全体で一意である必要がある。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| name | string | 必須 | 空文字でないこと |
+| orderIndex | number | 任意 | 指定する場合は 0 以上の整数であること。省略時は 0 |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| titleId | string |
+| name | string |
+| orderIndex | number |
+| createdAt | Date |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `Title` エンティティを生成する（titleId は新規 UUID、createdAt/updatedAt は現在時刻）
+3. `TitleRepository.save()` で役職を永続化する
+4. 出力 DTO を構築して返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| name が空文字 | バリデーションエラー |
+| orderIndex が負数 | バリデーションエラー |
+| 役職名が既に使用されている | DuplicateTitleNameError（ビジネスルール違反） |
+
+---
+
+### UC-26: 役職の更新
+
+#### 概要
+
+システム管理者が役職名を変更する。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| titleId | string | 必須 | 空文字でないこと。有効な UUID v4 形式であること |
+| name | string | 必須 | 空文字でないこと |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| titleId | string |
+| name | string |
+| orderIndex | number |
+| updatedAt | Date |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `TitleId` 値オブジェクトを生成する
+3. `TitleRepository.findById()` で役職を取得する
+4. 役職が存在しない場合はエラーを返す
+5. `Title.rename()` を呼び出す（name を渡す）
+6. `TitleRepository.save()` で更新を永続化する
+7. 出力 DTO を構築して返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| titleId が空文字または UUID 形式でない | バリデーションエラー |
+| name が空文字 | EmptyTitleNameError（ドメインエラー） |
+| 役職が存在しない | TitleNotFoundError（ビジネスルール違反） |
+| 役職名が既に使用されている | DuplicateTitleNameError（ビジネスルール違反） |
+
+---
+
+### UC-27: 役職の削除
+
+#### 概要
+
+システム管理者が役職を削除する。割り当て済みユーザーが存在する場合は削除できない。事前に全ユーザーからの割り当て解除が必要である。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| titleId | string | 必須 | 空文字でないこと。有効な UUID v4 形式であること |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| （なし） | void |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `TitleId` 値オブジェクトを生成する
+3. `TitleRepository.findById()` で役職の存在を確認する
+4. 役職が存在しない場合はエラーを返す
+5. `TitleRepository.delete()` で役職を削除する（割り当て済みユーザーの存在チェックはリポジトリ層で実施）
+6. 正常終了を返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| titleId が空文字または UUID 形式でない | バリデーションエラー |
+| 役職が存在しない | TitleNotFoundError（ビジネスルール違反） |
+| 割り当て済みユーザーが存在する | TitleHasAssigneesError（ビジネスルール違反） |
+
+---
+
+### UC-28: 役職一覧取得
+
+#### 概要
+
+システム管理者が役職の一覧を取得する。ページネーション付きで、キーワードによる部分一致検索が可能。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| offset | number | 任意 | 0 以上の整数であること。省略時は 0 |
+| limit | number | 任意 | 1 以上 100 以下の整数であること。省略時は 100 |
+| keyword | string | 任意 | 指定する場合は空文字でないこと |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| titles | TitleDTO[] |
+| totalCount | number |
+
+**TitleDTO:**
+
+| フィールド名 | 型 |
+|-------------|-----|
+| titleId | string |
+| name | string |
+| orderIndex | number |
+| createdAt | Date |
+| updatedAt | Date |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `TitleRepository.list()` を呼び出す（offset, limit, keyword を渡す）
+3. 出力 DTO を構築して返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| offset が負数 | バリデーションエラー |
+| limit が 1 未満または 100 超過 | バリデーションエラー |
+
+---
+
+### UC-29: ユーザーへの役職割り当て
+
+#### 概要
+
+システム管理者がユーザーに役職を割り当てる。ユーザーは複数の役職を持つことができる。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| userId | string | 必須 | 空文字でないこと。有効な UUID v4 形式であること |
+| titleId | string | 必須 | 空文字でないこと。有効な UUID v4 形式であること |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| userId | string |
+| titleId | string |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `UserId` 値オブジェクトを生成する
+3. `TitleId` 値オブジェクトを生成する
+4. `UserRepository.findById()` でユーザーの存在を確認する
+5. ユーザーが存在しない場合はエラーを返す
+6. `TitleRepository.findById()` で役職の存在を確認する
+7. 役職が存在しない場合はエラーを返す
+8. `TitleAssignmentRepository.assign()` を呼び出す（userId, titleId を渡す）
+9. 出力 DTO を構築して返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| userId が空文字または UUID 形式でない | バリデーションエラー |
+| titleId が空文字または UUID 形式でない | バリデーションエラー |
+| ユーザーが存在しない | UserNotFoundError（ビジネスルール違反） |
+| 役職が存在しない | TitleNotFoundError（ビジネスルール違反） |
+| ユーザーに既にその役職が割り当て済み | TitleAlreadyAssignedError（ビジネスルール違反） |
+
+---
+
+### UC-30: ユーザーからの役職解除
+
+#### 概要
+
+システム管理者がユーザーから役職を解除する。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| userId | string | 必須 | 空文字でないこと。有効な UUID v4 形式であること |
+| titleId | string | 必須 | 空文字でないこと。有効な UUID v4 形式であること |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| （なし） | void |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `UserId` 値オブジェクトを生成する
+3. `TitleId` 値オブジェクトを生成する
+4. `UserRepository.findById()` でユーザーの存在を確認する
+5. ユーザーが存在しない場合はエラーを返す
+6. `TitleRepository.findById()` で役職の存在を確認する
+7. 役職が存在しない場合はエラーを返す
+8. `TitleAssignmentRepository.unassign()` を呼び出す（userId, titleId を渡す）
+9. 正常終了を返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| userId が空文字または UUID 形式でない | バリデーションエラー |
+| titleId が空文字または UUID 形式でない | バリデーションエラー |
+| ユーザーが存在しない | UserNotFoundError（ビジネスルール違反） |
+| 役職が存在しない | TitleNotFoundError（ビジネスルール違反） |
+| ユーザーにその役職が割り当てられていない | TitleNotAssignedError（ビジネスルール違反） |
+
+---
+
+## ゲストユーザー管理
+
+---
+
+### UC-31: ゲストユーザー一覧取得
+
+#### 概要
+
+システム管理者がゲストユーザーの一覧をライセンス使用状況とともに取得する。ゲストユーザーとは、ゲストスペースに招待された外部ユーザーであり、通常ユーザーとは異なるライセンス・認証・権限体系を持つ。ページネーション付きで返す。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| offset | number | 任意 | 0 以上の整数であること。省略時は 0 |
+| limit | number | 任意 | 1 以上 100 以下の整数であること。省略時は 100 |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| guestUsers | GuestUserDTO[] |
+| totalCount | number |
+| trialCount | number |
+| paidCount | number |
+| licensedCount | number |
+
+**GuestUserDTO:**
+
+| フィールド名 | 型 |
+|-------------|-----|
+| userId | string |
+| displayName | string |
+| email | string |
+| isActive | boolean |
+| guestSpaceNames | string[] |
+| licenseType | string |
+| trialExpiresAt | Date \| null |
+| lastLoginAt | Date \| null |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `UserRepository.listGuestUsers()` を呼び出す（offset, limit を渡す）
+3. 各ゲストユーザーについて、所属するゲストスペースの名前一覧を取得する
+4. ライセンス使用状況（試用中・有料・契約数）を集計する
+5. 出力 DTO を構築して返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| offset が負数 | バリデーションエラー |
+| limit が 1 未満または 100 超過 | バリデーションエラー |
+
+---
+
+## プロビジョニング管理
+
+---
+
+### UC-32: プロビジョニング設定の取得
+
+#### 概要
+
+システム管理者が現在のプロビジョニング設定（有効/無効・トークン発行状況）を取得する。ベアラートークンの値自体は返さない（トークンは発行時に一度だけ表示される）。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| （なし） | - | - | - |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| isEnabled | boolean |
+| hasToken | boolean |
+| tokenIssuedAt | Date \| null |
+| updatedAt | Date |
+
+#### 処理フロー
+
+1. `ProvisioningConfigRepository.find()` でプロビジョニング設定を取得する（シングルトン）
+2. 出力 DTO を構築して返す（hasToken は bearerTokenHash が null でないかどうかで判定）
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| （なし。シングルトンのため必ず存在する） | - |
+
+---
+
+### UC-33: プロビジョニング設定の更新
+
+#### 概要
+
+システム管理者がプロビジョニングの有効/無効を切り替える、またはベアラートークンを新規発行・再生成する。トークンの再生成時は旧トークンが無効化される。新規発行されたトークンの平文は一度だけ出力 DTO に含まれる。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| isEnabled | boolean | 任意 | 指定する場合は boolean であること |
+| regenerateToken | boolean | 任意 | true の場合、ベアラートークンを新規発行（または再生成）する。省略時は false |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| isEnabled | boolean |
+| hasToken | boolean |
+| tokenIssuedAt | Date \| null |
+| updatedAt | Date |
+| generatedToken | string \| null |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `ProvisioningConfigRepository.find()` でプロビジョニング設定を取得する
+3. regenerateToken が true の場合:
+   - `BearerTokenHasher.generate()` で新しいベアラートークンを生成する
+   - `BearerTokenHasher.hash()` でトークンをハッシュ化する
+   - `ProvisioningConfig.setToken()` を呼び出す（hashedToken, issuedAt を渡す）
+   - 生成された平文トークンを出力用に保持する
+4. isEnabled が指定されている場合:
+   - isEnabled が true の場合、`ProvisioningConfig.enable()` を呼び出す
+   - isEnabled が false の場合、`ProvisioningConfig.disable()` を呼び出す
+5. `ProvisioningConfigRepository.save()` で設定を永続化する
+6. 出力 DTO を構築して返す（generatedToken はトークン再生成時のみ平文を設定、それ以外は null）
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| 有効化しようとしたがトークンが未設定 | TokenNotConfiguredError（ビジネスルール違反） |
+| 既に有効な状態で有効化しようとした | ProvisioningAlreadyEnabledError（ビジネスルール違反） |
+| 既に無効な状態で無効化しようとした | ProvisioningAlreadyDisabledError（ビジネスルール違反） |
+
+---
+
+### UC-34: SCIM ユーザーの作成
+
+#### 概要
+
+外部 IdP からの SCIM リクエストでユーザーを作成する。SCIM 2.0 プロトコル（RFC 7644）に準拠する。外部 ID と内部 ID のマッピングを記録し、冪等性を保証する。プロビジョニングが有効でない場合はリクエストを拒否する。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| bearerToken | string | 必須 | 空文字でないこと |
+| externalId | string | 必須 | 空文字でないこと |
+| userName | string | 必須 | 空文字でないこと。有効なメールアドレス形式であること |
+| displayName | string | 必須 | 空文字でないこと |
+| email | string | 必須 | 空文字でないこと。有効なメールアドレス形式であること |
+| active | boolean | 任意 | 省略時は true |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| id | string |
+| externalId | string |
+| userName | string |
+| displayName | string |
+| email | string |
+| active | boolean |
+| createdAt | Date |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `ProvisioningConfigRepository.find()` でプロビジョニング設定を取得する
+3. プロビジョニングが無効（isEnabled === false）の場合はエラーを返す
+4. `BearerTokenHasher.verify()` でベアラートークンを検証する。不正な場合はエラーを返す
+5. `ExternalId` 値オブジェクトを生成する
+6. `ScimExternalMappingRepository.findByExternalId()` で既存マッピングを確認する（externalId, resourceType="User"）
+7. 既存マッピングが存在する場合は競合エラーを返す
+8. `LoginName` 値オブジェクトを生成する（userName から）
+9. `Email` 値オブジェクトを生成する
+10. `PasswordPolicy` を取得する
+11. ランダムなパスワードを生成し、`Password` 値オブジェクトを生成する
+12. `PasswordHasher.hash()` でパスワードをハッシュ化する
+13. `User` エンティティを生成する（userId は新規 UUID、isActive = active、createdAt/updatedAt は現在時刻）
+14. `UserRepository.save()` でユーザーを永続化する
+15. ハッシュ化パスワードを永続化する
+16. `ScimExternalMapping` エンティティを生成する（externalId, resourceType="User", internalId=userId）
+17. `ScimExternalMappingRepository.save()` でマッピングを永続化する
+18. 出力 DTO を構築して返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| bearerToken が空文字 | バリデーションエラー |
+| externalId が空文字 | バリデーションエラー |
+| userName が空文字またはメールアドレス形式でない | ScimValidationError（SCIM バリデーションエラー） |
+| displayName が空文字 | ScimValidationError（SCIM バリデーションエラー） |
+| email が空文字またはメールアドレス形式でない | ScimValidationError（SCIM バリデーションエラー） |
+| プロビジョニングが無効 | ProvisioningDisabledError（ビジネスルール違反） |
+| ベアラートークンが不正 | InvalidBearerTokenError（認証エラー） |
+| externalId に対応するマッピングが既に存在する | ScimConflictError（競合エラー） |
+| userName（ログイン名）が既に使用されている | ScimConflictError（競合エラー） |
+| email が既に使用されている | ScimConflictError（競合エラー） |
+
+---
+
+### UC-35: SCIM ユーザーの更新
+
+#### 概要
+
+外部 IdP からの SCIM リクエストでユーザーの属性（表示名・メールアドレスなど）を更新する。外部 ID からマッピングを引き、内部ユーザーを特定して更新を行う。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| bearerToken | string | 必須 | 空文字でないこと |
+| externalId | string | 必須 | 空文字でないこと |
+| displayName | string | 任意 | 指定する場合は空文字でないこと |
+| email | string | 任意 | 指定する場合は有効なメールアドレス形式であること |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| id | string |
+| externalId | string |
+| userName | string |
+| displayName | string |
+| email | string |
+| active | boolean |
+| updatedAt | Date |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `ProvisioningConfigRepository.find()` でプロビジョニング設定を取得する
+3. プロビジョニングが無効（isEnabled === false）の場合はエラーを返す
+4. `BearerTokenHasher.verify()` でベアラートークンを検証する。不正な場合はエラーを返す
+5. `ExternalId` 値オブジェクトを生成する
+6. `ScimExternalMappingRepository.findByExternalId()` でマッピングを取得する（externalId, resourceType="User"）
+7. マッピングが存在しない場合はエラーを返す
+8. `UserRepository.findById()` でマッピングの internalId に対応するユーザーを取得する
+9. ユーザーが存在しない場合はエラーを返す
+10. displayName が指定されている場合、`User.updateProfile()` で表示名を更新する
+11. email が指定されている場合、ユーザーのメールアドレスを更新する
+12. `UserRepository.save()` で更新を永続化する
+13. 出力 DTO を構築して返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| bearerToken が空文字 | バリデーションエラー |
+| externalId が空文字 | バリデーションエラー |
+| displayName が空文字（指定時） | ScimValidationError（SCIM バリデーションエラー） |
+| email がメールアドレス形式でない（指定時） | ScimValidationError（SCIM バリデーションエラー） |
+| プロビジョニングが無効 | ProvisioningDisabledError（ビジネスルール違反） |
+| ベアラートークンが不正 | InvalidBearerTokenError（認証エラー） |
+| externalId に対応するマッピングが存在しない | ScimResourceNotFoundError（リソース未検出） |
+| マッピング先のユーザーが存在しない | ScimResourceNotFoundError（リソース未検出） |
+| email が既に他のユーザーに使用されている | ScimConflictError（競合エラー） |
+
+---
+
+### UC-36: SCIM ユーザーの無効化
+
+#### 概要
+
+外部 IdP からの SCIM リクエストでユーザーを無効化する（active=false に設定する）。無効化されたユーザーの全セッションを強制終了する。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| bearerToken | string | 必須 | 空文字でないこと |
+| externalId | string | 必須 | 空文字でないこと |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| id | string |
+| externalId | string |
+| active | boolean |
+| updatedAt | Date |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `ProvisioningConfigRepository.find()` でプロビジョニング設定を取得する
+3. プロビジョニングが無効（isEnabled === false）の場合はエラーを返す
+4. `BearerTokenHasher.verify()` でベアラートークンを検証する。不正な場合はエラーを返す
+5. `ExternalId` 値オブジェクトを生成する
+6. `ScimExternalMappingRepository.findByExternalId()` でマッピングを取得する（externalId, resourceType="User"）
+7. マッピングが存在しない場合はエラーを返す
+8. `UserRepository.findById()` でマッピングの internalId に対応するユーザーを取得する
+9. ユーザーが存在しない場合はエラーを返す
+10. `User.deactivate()` を呼び出す
+11. `UserRepository.save()` で更新を永続化する
+12. `AuthenticationService.terminateAllSessions()` を呼び出して全セッションを終了する
+13. 出力 DTO を構築して返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| bearerToken が空文字 | バリデーションエラー |
+| externalId が空文字 | バリデーションエラー |
+| プロビジョニングが無効 | ProvisioningDisabledError（ビジネスルール違反） |
+| ベアラートークンが不正 | InvalidBearerTokenError（認証エラー） |
+| externalId に対応するマッピングが存在しない | ScimResourceNotFoundError（リソース未検出） |
+| マッピング先のユーザーが存在しない | ScimResourceNotFoundError（リソース未検出） |
+| ユーザーが既に無効状態 | AlreadyInactiveError（ビジネスルール違反） |
+
+---
+
+### UC-37: SCIM ユーザーの削除
+
+#### 概要
+
+外部 IdP からの SCIM リクエストでユーザーを削除する。削除前にユーザーの全セッションを終了し、組織・グループの所属関係を解除し、外部マッピングも削除する。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| bearerToken | string | 必須 | 空文字でないこと |
+| externalId | string | 必須 | 空文字でないこと |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| （なし） | void |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `ProvisioningConfigRepository.find()` でプロビジョニング設定を取得する
+3. プロビジョニングが無効（isEnabled === false）の場合はエラーを返す
+4. `BearerTokenHasher.verify()` でベアラートークンを検証する。不正な場合はエラーを返す
+5. `ExternalId` 値オブジェクトを生成する
+6. `ScimExternalMappingRepository.findByExternalId()` でマッピングを取得する（externalId, resourceType="User"）
+7. マッピングが存在しない場合はエラーを返す
+8. `UserRepository.findById()` でマッピングの internalId に対応するユーザーの存在を確認する
+9. ユーザーが存在しない場合はエラーを返す
+10. `AuthenticationService.terminateAllSessions()` を呼び出して全セッションを終了する
+11. `MembershipRepository.getOrganizationIdsByUserId()` でユーザーの所属組織一覧を取得する
+12. 各組織について `MembershipRepository.removeUserFromOrganization()` を呼び出す
+13. `MembershipRepository.getGroupIdsByUserId()` でユーザーの所属グループ一覧を取得する
+14. 各グループについて `MembershipRepository.removeUserFromGroup()` を呼び出す
+15. `TitleAssignmentRepository.getTitleIdsByUserId()` でユーザーの割り当て役職一覧を取得する
+16. 各役職について `TitleAssignmentRepository.unassign()` を呼び出す
+17. `UserRepository.delete()` でユーザーを削除する
+18. `ScimExternalMappingRepository.delete()` で外部マッピングを削除する（externalId, resourceType="User"）
+19. 正常終了を返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| bearerToken が空文字 | バリデーションエラー |
+| externalId が空文字 | バリデーションエラー |
+| プロビジョニングが無効 | ProvisioningDisabledError（ビジネスルール違反） |
+| ベアラートークンが不正 | InvalidBearerTokenError（認証エラー） |
+| externalId に対応するマッピングが存在しない | ScimResourceNotFoundError（リソース未検出） |
+| マッピング先のユーザーが存在しない | ScimResourceNotFoundError（リソース未検出） |
+
+---
+
+### UC-38: SCIM グループの作成
+
+#### 概要
+
+外部 IdP からの SCIM リクエストでグループを作成する。外部 ID と内部 ID のマッピングを記録し、初期メンバーを追加する。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| bearerToken | string | 必須 | 空文字でないこと |
+| externalId | string | 必須 | 空文字でないこと |
+| displayName | string | 必須 | 空文字でないこと |
+| memberExternalIds | string[] | 任意 | 各要素が空文字でないこと。省略時は空配列 |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| id | string |
+| externalId | string |
+| displayName | string |
+| memberCount | number |
+| createdAt | Date |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `ProvisioningConfigRepository.find()` でプロビジョニング設定を取得する
+3. プロビジョニングが無効（isEnabled === false）の場合はエラーを返す
+4. `BearerTokenHasher.verify()` でベアラートークンを検証する。不正な場合はエラーを返す
+5. `ExternalId` 値オブジェクトを生成する
+6. `ScimExternalMappingRepository.findByExternalId()` で既存マッピングを確認する（externalId, resourceType="Group"）
+7. 既存マッピングが存在する場合は競合エラーを返す
+8. グループコードを displayName から生成する（一意性はリポジトリ層で保証）
+9. `Group` エンティティを生成する（groupId は新規 UUID）
+10. `GroupRepository.save()` でグループを永続化する
+11. `ScimExternalMapping` エンティティを生成する（externalId, resourceType="Group", internalId=groupId）
+12. `ScimExternalMappingRepository.save()` でマッピングを永続化する
+13. memberExternalIds が指定されている場合、各 externalId について:
+    - `ScimExternalMappingRepository.findByExternalId()` でユーザーマッピングを取得する（resourceType="User"）
+    - マッピングが存在する場合、`MembershipRepository.addUserToGroup()` を呼び出す
+    - マッピングが存在しない場合はスキップする（SCIM では部分的な成功を許容する）
+14. 出力 DTO を構築して返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| bearerToken が空文字 | バリデーションエラー |
+| externalId が空文字 | バリデーションエラー |
+| displayName が空文字 | ScimValidationError（SCIM バリデーションエラー） |
+| プロビジョニングが無効 | ProvisioningDisabledError（ビジネスルール違反） |
+| ベアラートークンが不正 | InvalidBearerTokenError（認証エラー） |
+| externalId に対応するマッピングが既に存在する | ScimConflictError（競合エラー） |
+| グループコードが既に使用されている | ScimConflictError（競合エラー） |
+
+---
+
+### UC-39: SCIM グループの更新
+
+#### 概要
+
+外部 IdP からの SCIM リクエストでグループ名・メンバーを更新する。メンバーリストが指定された場合は、現在のメンバー構成を指定リストに置き換える（完全同期）。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| bearerToken | string | 必須 | 空文字でないこと |
+| externalId | string | 必須 | 空文字でないこと |
+| displayName | string | 任意 | 指定する場合は空文字でないこと |
+| memberExternalIds | string[] | 任意 | 指定する場合は各要素が空文字でないこと |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| id | string |
+| externalId | string |
+| displayName | string |
+| memberCount | number |
+| updatedAt | Date |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `ProvisioningConfigRepository.find()` でプロビジョニング設定を取得する
+3. プロビジョニングが無効（isEnabled === false）の場合はエラーを返す
+4. `BearerTokenHasher.verify()` でベアラートークンを検証する。不正な場合はエラーを返す
+5. `ExternalId` 値オブジェクトを生成する
+6. `ScimExternalMappingRepository.findByExternalId()` でマッピングを取得する（externalId, resourceType="Group"）
+7. マッピングが存在しない場合はエラーを返す
+8. `GroupRepository.findById()` でマッピングの internalId に対応するグループを取得する
+9. グループが存在しない場合はエラーを返す
+10. displayName が指定されている場合、`Group.rename()` を呼び出す（displayName を渡す）
+11. displayName が変更された場合、`GroupRepository.save()` で更新を永続化する
+12. memberExternalIds が指定されている場合:
+    - 現在のグループメンバー一覧を `UserRepository.findByGroupId()` で取得する
+    - memberExternalIds を内部ユーザー ID に変換する（各 externalId について `ScimExternalMappingRepository.findByExternalId()` を呼び出す）
+    - 現在のメンバーにいて新しいリストにいないユーザーを `MembershipRepository.removeUserFromGroup()` で削除する
+    - 新しいリストにいて現在のメンバーにいないユーザーを `MembershipRepository.addUserToGroup()` で追加する
+13. 出力 DTO を構築して返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| bearerToken が空文字 | バリデーションエラー |
+| externalId が空文字 | バリデーションエラー |
+| displayName が空文字（指定時） | ScimValidationError（SCIM バリデーションエラー） |
+| プロビジョニングが無効 | ProvisioningDisabledError（ビジネスルール違反） |
+| ベアラートークンが不正 | InvalidBearerTokenError（認証エラー） |
+| externalId に対応するマッピングが存在しない | ScimResourceNotFoundError（リソース未検出） |
+| マッピング先のグループが存在しない | ScimResourceNotFoundError（リソース未検出） |
+
+---
+
+### UC-40: SCIM グループの削除
+
+#### 概要
+
+外部 IdP からの SCIM リクエストでグループを削除する。削除前にグループの全メンバーの所属関係を解除し、外部マッピングも削除する。
+
+#### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| bearerToken | string | 必須 | 空文字でないこと |
+| externalId | string | 必須 | 空文字でないこと |
+
+#### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| （なし） | void |
+
+#### 処理フロー
+
+1. 入力 DTO のバリデーションを行う
+2. `ProvisioningConfigRepository.find()` でプロビジョニング設定を取得する
+3. プロビジョニングが無効（isEnabled === false）の場合はエラーを返す
+4. `BearerTokenHasher.verify()` でベアラートークンを検証する。不正な場合はエラーを返す
+5. `ExternalId` 値オブジェクトを生成する
+6. `ScimExternalMappingRepository.findByExternalId()` でマッピングを取得する（externalId, resourceType="Group"）
+7. マッピングが存在しない場合はエラーを返す
+8. `GroupRepository.findById()` でマッピングの internalId に対応するグループの存在を確認する
+9. グループが存在しない場合はエラーを返す
+10. `UserRepository.findByGroupId()` でグループの所属ユーザーを取得する
+11. 各ユーザーについて `MembershipRepository.removeUserFromGroup()` を呼び出す
+12. `GroupRepository.delete()` でグループを削除する
+13. `ScimExternalMappingRepository.delete()` で外部マッピングを削除する（externalId, resourceType="Group"）
+14. 正常終了を返す
+
+#### エラーケース
+
+| 条件 | エラー種別 |
+|------|----------|
+| bearerToken が空文字 | バリデーションエラー |
+| externalId が空文字 | バリデーションエラー |
+| プロビジョニングが無効 | ProvisioningDisabledError（ビジネスルール違反） |
+| ベアラートークンが不正 | InvalidBearerTokenError（認証エラー） |
+| externalId に対応するマッピングが存在しない | ScimResourceNotFoundError（リソース未検出） |
+| マッピング先のグループが存在しない | ScimResourceNotFoundError（リソース未検出） |

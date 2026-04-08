@@ -532,3 +532,217 @@
 | アプリが存在しない | AppNotFoundError |
 | レコードが存在しない | RecordNotFoundError |
 | 対象ユーザーが存在しない | UserNotFoundError |
+
+---
+
+## 13. 組織間アクセス権一覧取得
+
+### 概要
+
+全組織間アクセス権設定を取得する。cybozu.com 共通管理者権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| rules | Array<{ orgAccessRuleId: OrgAccessRuleId; sourceOrganizationId: OrganizationId; targetOrganizationId: OrganizationId; accessLevel: OrgAccessLevel; isEnabled: boolean; createdAt: Date; updatedAt: Date }> |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキスト（UserAclContext）を取得する
+2. `userContext.isCybozuAdmin` が true であることを検証する
+3. cybozu.com 共通管理者でない場合は CybozuAdminRequiredError を返す
+4. `OrgAccessRuleRepository.findAll()` で全組織間アクセス権設定を取得する
+5. 組織間アクセス権一覧を出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者が cybozu.com 共通管理者でない | CybozuAdminRequiredError |
+
+---
+
+## 14. 組織間アクセス権追加
+
+### 概要
+
+ソース組織からターゲット組織に対するアクセス権を新規追加する。cybozu.com 共通管理者権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| sourceOrganizationId | OrganizationId | 必須 | 有効な OrganizationId 形式であること |
+| targetOrganizationId | OrganizationId | 必須 | 有効な OrganizationId 形式であること。sourceOrganizationId と異なること |
+| accessLevel | OrgAccessLevel | 必須 | "FULL", "READ_ONLY", "NONE" のいずれか |
+| isEnabled | boolean | 必須 | ルールの有効フラグ |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| orgAccessRuleId | OrgAccessRuleId |
+| sourceOrganizationId | OrganizationId |
+| targetOrganizationId | OrganizationId |
+| accessLevel | OrgAccessLevel |
+| isEnabled | boolean |
+| createdAt | Date |
+| updatedAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキスト（UserAclContext）を取得する
+2. `userContext.isCybozuAdmin` が true であることを検証する
+3. cybozu.com 共通管理者でない場合は CybozuAdminRequiredError を返す
+4. sourceOrganizationId と targetOrganizationId が異なることを検証する。同一の場合は SelfReferenceOrgAccessError を返す
+5. Identity ドメインのポートで sourceOrganizationId の組織が存在することを検証する。存在しない場合は OrgAccessOrganizationNotFoundError を返す
+6. Identity ドメインのポートで targetOrganizationId の組織が存在することを検証する。存在しない場合は OrgAccessOrganizationNotFoundError を返す
+7. `OrgAccessRuleRepository.findByOrganizationPair(sourceOrganizationId, targetOrganizationId)` で既存のルールを確認する
+8. 既に存在する場合は DuplicateOrgAccessRuleError を返す
+9. 新しい OrgAccessRule エンティティを生成する（orgAccessRuleId は新規生成、accessLevel, isEnabled, createdAt, updatedAt を設定）
+10. `OrgAccessRuleRepository.save(rule)` で永続化する
+11. 追加された組織間アクセス権を出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者が cybozu.com 共通管理者でない | CybozuAdminRequiredError |
+| ソースとターゲットが同一組織 | SelfReferenceOrgAccessError |
+| ソース組織が存在しない | OrgAccessOrganizationNotFoundError |
+| ターゲット組織が存在しない | OrgAccessOrganizationNotFoundError |
+| 同一組み合わせのルールが既に存在 | DuplicateOrgAccessRuleError |
+
+---
+
+## 15. 組織間アクセス権更新
+
+### 概要
+
+既存の組織間アクセス権設定のアクセスレベル・有効フラグを更新する。cybozu.com 共通管理者権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| orgAccessRuleId | OrgAccessRuleId | 必須 | 有効な OrgAccessRuleId 形式であること |
+| accessLevel | OrgAccessLevel | 任意 | 指定時は "FULL", "READ_ONLY", "NONE" のいずれか |
+| isEnabled | boolean | 任意 | 指定時はルールの有効/無効を変更 |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| orgAccessRuleId | OrgAccessRuleId |
+| sourceOrganizationId | OrganizationId |
+| targetOrganizationId | OrganizationId |
+| accessLevel | OrgAccessLevel |
+| isEnabled | boolean |
+| createdAt | Date |
+| updatedAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキスト（UserAclContext）を取得する
+2. `userContext.isCybozuAdmin` が true であることを検証する
+3. cybozu.com 共通管理者でない場合は CybozuAdminRequiredError を返す
+4. `OrgAccessRuleRepository.findById(orgAccessRuleId)` で組織間アクセス権を取得する
+5. 存在しない場合は OrgAccessRuleNotFoundError を返す
+6. accessLevel が指定されている場合、`OrgAccessRule.updateAccessLevel(accessLevel)` を呼び出す
+7. isEnabled が指定されている場合:
+   - true の場合は `OrgAccessRule.enable()` を呼び出す
+   - false の場合は `OrgAccessRule.disable()` を呼び出す
+8. `OrgAccessRuleRepository.save(rule)` で永続化する
+9. 更新後の組織間アクセス権を出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者が cybozu.com 共通管理者でない | CybozuAdminRequiredError |
+| 組織間アクセス権が存在しない | OrgAccessRuleNotFoundError |
+
+---
+
+## 16. 組織間アクセス権削除
+
+### 概要
+
+組織間アクセス権設定を削除する。cybozu.com 共通管理者権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| orgAccessRuleId | OrgAccessRuleId | 必須 | 有効な OrgAccessRuleId 形式であること |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| (なし) | void |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキスト（UserAclContext）を取得する
+2. `userContext.isCybozuAdmin` が true であることを検証する
+3. cybozu.com 共通管理者でない場合は CybozuAdminRequiredError を返す
+4. `OrgAccessRuleRepository.findById(orgAccessRuleId)` で組織間アクセス権を取得する
+5. 存在しない場合は OrgAccessRuleNotFoundError を返す
+6. `OrgAccessRuleRepository.delete(orgAccessRuleId)` で組織間アクセス権を削除する
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者が cybozu.com 共通管理者でない | CybozuAdminRequiredError |
+| 組織間アクセス権が存在しない | OrgAccessRuleNotFoundError |
+
+---
+
+## 17. 組織間アクセス権評価
+
+### 概要
+
+指定ユーザーの所属組織に基づいて、ターゲット組織のリソースに対するアクセス可否を評価する。認証済みユーザーであれば実行可能。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| targetUserId | UserId | 必須 | 有効な UserId 形式であること |
+| targetOrganizationId | OrganizationId | 必須 | 有効な OrganizationId 形式であること |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| userId | UserId |
+| targetOrganizationId | OrganizationId |
+| accessLevel | OrgAccessLevel |
+
+### 処理フロー
+
+1. Identity ドメインのポートから targetUserId のユーザーコンテキスト（UserAclContext）を取得する
+2. ユーザーが存在しない場合は UserNotFoundError を返す
+3. `userContext.isCybozuAdmin` が true の場合、accessLevel を FULL として即座に返す
+4. Identity ドメインのポートから targetUserId が所属する組織の OrganizationId リストを取得する
+5. `OrgAccessRuleRepository.findAll()` で全組織間アクセス権ルールを取得する
+6. `OrgAccessEvaluationService.evaluateAccess(userOrganizationIds, targetOrganizationId, rules)` でアクセスレベルを評価する
+7. 評価結果を出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 対象ユーザーが存在しない | UserNotFoundError |

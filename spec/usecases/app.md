@@ -1582,3 +1582,553 @@ I18nTranslationInput:
 | UC-APP-027 | アクション設定 | その他設定 |
 | UC-APP-028 | アプリカテゴリ設定 | その他設定 |
 | UC-APP-029 | 多言語名設定 | その他設定 |
+
+---
+
+## 30. アプリテンプレート一覧取得
+
+### 概要
+
+アプリテンプレートの一覧を取得する。アプリ作成権限を持つユーザーが実行可能。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| offset | number | 任意 | 0以上の整数。デフォルト0 |
+| limit | number | 任意 | 1以上の整数。デフォルト100 |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| templates | Array<{ templateId: AppTemplateId; name: string; description: string \| null; sourceAppId: AppId \| null; creatorId: UserId; createdAt: Date }> |
+| totalCount | number |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`appCreate` 権限があることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `AppTemplateRepository.list(offset, limit)` でアプリテンプレート一覧を取得する
+5. アプリテンプレート一覧と総件数を出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にアプリ作成権限がない | SystemPermissionDeniedError |
+
+---
+
+## 31. アプリテンプレート作成
+
+### 概要
+
+既存アプリの設定をテンプレートとして保存する。アプリ管理権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| sourceAppId | AppId | 必須 | 有効な AppId 形式であること |
+| name | string | 必須 | 1文字以上128文字以下 |
+| description | string \| null | 任意 | テンプレートの説明 |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| templateId | AppTemplateId |
+| name | string |
+| description | string \| null |
+| sourceAppId | AppId |
+| creatorId | UserId |
+| createdAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. `AppRepository.findById(sourceAppId)` でアプリを取得する
+3. アプリが存在しない場合は AppNotFoundError を返す
+4. アプリが DELETED 状態の場合はビジネスルール違反エラーを返す
+5. AccessControl ドメインのポートでアプリ管理権限（`appEditable`）を評価する。権限がない場合は AppPermissionDeniedError を返す
+6. name が1文字以上128文字以下であることを検証する。空文字の場合は EmptyAppTemplateNameError、128文字超過の場合は AppTemplateNameTooLongError を返す
+7. 新しい AppTemplate エンティティを生成する（templateId は新規生成、sourceAppId, name, description, creatorId を設定）
+8. `AppTemplateRepository.save(template)` で永続化する
+9. 作成されたテンプレートを出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| アプリが存在しない | AppNotFoundError |
+| アプリが DELETED 状態 | ビジネスルール違反 |
+| 操作者にアプリ管理権限がない | AppPermissionDeniedError |
+| テンプレート名が空文字 | EmptyAppTemplateNameError |
+| テンプレート名が128文字超過 | AppTemplateNameTooLongError |
+
+---
+
+## 32. アプリテンプレートファイル読み込み
+
+### 概要
+
+テンプレートファイルを読み込んでアプリテンプレートを登録する。アプリ作成権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| file | ArrayBuffer | 必須 | テンプレートファイルのバイナリデータ |
+| name | string | 必須 | 1文字以上128文字以下 |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| templateId | AppTemplateId |
+| name | string |
+| description | string \| null |
+| sourceAppId | AppId \| null |
+| creatorId | UserId |
+| createdAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`appCreate` 権限があることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. name が1文字以上128文字以下であることを検証する。空文字の場合は EmptyAppTemplateNameError、128文字超過の場合は AppTemplateNameTooLongError を返す
+5. `AppTemplateRepository.importFromFile(file, name, operatorId)` でテンプレートファイルを解析し、テンプレートを登録する
+6. ファイル解析に失敗した場合は AppTemplateImportError を返す
+7. 登録されたテンプレートを出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にアプリ作成権限がない | SystemPermissionDeniedError |
+| テンプレート名が空文字 | EmptyAppTemplateNameError |
+| テンプレート名が128文字超過 | AppTemplateNameTooLongError |
+| テンプレートファイルの解析に失敗 | AppTemplateImportError |
+
+---
+
+## 33. アプリテンプレートファイル書き出し
+
+### 概要
+
+既存のアプリテンプレートをファイルとして書き出す。アプリ作成権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| templateId | AppTemplateId | 必須 | 有効な AppTemplateId 形式であること |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| file | ArrayBuffer |
+| fileName | string |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`appCreate` 権限があることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `AppTemplateRepository.findById(templateId)` でテンプレートを取得する
+5. テンプレートが存在しない場合は AppTemplateNotFoundError を返す
+6. `AppTemplateRepository.exportToFile(templateId)` でテンプレートをファイルとして書き出す
+7. 書き出しに失敗した場合は AppTemplateExportError を返す
+8. ファイルデータとファイル名を出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にアプリ作成権限がない | SystemPermissionDeniedError |
+| テンプレートが存在しない | AppTemplateNotFoundError |
+| ファイル書き出しに失敗 | AppTemplateExportError |
+
+---
+
+## 34. アプリテンプレート削除
+
+### 概要
+
+アプリテンプレートを削除する。アプリ管理権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| templateId | AppTemplateId | 必須 | 有効な AppTemplateId 形式であること |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| (なし) | void |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`appManage` 権限があることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `AppTemplateRepository.findById(templateId)` でテンプレートを取得する
+5. テンプレートが存在しない場合は AppTemplateNotFoundError を返す
+6. `AppTemplateRepository.delete(templateId)` でテンプレートを削除する
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にアプリ管理権限がない | SystemPermissionDeniedError |
+| テンプレートが存在しない | AppTemplateNotFoundError |
+
+---
+
+## 35. アプリグループ一覧取得
+
+### 概要
+
+アプリグループの一覧を取得する。アプリグループ閲覧権限またはアプリグループ管理権限を持つユーザーが実行可能。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| offset | number | 任意 | 0以上の整数。デフォルト0 |
+| limit | number | 任意 | 1以上の整数。デフォルト100 |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| groups | Array<{ appGroupId: AppGroupId; name: string; isDefault: boolean; appIds: AppId[]; createdAt: Date; updatedAt: Date }> |
+| totalCount | number |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`appGroupViewable` または `appGroupManageable` 権限があることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `AppGroupRepository.list(offset, limit)` でアプリグループ一覧を取得する
+5. アプリグループ一覧と総件数を出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にアプリグループ閲覧権限も管理権限もない | SystemPermissionDeniedError |
+
+---
+
+## 36. アプリグループ作成
+
+### 概要
+
+新しいアプリグループを作成する。アプリグループ管理権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| name | string | 必須 | 1文字以上128文字以下 |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| appGroupId | AppGroupId |
+| name | string |
+| isDefault | boolean |
+| appIds | AppId[] |
+| createdAt | Date |
+| updatedAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`appGroupManageable` 権限があることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. name が1文字以上128文字以下であることを検証する。空文字の場合は EmptyAppGroupNameError、128文字超過の場合は AppGroupNameTooLongError を返す
+5. 新しい AppGroup エンティティを生成する（appGroupId は新規生成、isDefault は false、appIds は空配列）
+6. `AppGroupRepository.save(group)` で永続化する
+7. 作成されたアプリグループを出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にアプリグループ管理権限がない | SystemPermissionDeniedError |
+| グループ名が空文字 | EmptyAppGroupNameError |
+| グループ名が128文字超過 | AppGroupNameTooLongError |
+
+---
+
+## 37. アプリグループ更新
+
+### 概要
+
+アプリグループの名前・デフォルト設定・所属アプリを変更する。アプリグループ管理権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| appGroupId | AppGroupId | 必須 | 有効な AppGroupId 形式であること |
+| name | string | 任意 | 指定時は1文字以上128文字以下 |
+| isDefault | boolean | 任意 | デフォルトフラグの変更 |
+| appIds | AppId[] | 任意 | 指定時は所属アプリを一括置換 |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| appGroupId | AppGroupId |
+| name | string |
+| isDefault | boolean |
+| appIds | AppId[] |
+| createdAt | Date |
+| updatedAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`appGroupManageable` 権限があることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `AppGroupRepository.findById(appGroupId)` でアプリグループを取得する
+5. アプリグループが存在しない場合は AppGroupNotFoundError を返す
+6. name が指定されている場合、`AppGroup.rename(name)` を呼び出す（ドメインモデル内で1-128文字のバリデーションが実行される）
+7. isDefault が指定されており true の場合、`AppGroupDefaultService.setDefaultGroup(appGroupId)` を呼び出す（既存のデフォルトグループの isDefault が false に変更される）
+8. isDefault が指定されており false の場合、`AppGroup.setDefault(false)` を呼び出す
+9. appIds が指定されている場合、`AppGroup.replaceApps(appIds)` を呼び出す
+10. `AppGroupRepository.save(group)` で永続化する
+11. 更新後のアプリグループを出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にアプリグループ管理権限がない | SystemPermissionDeniedError |
+| アプリグループが存在しない | AppGroupNotFoundError |
+| グループ名が空文字 | EmptyAppGroupNameError（ドメインモデルから発生） |
+| グループ名が128文字超過 | AppGroupNameTooLongError（ドメインモデルから発生） |
+
+---
+
+## 38. アプリグループ削除
+
+### 概要
+
+アプリグループを削除する。所属アプリへの影響はない（アプリは削除されない）。アプリグループ管理権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| appGroupId | AppGroupId | 必須 | 有効な AppGroupId 形式であること |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| (なし) | void |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`appGroupManageable` 権限があることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `AppGroupRepository.findById(appGroupId)` でアプリグループを取得する
+5. アプリグループが存在しない場合は AppGroupNotFoundError を返す
+6. `AppGroupRepository.delete(appGroupId)` でアプリグループを削除する
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にアプリグループ管理権限がない | SystemPermissionDeniedError |
+| アプリグループが存在しない | AppGroupNotFoundError |
+
+---
+
+## 39. プラグイン一覧取得
+
+### 概要
+
+システムに登録されたプラグインの一覧を取得する。プリインストール済みプラグインを含む。システム管理権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| offset | number | 任意 | 0以上の整数。デフォルト0 |
+| limit | number | 任意 | 1以上の整数。デフォルト100 |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| plugins | Array<{ pluginId: PluginId; name: string; description: string \| null; isActive: boolean; isPreinstalled: boolean; installedAppIds: AppId[]; createdAt: Date; updatedAt: Date }> |
+| totalCount | number |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`systemAdmin` 権限があること、または `userContext.isCybozuAdmin` が true であることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `PluginRepository.list(offset, limit)` でプラグイン一覧を取得する
+5. プラグイン一覧と総件数を出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にシステム管理権限がない | SystemPermissionDeniedError |
+
+---
+
+## 40. プラグイン読み込み
+
+### 概要
+
+プラグインファイルを読み込んでシステムに登録する。システム管理権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| file | ArrayBuffer | 必須 | プラグインファイルのバイナリデータ。最大50MB |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| pluginId | PluginId |
+| name | string |
+| description | string \| null |
+| isActive | boolean |
+| isPreinstalled | boolean |
+| createdAt | Date |
+| updatedAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`systemAdmin` 権限があること、または `userContext.isCybozuAdmin` が true であることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `PluginRepository.importFromFile(file)` でプラグインファイルを解析し、プラグインを登録する
+5. ファイル解析に失敗した場合は PluginImportError を返す
+6. 登録されたプラグインを出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にシステム管理権限がない | SystemPermissionDeniedError |
+| プラグインファイルの解析に失敗 | PluginImportError |
+
+---
+
+## 41. プラグインステータス変更
+
+### 概要
+
+プラグインの有効/無効を切り替える。プリインストール済みプラグインは無効化不可。システム管理権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| pluginId | PluginId | 必須 | 有効な PluginId 形式であること |
+| isActive | boolean | 必須 | 有効化する場合 true、無効化する場合 false |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| pluginId | PluginId |
+| name | string |
+| description | string \| null |
+| isActive | boolean |
+| isPreinstalled | boolean |
+| createdAt | Date |
+| updatedAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`systemAdmin` 権限があること、または `userContext.isCybozuAdmin` が true であることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `PluginRepository.findById(pluginId)` でプラグインを取得する
+5. プラグインが存在しない場合は PluginNotFoundError を返す
+6. isActive が false の場合:
+   - プリインストール済みプラグイン（`isPreinstalled === true`）の場合は PreinstalledPluginError を返す
+   - `Plugin.deactivate()` を呼び出す
+7. isActive が true の場合、`Plugin.activate()` を呼び出す
+8. `PluginRepository.save(plugin)` で永続化する
+9. 更新後のプラグインを出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にシステム管理権限がない | SystemPermissionDeniedError |
+| プラグインが存在しない | PluginNotFoundError |
+| プリインストール済みプラグインを無効化しようとした | PreinstalledPluginError |
+
+---
+
+## 42. プラグイン削除
+
+### 概要
+
+プラグインをシステムから削除する。プリインストール済みプラグインは削除不可。システム管理権限が必要。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| pluginId | PluginId | 必須 | 有効な PluginId 形式であること |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| (なし) | void |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`systemAdmin` 権限があること、または `userContext.isCybozuAdmin` が true であることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `PluginRepository.findById(pluginId)` でプラグインを取得する
+5. プラグインが存在しない場合は PluginNotFoundError を返す
+6. プリインストール済みプラグイン（`isPreinstalled === true`）の場合は PreinstalledPluginError を返す
+7. `PluginRepository.delete(pluginId)` でプラグインを削除する
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にシステム管理権限がない | SystemPermissionDeniedError |
+| プラグインが存在しない | PluginNotFoundError |
+| プリインストール済みプラグインを削除しようとした | PreinstalledPluginError |

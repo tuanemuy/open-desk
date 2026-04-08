@@ -35,16 +35,18 @@ Cybozu OpenDesk のクローンプロジェクトの設計ドキュメント。
 | File | [domains/file.md](domains/file.md) |
 | Search | [domains/search.md](domains/search.md) |
 | Bookmark | [domains/bookmark.md](domains/bookmark.md) |
+| SystemSettings | [domains/system-settings.md](domains/system-settings.md) |
+| Audit | [domains/audit.md](domains/audit.md) |
 
 ### Phase 2: ユースケース設計 ✅
 
 | 成果物 | パス | ユースケース数 |
 |--------|------|--------------|
-| Identity | [usecases/identity.md](usecases/identity.md) | 24 |
-| App | [usecases/app.md](usecases/app.md) | 29 |
+| Identity | [usecases/identity.md](usecases/identity.md) | 40 |
+| App | [usecases/app.md](usecases/app.md) | 42 |
 | Record | [usecases/record.md](usecases/record.md) | 25 |
-| AccessControl | [usecases/access-control.md](usecases/access-control.md) | 12 |
-| Space | [usecases/space.md](usecases/space.md) | 30 |
+| AccessControl | [usecases/access-control.md](usecases/access-control.md) | 17 |
+| Space | [usecases/space.md](usecases/space.md) | 35 |
 | Notification | [usecases/notification.md](usecases/notification.md) | 21 |
 | Portal | [usecases/portal.md](usecases/portal.md) | 2 |
 | People | [usecases/people.md](usecases/people.md) | 11 |
@@ -52,22 +54,24 @@ Cybozu OpenDesk のクローンプロジェクトの設計ドキュメント。
 | File | [usecases/file.md](usecases/file.md) | 3 |
 | Search | [usecases/search.md](usecases/search.md) | 3 |
 | Bookmark | [usecases/bookmark.md](usecases/bookmark.md) | 4 |
+| SystemSettings | [usecases/system-settings.md](usecases/system-settings.md) | 32 |
+| Audit | [usecases/audit.md](usecases/audit.md) | 9 |
 
 ### Phase 3: DB設計 ✅
 
 | 成果物 | パス | テーブル数 |
 |--------|------|-----------|
-| DB設計 | [database/index.md](database/index.md) | 59 |
+| DB設計 | [database/index.md](database/index.md) | 73 |
 
 ### Phase 4: テストケース定義 ✅
 
 | ドメイン | パス | ファイル数 |
 |---------|------|-----------|
-| Identity | [testcases/identity/](testcases/identity/) | 24 |
-| App | [testcases/app/](testcases/app/) | 29 |
+| Identity | [testcases/identity/](testcases/identity/) | 40 |
+| App | [testcases/app/](testcases/app/) | 42 |
 | Record | [testcases/record/](testcases/record/) | 25 |
-| AccessControl | [testcases/access-control/](testcases/access-control/) | 12 |
-| Space | [testcases/space/](testcases/space/) | 30 |
+| AccessControl | [testcases/access-control/](testcases/access-control/) | 17 |
+| Space | [testcases/space/](testcases/space/) | 35 |
 | Notification | [testcases/notification/](testcases/notification/) | 21 |
 | Portal | [testcases/portal/](testcases/portal/) | 2 |
 | People | [testcases/people/](testcases/people/) | 11 |
@@ -75,6 +79,8 @@ Cybozu OpenDesk のクローンプロジェクトの設計ドキュメント。
 | File | [testcases/file/](testcases/file/) | 3 |
 | Search | [testcases/search/](testcases/search/) | 3 |
 | Bookmark | [testcases/bookmark/](testcases/bookmark/) | 4 |
+| SystemSettings | [testcases/system-settings/](testcases/system-settings/) | 32 |
+| Audit | [testcases/audit/](testcases/audit/) | 9 |
 
 ### Phase 5: クロスフェーズ検証 ✅
 
@@ -139,6 +145,7 @@ Cybozu OpenDesk のクローンプロジェクトの設計ドキュメント。
 | # | タイトル | パス |
 |---|---------|------|
 | 001 | ドメイン境界の定義 | [adr/001-domain-boundaries.md](adr/001-domain-boundaries.md) |
+| 002 | 管理機能のドメイン境界 | [adr/002-admin-domain-boundaries.md](adr/002-admin-domain-boundaries.md) |
 
 ## レビュー
 
