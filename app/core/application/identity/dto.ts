@@ -97,3 +97,120 @@ export type RefreshOAuthTokenOutput = {
   expiresAt: Date;
   scopes: ApiScope[];
 };
+
+// Title DTOs
+
+export type CreateTitleOutput = {
+  titleId: string;
+  name: string;
+  orderIndex: number;
+  createdAt: Date;
+};
+
+export type UpdateTitleOutput = {
+  titleId: string;
+  name: string;
+  orderIndex: number;
+  updatedAt: Date;
+};
+
+export type TitleItemOutput = {
+  titleId: string;
+  name: string;
+  orderIndex: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type TitleListOutput = {
+  titles: TitleItemOutput[];
+  totalCount: number;
+};
+
+export type TitleAssignmentOutput = {
+  userId: string;
+  titleId: string;
+};
+
+// Guest User DTOs
+
+export type GuestUserItemOutput = {
+  userId: string;
+  displayName: string;
+  email: string;
+  isActive: boolean;
+  guestSpaceNames: string[];
+  licenseType: string;
+  trialExpiresAt: Date | null;
+  lastLoginAt: Date | null;
+};
+
+export type GuestUserListOutput = {
+  guestUsers: GuestUserItemOutput[];
+  totalCount: number;
+  trialCount: number;
+  paidCount: number;
+  licensedCount: number;
+};
+
+// Provisioning DTOs
+
+export type ProvisioningConfigOutput = {
+  isEnabled: boolean;
+  hasToken: boolean;
+  tokenIssuedAt: Date | null;
+  updatedAt: Date;
+};
+
+export type UpdateProvisioningConfigOutput = {
+  isEnabled: boolean;
+  hasToken: boolean;
+  tokenIssuedAt: Date | null;
+  updatedAt: Date;
+  generatedToken: string | null;
+};
+
+// SCIM DTOs
+
+export type ScimUserOutput = {
+  id: string;
+  externalId: string;
+  userName: string;
+  displayName: string;
+  email: string;
+  active: boolean;
+  createdAt: Date;
+};
+
+export type ScimUserUpdateOutput = {
+  id: string;
+  externalId: string;
+  userName: string;
+  displayName: string;
+  email: string;
+  active: boolean;
+  updatedAt: Date;
+};
+
+export type ScimUserDeactivateOutput = {
+  id: string;
+  externalId: string;
+  active: boolean;
+  updatedAt: Date;
+};
+
+export type ScimGroupOutput = {
+  id: string;
+  externalId: string;
+  displayName: string;
+  memberCount: number;
+  createdAt: Date;
+};
+
+export type ScimGroupUpdateOutput = {
+  id: string;
+  externalId: string;
+  displayName: string;
+  memberCount: number;
+  updatedAt: Date;
+};

@@ -9,6 +9,7 @@ import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
 import { afterEach, beforeEach } from "vitest";
+import { ScryptBearerTokenHasher } from "@/core/adapters/drizzleSqlite/repositories/bearerTokenHasher";
 import { ScryptPasswordHasher } from "@/core/adapters/drizzleSqlite/repositories/passwordHasher";
 import * as schema from "@/core/adapters/drizzleSqlite/schema";
 import { DrizzleSqliteUnitOfWorkProvider } from "@/core/adapters/drizzleSqlite/unitOfWork";
@@ -137,6 +138,7 @@ export async function createTestContainer(
     },
     unitOfWorkProvider: new DrizzleSqliteUnitOfWorkProvider(dbWithCleanup.db),
     passwordHasher: new ScryptPasswordHasher(),
+    bearerTokenHasher: new ScryptBearerTokenHasher(),
     authenticationProvider: new StubAuthenticationProvider(),
     fileStorageProvider: new StubFileStorageProvider(),
     searchIndexProvider: new StubSearchIndexProvider(),

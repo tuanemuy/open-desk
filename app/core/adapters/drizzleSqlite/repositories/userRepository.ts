@@ -8,6 +8,8 @@ import {
 import { SystemError, SystemErrorCode } from "@/core/application/error";
 import type { User } from "@/core/domain/identity/entity";
 import type {
+  GuestUserListParams,
+  GuestUserListResult,
   UserListParams,
   UserListResult,
   UserRepository,
@@ -321,5 +323,18 @@ export class DrizzleSqliteUserRepository implements UserRepository {
         error,
       );
     }
+  }
+
+  async listGuestUsers(
+    _params: GuestUserListParams,
+  ): Promise<GuestUserListResult> {
+    // TODO: Implement guest user listing with guest space joins and license info
+    return {
+      guestUsers: [],
+      totalCount: 0,
+      trialCount: 0,
+      paidCount: 0,
+      licensedCount: 0,
+    };
   }
 }

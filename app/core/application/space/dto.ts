@@ -156,3 +156,30 @@ export type AddGuestUserOutput = {
   readonly email: string;
   readonly company: string | null;
 };
+
+export type ThreadActionDto = {
+  readonly threadActionId: string;
+  readonly actionName: string;
+  readonly destinationAppId: string;
+  readonly fieldMappings: readonly import("@/core/domain/space/valueObject").ThreadActionFieldMapping[];
+  readonly modifierId: string;
+  readonly modifiedAt: Date;
+  readonly createdAt: Date;
+};
+
+export type ThreadActionListOutput = {
+  readonly actions: readonly ThreadActionDto[];
+  readonly totalCount: number;
+};
+
+export type RestoreSpaceOutput = {
+  readonly spaceId: string;
+  readonly name: string;
+  readonly isPrivate: boolean;
+  readonly useMultiThread: boolean;
+  readonly fixedMember: boolean;
+  readonly appCreationPermission: AppCreationPermission;
+  readonly coverImage: CoverImage;
+  readonly defaultThreadId: string;
+  readonly createdAt: Date;
+};

@@ -1,5 +1,7 @@
+import { SystemPermission } from "@/core/domain/access-control/entity";
 import type { UserId } from "@/core/domain/identity/valueObject";
 import type { SpaceId } from "@/core/domain/space/valueObject";
+import { buildUserAclContext } from "../access-control/buildUserAclContext";
 import {
   ForbiddenError,
   ForbiddenErrorCode,
@@ -50,6 +52,34 @@ export async function assertSpaceAccessible(
 ): Promise<void> {
   if (isPrivate) {
     await assertSpaceMember(ctx, spaceId, operatorId);
+  }
+}
+
+export async function assertSystemAdminForSpace(
+  ctx: TransactionContext,
+  operatorId: UserId,
+): Promise<void> {
+  const userContext = await buildUserAclContext(ctx, operatorId);
+
+  if (userContext.isCybozuAdmin) {
+    return;
+  }
+
+  const permissions = await ctx.systemPermissionRepository.findByUser(
+    userContext.userCode,
+    userContext.organizationCodes,
+    userContext.groupCodes,
+  );
+
+  const hasSystemAdmin = permissions.some((p) =>
+    SystemPermission.hasRight(p, "SYSTEM_ADMIN"),
+  );
+
+  if (!hasSystemAdmin) {
+    throw new ForbiddenError(
+      ForbiddenErrorCode.InsufficientPermissions,
+      "System admin permission required",
+    );
   }
 }
 

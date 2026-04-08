@@ -6,6 +6,7 @@
  */
 
 import { getDatabase } from "@/core/adapters/drizzleSqlite/client";
+import { ScryptBearerTokenHasher } from "@/core/adapters/drizzleSqlite/repositories/bearerTokenHasher";
 import { ScryptPasswordHasher } from "@/core/adapters/drizzleSqlite/repositories/passwordHasher";
 import { DrizzleSqliteUnitOfWorkProvider } from "@/core/adapters/drizzleSqlite/unitOfWork";
 import { StubAppCreationService } from "@/core/adapters/stub/appCreationService";
@@ -75,6 +76,7 @@ export function createContainer(config: ServerConfig): Container {
     },
     unitOfWorkProvider,
     passwordHasher: new ScryptPasswordHasher(),
+    bearerTokenHasher: new ScryptBearerTokenHasher(),
     authenticationProvider: new StubAuthenticationProvider(),
     fileStorageProvider: new StubFileStorageProvider(),
     searchIndexProvider: new StubSearchIndexProvider(),

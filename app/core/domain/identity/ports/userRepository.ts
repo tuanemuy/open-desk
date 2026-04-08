@@ -34,6 +34,36 @@ export type UserListResult = {
 };
 
 /**
+ * Parameters for listing guest users with pagination.
+ */
+export type GuestUserListParams = {
+  readonly offset: number;
+  readonly limit: number;
+};
+
+/**
+ * Guest user entry with related information.
+ */
+export type GuestUserEntry = {
+  readonly user: User;
+  readonly guestSpaceNames: readonly string[];
+  readonly licenseType: string;
+  readonly trialExpiresAt: Date | null;
+  readonly lastLoginAt: Date | null;
+};
+
+/**
+ * Paginated guest user listing result with license usage summary.
+ */
+export type GuestUserListResult = {
+  readonly guestUsers: readonly GuestUserEntry[];
+  readonly totalCount: number;
+  readonly trialCount: number;
+  readonly paidCount: number;
+  readonly licensedCount: number;
+};
+
+/**
  * Repository port for User entity persistence.
  */
 export interface UserRepository {
@@ -94,4 +124,10 @@ export interface UserRepository {
    * List users with pagination and optional filtering.
    */
   list(params: UserListParams): Promise<UserListResult>;
+
+  /**
+   * List guest users (users belonging to guest spaces) with pagination
+   * and license usage summary.
+   */
+  listGuestUsers(params: GuestUserListParams): Promise<GuestUserListResult>;
 }
