@@ -87,6 +87,6 @@ export async function listAuditLogs({
 
 function getRetentionLimitDate(): Date {
   const date = new Date();
-  date.setDate(date.getDate() - RETENTION_WEEKS * 7);
+  date.setDate(date.getDate() - RETENTION_WEEKS * 7 + 1);
   return date;
 }

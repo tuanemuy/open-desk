@@ -15,6 +15,13 @@
       "when": 1775590060578,
       "tag": "0001_oval_expediter",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1775653395568,
+      "tag": "0002_loud_queen_noir",
+      "breakpoints": true
     }
   ]
 }
