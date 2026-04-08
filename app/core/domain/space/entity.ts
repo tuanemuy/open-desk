@@ -17,6 +17,9 @@ import type {
   SpaceId as SpaceIdType,
   SpaceName as SpaceNameType,
   SpaceTemplateId as SpaceTemplateIdType,
+  ThreadActionFieldMapping as ThreadActionFieldMappingType,
+  ThreadActionId as ThreadActionIdType,
+  ThreadActionName as ThreadActionNameType,
   ThreadCommentId as ThreadCommentIdType,
   ThreadId as ThreadIdType,
   ThreadTitle as ThreadTitleType,
@@ -27,6 +30,8 @@ import {
   SpaceId,
   SpaceName,
   SpaceTemplateId,
+  ThreadActionId,
+  ThreadActionName,
   ThreadCommentId,
   ThreadId,
   ThreadTitle,
@@ -718,4 +723,113 @@ export const ThreadFollow = {
   }),
 
   reconstruct: (data: _ThreadFollow): _ThreadFollow => data,
+};
+
+// ============================================
+// Constants (ThreadAction)
+// ============================================
+
+const FIELD_MAPPINGS_MAX_COUNT = 100;
+
+// ============================================
+// ThreadAction Entity
+// ============================================
+
+type _ThreadAction = Readonly<{
+  threadActionId: ThreadActionIdType;
+  actionName: ThreadActionNameType;
+  destinationAppId: AppIdType;
+  fieldMappings: readonly ThreadActionFieldMappingType[];
+  modifierId: UserId;
+  modifiedAt: Date;
+  createdAt: Date;
+}>;
+
+export type ThreadAction = _ThreadAction;
+
+export const ThreadAction = {
+  create: (params: {
+    actionName: string;
+    destinationAppId: AppIdType;
+    fieldMappings: readonly ThreadActionFieldMappingType[];
+    modifierId: UserId;
+  }): _ThreadAction => {
+    if (params.fieldMappings.length === 0) {
+      throw new BusinessRuleError(
+        SpaceErrorCode.EmptyFieldMappings,
+        "Thread action must have at least one field mapping",
+      );
+    }
+    if (params.fieldMappings.length > FIELD_MAPPINGS_MAX_COUNT) {
+      throw new BusinessRuleError(
+        SpaceErrorCode.TooManyFieldMappings,
+        `Thread action cannot have more than ${FIELD_MAPPINGS_MAX_COUNT} field mappings`,
+      );
+    }
+    const now = new Date();
+    return {
+      threadActionId: ThreadActionId.generate(),
+      actionName: ThreadActionName.create(params.actionName),
+      destinationAppId: params.destinationAppId,
+      fieldMappings: params.fieldMappings,
+      modifierId: params.modifierId,
+      modifiedAt: now,
+      createdAt: now,
+    };
+  },
+
+  reconstruct: (data: _ThreadAction): _ThreadAction => data,
+
+  rename: (action: _ThreadAction, name: string): _ThreadAction => {
+    return {
+      ...action,
+      actionName: ThreadActionName.create(name),
+      modifiedAt: new Date(),
+    };
+  },
+
+  setDestinationApp: (
+    action: _ThreadAction,
+    appId: AppIdType,
+  ): _ThreadAction => {
+    return {
+      ...action,
+      destinationAppId: appId,
+      fieldMappings: [],
+      modifiedAt: new Date(),
+    };
+  },
+
+  setFieldMappings: (
+    action: _ThreadAction,
+    mappings: readonly ThreadActionFieldMappingType[],
+  ): _ThreadAction => {
+    if (mappings.length === 0) {
+      throw new BusinessRuleError(
+        SpaceErrorCode.EmptyFieldMappings,
+        "Thread action must have at least one field mapping",
+      );
+    }
+    if (mappings.length > FIELD_MAPPINGS_MAX_COUNT) {
+      throw new BusinessRuleError(
+        SpaceErrorCode.TooManyFieldMappings,
+        `Thread action cannot have more than ${FIELD_MAPPINGS_MAX_COUNT} field mappings`,
+      );
+    }
+    return {
+      ...action,
+      fieldMappings: mappings,
+      modifiedAt: new Date(),
+    };
+  },
+
+  updateModifier: (action: _ThreadAction, userId: UserId): _ThreadAction => {
+    return {
+      ...action,
+      modifierId: userId,
+      modifiedAt: new Date(),
+    };
+  },
+
+  fieldMappingsMaxCount: FIELD_MAPPINGS_MAX_COUNT,
 };

@@ -17,6 +17,9 @@ import type {
   AppPermission as AppPermissionType,
   FieldPermissionLevel,
   FieldValue as FieldValueType,
+  OrgAccessLevel as OrgAccessLevelType,
+  OrgAccessRuleId as OrgAccessRuleIdType,
+  OrganizationId as OrganizationIdType,
   RecordPermission as RecordPermissionType,
   SystemPermissionId as SystemPermissionIdType,
   SystemRightType,
@@ -24,6 +27,7 @@ import type {
 import {
   AclEntity,
   AppPermission,
+  OrgAccessRuleId,
   RecordPermission,
   SystemPermissionId,
 } from "./valueObject";
@@ -729,5 +733,76 @@ export const SystemPermission = {
       case "GUEST_SPACE_CREATE":
         return permission.guestSpaceCreate;
     }
+  },
+};
+
+// ============================================
+// OrgAccessRule Entity
+// ============================================
+
+type _OrgAccessRule = Readonly<{
+  orgAccessRuleId: OrgAccessRuleIdType;
+  sourceOrganizationId: OrganizationIdType;
+  targetOrganizationId: OrganizationIdType;
+  accessLevel: OrgAccessLevelType;
+  isEnabled: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}>;
+
+export type OrgAccessRule = _OrgAccessRule;
+
+export const OrgAccessRule = {
+  create: (params: {
+    sourceOrganizationId: OrganizationIdType;
+    targetOrganizationId: OrganizationIdType;
+    accessLevel: OrgAccessLevelType;
+    isEnabled?: boolean;
+  }): _OrgAccessRule => {
+    if (params.sourceOrganizationId === params.targetOrganizationId) {
+      throw new BusinessRuleError(
+        AccessControlErrorCode.SelfReferenceOrgAccess,
+        "Source and target organization must be different",
+      );
+    }
+    const now = new Date();
+    return {
+      orgAccessRuleId: OrgAccessRuleId.generate(),
+      sourceOrganizationId: params.sourceOrganizationId,
+      targetOrganizationId: params.targetOrganizationId,
+      accessLevel: params.accessLevel,
+      isEnabled: params.isEnabled ?? true,
+      createdAt: now,
+      updatedAt: now,
+    };
+  },
+
+  reconstruct: (data: _OrgAccessRule): _OrgAccessRule => data,
+
+  updateAccessLevel: (
+    rule: _OrgAccessRule,
+    level: OrgAccessLevelType,
+  ): _OrgAccessRule => {
+    return {
+      ...rule,
+      accessLevel: level,
+      updatedAt: new Date(),
+    };
+  },
+
+  enable: (rule: _OrgAccessRule): _OrgAccessRule => {
+    return {
+      ...rule,
+      isEnabled: true,
+      updatedAt: new Date(),
+    };
+  },
+
+  disable: (rule: _OrgAccessRule): _OrgAccessRule => {
+    return {
+      ...rule,
+      isEnabled: false,
+      updatedAt: new Date(),
+    };
   },
 };

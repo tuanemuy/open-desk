@@ -25,6 +25,12 @@ export const AccessControlErrorCode = {
 
   // Evaluation errors
   TooManyRecords: "ACCESS_CONTROL_TOO_MANY_RECORDS",
+
+  // OrgAccessRule errors
+  OrgAccessRuleNotFound: "ACCESS_CONTROL_ORG_ACCESS_RULE_NOT_FOUND",
+  SelfReferenceOrgAccess: "ACCESS_CONTROL_SELF_REFERENCE_ORG_ACCESS",
+  DuplicateOrgAccessRule: "ACCESS_CONTROL_DUPLICATE_ORG_ACCESS_RULE",
+  InvalidOrgAccessLevel: "ACCESS_CONTROL_INVALID_ORG_ACCESS_LEVEL",
 } as const;
 
 export type AccessControlErrorCode =

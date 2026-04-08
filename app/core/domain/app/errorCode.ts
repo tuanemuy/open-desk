@@ -109,6 +109,27 @@ export const AppErrorCode = {
   // AppI18nConfig errors
   InvalidI18nScope: "APP_INVALID_I18N_SCOPE",
   InvalidAppLanguage: "APP_INVALID_APP_LANGUAGE",
+
+  // AppGroup errors
+  EmptyAppGroupName: "APP_EMPTY_APP_GROUP_NAME",
+  AppGroupNameTooLong: "APP_APP_GROUP_NAME_TOO_LONG",
+  AppGroupNotFound: "APP_APP_GROUP_NOT_FOUND",
+  DuplicateDefaultGroup: "APP_DUPLICATE_DEFAULT_GROUP",
+
+  // AppTemplate errors
+  EmptyAppTemplateName: "APP_EMPTY_APP_TEMPLATE_NAME",
+  AppTemplateNameTooLong: "APP_APP_TEMPLATE_NAME_TOO_LONG",
+  AppTemplateNotFound: "APP_APP_TEMPLATE_NOT_FOUND",
+  AppTemplateImportFailed: "APP_APP_TEMPLATE_IMPORT_FAILED",
+  AppTemplateExportFailed: "APP_APP_TEMPLATE_EXPORT_FAILED",
+
+  // Plugin (system) errors
+  EmptyPluginName: "APP_EMPTY_PLUGIN_NAME",
+  PluginNameTooLong: "APP_PLUGIN_NAME_TOO_LONG",
+  PluginNotFound: "APP_PLUGIN_NOT_FOUND",
+  PreinstalledPluginModification: "APP_PREINSTALLED_PLUGIN_MODIFICATION",
+  PluginImportFailed: "APP_PLUGIN_IMPORT_FAILED",
+  InvalidPluginStatus: "APP_INVALID_PLUGIN_STATUS",
 } as const;
 
 export type AppErrorCode = (typeof AppErrorCode)[keyof typeof AppErrorCode];

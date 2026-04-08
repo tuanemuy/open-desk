@@ -4,21 +4,28 @@ import { IdentityErrorCode } from "./errorCode";
 import type {
   GroupEvent,
   OrganizationEvent,
+  ProvisioningConfigEvent,
+  ScimExternalMappingEvent,
   SessionEvent,
+  TitleEvent,
   UserEvent,
 } from "./events";
 import { IdentityEvents } from "./events";
 import type {
   DisplayName as DisplayNameType,
   Email as EmailType,
+  ExternalId as ExternalIdType,
   FileKey as FileKeyType,
   GroupId as GroupIdType,
+  HashedBearerToken as HashedBearerTokenType,
   Language as LanguageType,
   LoginName as LoginNameType,
   OrganizationId as OrganizationIdType,
+  ScimResourceType as ScimResourceTypeType,
   SessionId as SessionIdType,
   TimeFormat as TimeFormatType,
   Timezone as TimezoneType,
+  TitleId as TitleIdType,
   UserId as UserIdType,
 } from "./valueObject";
 import {
@@ -29,6 +36,7 @@ import {
   SessionId,
   TimeFormat,
   Timezone,
+  TitleId,
   UserId,
 } from "./valueObject";
 
@@ -518,6 +526,291 @@ export const Session = {
       events: [
         IdentityEvents.sessionTerminated(session.sessionId, session.userId),
       ],
+    };
+  },
+};
+
+// ============================================
+// Title Entity
+// ============================================
+
+type _Title = Readonly<{
+  titleId: TitleIdType;
+  name: string;
+  orderIndex: number;
+  createdAt: Date;
+  updatedAt: Date;
+}>;
+
+export type Title = _Title;
+
+export const Title = {
+  /**
+   * Create a new Title entity.
+   */
+  create: (params: {
+    name: string;
+    orderIndex?: number;
+  }): WithEvents<_Title, TitleEvent> => {
+    if (params.name.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyTitleName,
+        "Title name cannot be empty",
+      );
+    }
+    const orderIndex = params.orderIndex ?? 0;
+    if (orderIndex < 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.InvalidOrderIndex,
+        `Order index must be non-negative, got ${orderIndex}`,
+      );
+    }
+
+    const now = new Date();
+    const title: _Title = {
+      titleId: TitleId.generate(),
+      name: params.name,
+      orderIndex,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    return {
+      entity: title,
+      events: [IdentityEvents.titleCreated(title.titleId)],
+    };
+  },
+
+  /**
+   * Reconstruct a Title entity from persisted data.
+   */
+  reconstruct: (data: _Title): _Title => data,
+
+  /**
+   * Rename the title.
+   * Throws if the new name is empty.
+   */
+  rename: (title: _Title, name: string): WithEvents<_Title, TitleEvent> => {
+    if (name.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyTitleName,
+        "Title name cannot be empty",
+      );
+    }
+    return {
+      entity: {
+        ...title,
+        name,
+        updatedAt: new Date(),
+      },
+      events: [],
+    };
+  },
+
+  /**
+   * Change the display order index.
+   * Throws if the index is negative.
+   */
+  reorder: (title: _Title, index: number): WithEvents<_Title, TitleEvent> => {
+    if (index < 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.InvalidOrderIndex,
+        `Order index must be non-negative, got ${index}`,
+      );
+    }
+    return {
+      entity: {
+        ...title,
+        orderIndex: index,
+        updatedAt: new Date(),
+      },
+      events: [],
+    };
+  },
+};
+
+// ============================================
+// ProvisioningConfig Entity
+// ============================================
+
+type _ProvisioningConfig = Readonly<{
+  isEnabled: boolean;
+  bearerTokenHash: HashedBearerTokenType | null;
+  tokenIssuedAt: Date | null;
+  updatedAt: Date;
+}>;
+
+export type ProvisioningConfig = _ProvisioningConfig;
+
+export const ProvisioningConfig = {
+  /**
+   * Create a default ProvisioningConfig (disabled, no token).
+   */
+  createDefault: (): WithEvents<
+    _ProvisioningConfig,
+    ProvisioningConfigEvent
+  > => {
+    const config: _ProvisioningConfig = {
+      isEnabled: false,
+      bearerTokenHash: null,
+      tokenIssuedAt: null,
+      updatedAt: new Date(),
+    };
+
+    return {
+      entity: config,
+      events: [],
+    };
+  },
+
+  /**
+   * Reconstruct a ProvisioningConfig entity from persisted data.
+   */
+  reconstruct: (data: _ProvisioningConfig): _ProvisioningConfig => data,
+
+  /**
+   * Enable provisioning.
+   * Throws if the bearer token is not configured or provisioning is already enabled.
+   */
+  enable: (
+    config: _ProvisioningConfig,
+  ): WithEvents<_ProvisioningConfig, ProvisioningConfigEvent> => {
+    if (config.bearerTokenHash === null) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.TokenNotConfigured,
+        "Bearer token must be configured before enabling provisioning",
+      );
+    }
+    if (config.isEnabled) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.ProvisioningAlreadyEnabled,
+        "Provisioning is already enabled",
+      );
+    }
+    return {
+      entity: {
+        ...config,
+        isEnabled: true,
+        updatedAt: new Date(),
+      },
+      events: [IdentityEvents.provisioningEnabled()],
+    };
+  },
+
+  /**
+   * Disable provisioning.
+   * Throws if provisioning is already disabled.
+   */
+  disable: (
+    config: _ProvisioningConfig,
+  ): WithEvents<_ProvisioningConfig, ProvisioningConfigEvent> => {
+    if (!config.isEnabled) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.ProvisioningAlreadyDisabled,
+        "Provisioning is already disabled",
+      );
+    }
+    return {
+      entity: {
+        ...config,
+        isEnabled: false,
+        updatedAt: new Date(),
+      },
+      events: [IdentityEvents.provisioningDisabled()],
+    };
+  },
+
+  /**
+   * Set or regenerate the bearer token.
+   */
+  setToken: (
+    config: _ProvisioningConfig,
+    hashedToken: HashedBearerTokenType,
+    issuedAt: Date,
+  ): WithEvents<_ProvisioningConfig, ProvisioningConfigEvent> => {
+    return {
+      entity: {
+        ...config,
+        bearerTokenHash: hashedToken,
+        tokenIssuedAt: issuedAt,
+        updatedAt: new Date(),
+      },
+      events: [],
+    };
+  },
+};
+
+// ============================================
+// ScimExternalMapping Entity
+// ============================================
+
+type _ScimExternalMapping = Readonly<{
+  externalId: ExternalIdType;
+  resourceType: ScimResourceTypeType;
+  internalId: string;
+  createdAt: Date;
+}>;
+
+export type ScimExternalMapping = _ScimExternalMapping;
+
+export const ScimExternalMapping = {
+  /**
+   * Create a new ScimExternalMapping entity.
+   */
+  create: (params: {
+    externalId: ExternalIdType;
+    resourceType: ScimResourceTypeType;
+    internalId: string;
+  }): WithEvents<_ScimExternalMapping, ScimExternalMappingEvent> => {
+    if (params.internalId.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyInternalId,
+        "Internal ID cannot be empty",
+      );
+    }
+
+    const mapping: _ScimExternalMapping = {
+      externalId: params.externalId,
+      resourceType: params.resourceType,
+      internalId: params.internalId,
+      createdAt: new Date(),
+    };
+
+    return {
+      entity: mapping,
+      events: [
+        IdentityEvents.scimExternalMappingCreated(
+          mapping.externalId,
+          mapping.resourceType,
+        ),
+      ],
+    };
+  },
+
+  /**
+   * Reconstruct a ScimExternalMapping entity from persisted data.
+   */
+  reconstruct: (data: _ScimExternalMapping): _ScimExternalMapping => data,
+
+  /**
+   * Remap to a different internal ID.
+   */
+  remapTo: (
+    mapping: _ScimExternalMapping,
+    internalId: string,
+  ): WithEvents<_ScimExternalMapping, ScimExternalMappingEvent> => {
+    if (internalId.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyInternalId,
+        "Internal ID cannot be empty",
+      );
+    }
+    return {
+      entity: {
+        ...mapping,
+        internalId,
+      },
+      events: [],
     };
   },
 };

@@ -595,6 +595,122 @@ export const PasswordPolicy = {
 };
 
 // ============================================
+// TitleId
+// ============================================
+
+type _TitleId = string & { readonly brand: "TitleId" };
+
+export type TitleId = _TitleId;
+
+export const TitleId = {
+  create: (id: string): _TitleId => {
+    return id as _TitleId;
+  },
+  generate: (): _TitleId => {
+    return uuidv7() as _TitleId;
+  },
+};
+
+// ============================================
+// ExternalId
+// ============================================
+
+type _ExternalId = string & { readonly brand: "ExternalId" };
+
+export type ExternalId = _ExternalId;
+
+export const ExternalId = {
+  create: (value: string): _ExternalId => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyExternalId,
+        "External ID cannot be empty",
+      );
+    }
+    return value as _ExternalId;
+  },
+};
+
+// ============================================
+// ScimResourceType
+// ============================================
+
+const VALID_SCIM_RESOURCE_TYPES = ["User", "Group"] as const;
+
+type ScimResourceTypeValue = (typeof VALID_SCIM_RESOURCE_TYPES)[number];
+
+type _ScimResourceType = ScimResourceTypeValue & {
+  readonly brand: "ScimResourceType";
+};
+
+export type ScimResourceType = _ScimResourceType;
+
+export const ScimResourceType = {
+  create: (value: string): _ScimResourceType => {
+    if (!VALID_SCIM_RESOURCE_TYPES.includes(value as ScimResourceTypeValue)) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.InvalidScimResourceType,
+        `Invalid SCIM resource type: ${value}`,
+      );
+    }
+    return value as _ScimResourceType;
+  },
+  validValues: VALID_SCIM_RESOURCE_TYPES,
+};
+
+// ============================================
+// HashedBearerToken
+// ============================================
+
+type _HashedBearerToken = Readonly<{
+  value: string;
+  algorithm: string;
+}>;
+
+export type HashedBearerToken = _HashedBearerToken;
+
+export const HashedBearerToken = {
+  create: (value: string, algorithm: string): _HashedBearerToken => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyHashedBearerToken,
+        "Hashed bearer token value cannot be empty",
+      );
+    }
+    return { value, algorithm };
+  },
+};
+
+// ============================================
+// BearerToken
+// ============================================
+
+const BEARER_TOKEN_MIN_LENGTH = 32;
+
+type _BearerToken = string & { readonly brand: "BearerToken" };
+
+export type BearerToken = _BearerToken;
+
+export const BearerToken = {
+  create: (value: string): _BearerToken => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyBearerToken,
+        "Bearer token cannot be empty",
+      );
+    }
+    if (value.length < BEARER_TOKEN_MIN_LENGTH) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.BearerTokenTooShort,
+        `Bearer token must be at least ${BEARER_TOKEN_MIN_LENGTH} characters`,
+      );
+    }
+    return value as _BearerToken;
+  },
+  minLength: BEARER_TOKEN_MIN_LENGTH,
+};
+
+// ============================================
 // LockoutPolicy
 // ============================================
 

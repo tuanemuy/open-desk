@@ -421,3 +421,126 @@ export const CommentFile = {
   widthMin: COMMENT_FILE_WIDTH_MIN,
   widthMax: COMMENT_FILE_WIDTH_MAX,
 };
+
+// ============================================
+// ThreadActionId
+// ============================================
+
+type _ThreadActionId = string & { readonly brand: "ThreadActionId" };
+
+export type ThreadActionId = _ThreadActionId;
+
+export const ThreadActionId = {
+  create: (id: string): _ThreadActionId => {
+    return id as _ThreadActionId;
+  },
+  generate: (): _ThreadActionId => {
+    return uuidv7() as _ThreadActionId;
+  },
+};
+
+// ============================================
+// ThreadActionName
+// ============================================
+
+const THREAD_ACTION_NAME_MAX_LENGTH = 128;
+
+type _ThreadActionName = string & { readonly brand: "ThreadActionName" };
+
+export type ThreadActionName = _ThreadActionName;
+
+export const ThreadActionName = {
+  create: (value: string): _ThreadActionName => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        SpaceErrorCode.EmptyThreadActionName,
+        "Thread action name cannot be empty",
+      );
+    }
+    if (value.length > THREAD_ACTION_NAME_MAX_LENGTH) {
+      throw new BusinessRuleError(
+        SpaceErrorCode.ThreadActionNameTooLong,
+        `Thread action name exceeds maximum length of ${THREAD_ACTION_NAME_MAX_LENGTH} characters`,
+      );
+    }
+    return value as _ThreadActionName;
+  },
+  maxLength: THREAD_ACTION_NAME_MAX_LENGTH,
+};
+
+// ============================================
+// FieldCode (Space-local definition to avoid circular dependency with App domain)
+// ============================================
+
+type _FieldCode = string & { readonly brand: "FieldCode" };
+
+export type FieldCode = _FieldCode;
+
+export const FieldCode = {
+  create: (value: string): _FieldCode => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        SpaceErrorCode.EmptyDestinationFieldCode,
+        "Field code cannot be empty",
+      );
+    }
+    return value as _FieldCode;
+  },
+};
+
+// ============================================
+// ThreadCommentField
+// ============================================
+
+const THREAD_COMMENT_FIELDS = [
+  "COMMENT_TEXT",
+  "COMMENTER",
+  "COMMENT_DATETIME",
+  "THREAD_TITLE",
+  "SPACE_NAME",
+] as const;
+
+type _ThreadCommentField = (typeof THREAD_COMMENT_FIELDS)[number];
+
+export type ThreadCommentField = _ThreadCommentField;
+
+export const ThreadCommentField = {
+  CommentText: "COMMENT_TEXT" as _ThreadCommentField,
+  Commenter: "COMMENTER" as _ThreadCommentField,
+  CommentDatetime: "COMMENT_DATETIME" as _ThreadCommentField,
+  ThreadTitle: "THREAD_TITLE" as _ThreadCommentField,
+  SpaceName: "SPACE_NAME" as _ThreadCommentField,
+  create: (value: string): _ThreadCommentField => {
+    if (!THREAD_COMMENT_FIELDS.includes(value as _ThreadCommentField)) {
+      throw new BusinessRuleError(
+        SpaceErrorCode.InvalidThreadCommentField,
+        `Invalid thread comment field: ${value}`,
+      );
+    }
+    return value as _ThreadCommentField;
+  },
+  values: THREAD_COMMENT_FIELDS,
+};
+
+// ============================================
+// ThreadActionFieldMapping
+// ============================================
+
+type _ThreadActionFieldMapping = Readonly<{
+  sourceField: _ThreadCommentField;
+  destinationFieldCode: _FieldCode;
+}>;
+
+export type ThreadActionFieldMapping = _ThreadActionFieldMapping;
+
+export const ThreadActionFieldMapping = {
+  create: (params: {
+    sourceField: _ThreadCommentField;
+    destinationFieldCode: string;
+  }): _ThreadActionFieldMapping => {
+    return {
+      sourceField: params.sourceField,
+      destinationFieldCode: FieldCode.create(params.destinationFieldCode),
+    };
+  },
+};

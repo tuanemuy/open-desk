@@ -1,6 +1,7 @@
 import { AnyError } from "@/lib/error";
 import type { AccessControlErrorCode } from "./access-control/errorCode";
 import type { AppErrorCode } from "./app/errorCode";
+import type { AuditErrorCode } from "./audit/errorCode";
 import type { BookmarkErrorCode } from "./bookmark/errorCode";
 import type { FileErrorCode } from "./file/errorCode";
 import type { IdentityErrorCode } from "./identity/errorCode";
@@ -11,10 +12,12 @@ import type { PortalErrorCode } from "./portal/errorCode";
 import type { RecordErrorCode } from "./record/errorCode";
 import type { SearchErrorCode } from "./search/errorCode";
 import type { SpaceErrorCode } from "./space/errorCode";
+import type { SystemSettingsErrorCode } from "./system-settings/errorCode";
 
 export type BusinessRuleErrorCode =
   | AccessControlErrorCode
   | AppErrorCode
+  | AuditErrorCode
   | BookmarkErrorCode
   | FileErrorCode
   | IdentityErrorCode
@@ -24,7 +27,8 @@ export type BusinessRuleErrorCode =
   | PortalErrorCode
   | RecordErrorCode
   | SearchErrorCode
-  | SpaceErrorCode;
+  | SpaceErrorCode
+  | SystemSettingsErrorCode;
 
 /**
  * Domain Layer - Business Rule Error

@@ -40,6 +40,14 @@ export const SpaceErrorCode = {
 
   // CommentFile errors
   InvalidCommentFileWidth: "SPACE_INVALID_COMMENT_FILE_WIDTH",
+
+  // ThreadAction errors
+  EmptyThreadActionName: "SPACE_EMPTY_THREAD_ACTION_NAME",
+  ThreadActionNameTooLong: "SPACE_THREAD_ACTION_NAME_TOO_LONG",
+  EmptyFieldMappings: "SPACE_EMPTY_FIELD_MAPPINGS",
+  TooManyFieldMappings: "SPACE_TOO_MANY_FIELD_MAPPINGS",
+  EmptyDestinationFieldCode: "SPACE_EMPTY_DESTINATION_FIELD_CODE",
+  InvalidThreadCommentField: "SPACE_INVALID_THREAD_COMMENT_FIELD",
 } as const;
 
 export type SpaceErrorCode =
