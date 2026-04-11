@@ -89,14 +89,14 @@
 - [x] Search
 - [x] Bookmark
 - [x] Notification
-- [-] Admin — 全セクション実装済み、バックエンド接続完了（詳細は下記）
+- [x] Admin — 全セクション実装済み、バックエンド接続完了、JS/CSS カスタマイズ修正済み
 - [x] PersonalSettings
 
 ### Admin 詳細ステータス
 
 ### 未実装残件
 
-- [ ] Admin / JS・CSS カスタマイズ — 「URL指定またはアップロード」ボタンが未実装（onClick なし）。ファイルの追加・削除ができない。スコープ設定の保存は動作する。
+- [x] Admin / JS・CSS カスタマイズ — URL指定・ファイルアップロードダイアログ + ファイルリスト表示・削除を実装済み
 
 ## 監査修正ラウンド (2026-04-11)
 
@@ -116,9 +116,107 @@
 - [x] [W-007] スタブアダプター統一 — 全13ファイルを StubNotImplementedError に統一
 - [x] [W-008/W-009] CSV Import/Export loader — UIが静的フォームのみで修正不要と判断
 
-### 対象外（インフラ依存）
-- W-003: SearchIndexProvider — 実際の検索エンジン（Meilisearch等）のインフラ構築が前提
-- W-007 の本実装: 13個のスタブアダプターの本実装は外部サービス（メール、ファイルストレージ、認証等）のインフラ構築が前提
+### 対象外だった項目（→ スタブ本実装ラウンドで対応済み）
+- [x] W-003: SearchIndexProvider → Meilisearch で実装済み (`app/core/adapters/meilisearch/`)
+- [x] W-007: 13個のスタブアダプター → 全13個を本実装に差し替え済み
+
+## スタブアダプター本実装
+
+現在 `app/core/adapters/stub/` にある 13 個のスタブアダプターを、選定したプロバイダーで本実装する。
+
+### プロバイダー選定
+
+| サービス | プロバイダー | ライブラリ | 環境変数プレフィックス |
+|---------|-------------|-----------|---------------------|
+| メール送信 | SMTP (Nodemailer) | `nodemailer` | `SMTP_*` |
+| ファイルストレージ | Cloudflare R2 | `@aws-sdk/client-s3` | `R2_*` |
+| 全文検索 | Meilisearch | `meilisearch` | `MEILI_*` |
+| 外部認証 (SAML/OAuth) | 自前実装 | `samlify` + `oauth4webapi` | `SAML_*` / `OAUTH_*` |
+| デスクトップ通知 | Web Push API | `web-push` | `VAPID_*` |
+
+### 外部サービスアダプター（プロバイダー実装）
+
+| # | スタブファイル | ポートインターフェース | プロバイダー | ステータス |
+|---|--------------|---------------------|------------|-----------|
+| 1 | emailNotificationSender.ts | EmailNotificationSender | SMTP (Nodemailer) | [x] `app/core/adapters/smtp/` |
+| 2 | fileStorageProvider.ts | FileStorageProvider | Cloudflare R2 (S3互換) | [x] `app/core/adapters/r2/` |
+| 3 | searchIndexProvider.ts | SearchIndexProvider | Meilisearch | [x] `app/core/adapters/meilisearch/` |
+| 4 | authenticationProvider.ts | AuthenticationProvider | DB + BearerTokenHasher | [x] `app/core/adapters/auth/` |
+| 5 | desktopNotificationPublisher.ts | DesktopNotificationPublisher | Web Push API | [x] `app/core/adapters/webpush/` |
+
+### 内部ロジックアダプター（Drizzle + SQLite で実装）
+
+| # | スタブファイル | ポートインターフェース | 実装方式 | ステータス |
+|---|--------------|---------------------|---------|-----------|
+| 6 | csvImportService.ts | CsvImportService | papaparse + Drizzle | [x] `app/core/adapters/drizzleSqlite/services/` |
+| 7 | recordQueryService.ts | RecordQueryService | クエリパーサー + バリデーター | [x] `app/core/adapters/drizzleSqlite/services/` |
+| 8 | recordValidationService.ts | RecordValidationService | ドメインロジック + Drizzle | [x] `app/core/adapters/drizzleSqlite/services/` |
+| 9 | filterCondEvaluator.ts | FilterCondEvaluator | クエリパーサー + 評価器 | [x] `app/core/adapters/drizzleSqlite/services/` |
+| 10 | processExecutionService.ts | ProcessExecutionService | Drizzle + ドメインロジック | [x] `app/core/adapters/drizzleSqlite/services/` |
+| 11 | appCreationService.ts | AppCreationService | Drizzle + ドメインロジック | [x] `app/core/adapters/drizzleSqlite/services/` |
+| 12 | appDeploymentService.ts | AppDeploymentService | Drizzle + ドメインロジック | [x] `app/core/adapters/drizzleSqlite/services/` |
+| 13 | notificationSourceResolver.ts | NotificationSourceResolver | Drizzle クロスドメインクエリ | [x] `app/core/adapters/drizzleSqlite/services/` |
+
+### .env.example
+
+```env
+# ===== SMTP (Email) =====
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASSWORD=
+SMTP_FROM=noreply@example.com
+
+# ===== Cloudflare R2 (File Storage) =====
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=
+R2_PUBLIC_URL=
+
+# ===== Meilisearch (Full-text Search) =====
+MEILI_HOST=http://localhost:7700
+MEILI_API_KEY=
+
+# ===== SAML Authentication =====
+SAML_IDP_METADATA_URL=
+SAML_SP_ENTITY_ID=
+SAML_SP_ACS_URL=
+SAML_SP_CERTIFICATE=
+SAML_SP_PRIVATE_KEY=
+
+# ===== OAuth 2.0 =====
+OAUTH_CLIENT_ID=
+OAUTH_CLIENT_SECRET=
+OAUTH_AUTHORIZATION_URL=
+OAUTH_TOKEN_URL=
+OAUTH_USERINFO_URL=
+OAUTH_REDIRECT_URI=
+
+# ===== Web Push (Desktop Notifications) =====
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:admin@example.com
+```
+
+### 実装順序
+
+依存関係を考慮した推奨実装順:
+
+1. **notificationSourceResolver** — 他のアダプターへの依存なし、通知フィルタリングに必要
+2. **recordQueryService** — レコード一覧表示の基盤
+3. **filterCondEvaluator** — ビュー・フィルタリングに必要
+4. **recordValidationService** — レコード作成・更新に必要
+5. **csvImportService** — レコードバリデーション後に実装
+6. **processExecutionService** — レコードクエリ後に実装
+7. **appCreationService** — テンプレート・Excel/CSV からの作成
+8. **appDeploymentService** — preview → production デプロイ
+9. **emailNotificationSender** — SMTP 接続
+10. **fileStorageProvider** — R2 接続
+11. **searchIndexProvider** — Meilisearch 接続
+12. **authenticationProvider** — SAML/OAuth 実装
+13. **desktopNotificationPublisher** — Web Push 実装
 
 #### Admin OpenDesk（/admin/system/）
 - [x] アプリ管理 — リポジトリ経由で実データ取得
