@@ -1,4 +1,5 @@
 import { data } from "react-router";
+import { isStubNotImplementedError } from "@/core/adapters/stub/error";
 import { container } from "@/core/application/container/server.instance";
 import { queryRecords } from "@/core/application/record/queryRecords";
 import { AppId } from "@/core/domain/app/valueObject";
@@ -109,7 +110,10 @@ export async function loader({
       };
     });
   } catch (e) {
-    if (e instanceof Error && e.message === "Not implemented") {
+    // RecordQueryService is currently a stub adapter that has no real implementation.
+    // This fallback returns empty results until the adapter is fully implemented.
+    // Remove this catch block once RecordQueryService is replaced with a real adapter.
+    if (isStubNotImplementedError(e)) {
       records = [];
       totalCount = 0;
     } else {

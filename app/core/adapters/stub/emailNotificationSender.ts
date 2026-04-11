@@ -1,6 +1,7 @@
 import type { Notification } from "@/core/domain/notification/entity";
 import type { EmailNotificationSender } from "@/core/domain/notification/ports/emailNotificationSender";
 import type { EmailNotificationFormat as EmailNotificationFormatType } from "@/core/domain/notification/valueObject";
+import { StubNotImplementedError } from "./error";
 
 export class StubEmailNotificationSender implements EmailNotificationSender {
   send(
@@ -8,7 +9,7 @@ export class StubEmailNotificationSender implements EmailNotificationSender {
     _recipientEmail: string,
     _format: EmailNotificationFormatType,
   ): Promise<void> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("EmailNotificationSender");
   }
 
   sendBatch(
@@ -18,6 +19,6 @@ export class StubEmailNotificationSender implements EmailNotificationSender {
       format: EmailNotificationFormatType;
     }>,
   ): Promise<void> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("EmailNotificationSender");
   }
 }

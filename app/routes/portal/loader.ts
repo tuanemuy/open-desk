@@ -2,6 +2,7 @@ import { data } from "react-router";
 import { container } from "@/core/application/container/server.instance";
 import { listNotifications } from "@/core/application/notification/listNotifications";
 import { getPortalView } from "@/core/application/portal/getPortalView";
+import type { AppIcon } from "@/core/domain/app/valueObject";
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
@@ -95,6 +96,21 @@ function sourceTypeToAppName(sourceType: string, title: string): string {
     default:
       return title.split(" ")[0] ?? "Notification";
   }
+}
+
+/**
+ * Map an AppIcon domain value object to a UI icon key.
+ */
+function resolveAppIcon(icon: AppIcon): AppItem["icon"] {
+  if (icon.type === "PRESET" && icon.key) {
+    const presetKeyMap: Record<string, AppItem["icon"]> = {
+      people: "people",
+      calendar: "calendar",
+      file: "file",
+    };
+    return presetKeyMap[icon.key] ?? "file";
+  }
+  return "file";
 }
 
 const DEFAULT_ANNOUNCEMENT: Announcement = {
@@ -193,7 +209,7 @@ export async function loader({
           id: a.appId as string,
           name: a.name as string,
           spaceName,
-          icon: "file",
+          icon: resolveAppIcon(a.icon),
         });
       }
       return results;

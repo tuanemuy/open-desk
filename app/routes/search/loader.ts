@@ -1,4 +1,5 @@
 import { data } from "react-router";
+import { isStubNotImplementedError } from "@/core/adapters/stub/error";
 import { container } from "@/core/application/container/server.instance";
 import { searchGlobal } from "@/core/application/search/searchGlobal";
 import { handleUseCase } from "@/lib/handleUseCase";
@@ -81,10 +82,7 @@ export async function loader({
     (r) => r,
     (e) => {
       // If this is a stub / "Not implemented" error, return null to indicate empty results
-      if (
-        e.message.includes("Not implemented") ||
-        e.message.includes("not implemented")
-      ) {
+      if (isStubNotImplementedError(e)) {
         return null;
       }
       throw data({ message: e.message }, { status: e.status });

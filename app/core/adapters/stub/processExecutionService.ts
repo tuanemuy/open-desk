@@ -3,6 +3,7 @@ import type { UserId } from "@/core/domain/identity/valueObject";
 import type { Record } from "@/core/domain/record/entity";
 import type { RecordEvent } from "@/core/domain/record/events";
 import type { ProcessExecutionService } from "@/core/domain/record/services/processExecutionService";
+import { StubNotImplementedError } from "./error";
 
 export class StubProcessExecutionService implements ProcessExecutionService {
   executeTransition(
@@ -10,13 +11,13 @@ export class StubProcessExecutionService implements ProcessExecutionService {
     _action: string,
     _assignee?: UserId,
   ): Promise<WithEvents<Record, RecordEvent>> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("ProcessExecutionService");
   }
 
   updateAssignees(
     _record: Record,
     _assignees: readonly UserId[],
   ): Promise<WithEvents<Record, RecordEvent>> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("ProcessExecutionService");
   }
 }

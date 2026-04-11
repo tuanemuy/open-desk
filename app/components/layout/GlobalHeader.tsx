@@ -1,6 +1,6 @@
 import { Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import type { BookmarkListByCategoryOutput } from "@/core/application/bookmark/dto";
 import { BookmarkPanel } from "./BookmarkPanel";
 
@@ -17,9 +17,19 @@ type GlobalHeaderProps = {
 
 export function GlobalHeader({ displayName, bookmarks }: GlobalHeaderProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const initial = displayName?.charAt(0) ?? "?";
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const trimmed = searchQuery.trim();
+    if (trimmed) {
+      navigate(`/search?keyword=${encodeURIComponent(trimmed)}`);
+    }
+  };
 
   useEffect(() => {
     if (!showSettingsMenu) return;
@@ -70,7 +80,7 @@ export function GlobalHeader({ displayName, bookmarks }: GlobalHeaderProps) {
         </nav>
 
         <div className="ml-auto flex items-center gap-md">
-          <div className="relative">
+          <form onSubmit={handleSearchSubmit} className="relative">
             <svg
               className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400"
               viewBox="0 0 24 24"
@@ -89,9 +99,11 @@ export function GlobalHeader({ displayName, bookmarks }: GlobalHeaderProps) {
             <input
               type="text"
               placeholder="全体検索"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="h-[34px] w-60 rounded-full border border-neutral-200 bg-neutral-100 pl-9 pr-md font-body text-sm text-neutral-800 outline-none transition-[border-color,background-color,box-shadow] duration-[var(--transition-default)] placeholder:text-neutral-400 hover:border-neutral-300 hover:bg-bg-card focus:border-primary focus:bg-bg-card focus:shadow-[0_0_0_3px_var(--color-primary-lighter)]"
             />
-          </div>
+          </form>
 
           <div ref={settingsRef} className="relative">
             <button

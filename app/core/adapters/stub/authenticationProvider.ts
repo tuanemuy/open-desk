@@ -9,6 +9,7 @@ import type {
   OAuthToken as OAuthTokenType,
   UserId as UserIdType,
 } from "@/core/domain/identity/valueObject";
+import { StubNotImplementedError } from "./error";
 
 export class StubAuthenticationProvider implements AuthenticationProvider {
   validateApiToken(
@@ -16,7 +17,7 @@ export class StubAuthenticationProvider implements AuthenticationProvider {
   ): Promise<
     DomainResult<{ userId: UserIdType; scopes: ApiScope[] }, InvalidTokenError>
   > {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("AuthenticationProvider");
   }
 
   validateOAuthToken(
@@ -27,12 +28,12 @@ export class StubAuthenticationProvider implements AuthenticationProvider {
       InvalidTokenError | TokenExpiredError
     >
   > {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("AuthenticationProvider");
   }
 
   refreshOAuthToken(
     _refreshToken: string,
   ): Promise<DomainResult<OAuthTokenType, InvalidTokenError>> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("AuthenticationProvider");
   }
 }

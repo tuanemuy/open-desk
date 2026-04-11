@@ -22,6 +22,14 @@ export default function NotificationsPage({
   const [readStatus, setReadStatus] = useState<ReadStatus>("unread");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showButtons, setShowButtons] = useState(false);
+  const [selectedNotificationId, setSelectedNotificationId] = useState<
+    string | null
+  >(notifications[0]?.id ?? null);
+
+  const selectedNotification =
+    viewMode === "detail"
+      ? (notifications.find((n) => n.id === selectedNotificationId) ?? null)
+      : null;
 
   return (
     <div className="mx-auto max-w-[1400px] px-xl">
@@ -115,10 +123,108 @@ export default function NotificationsPage({
         </div>
       </div>
 
-      {/* Notification List */}
+      {/* Notification Content */}
       {notifications.length === 0 ? (
         <div className="py-2xl text-center text-sm text-neutral-500">
           通知はありません。
+        </div>
+      ) : viewMode === "detail" ? (
+        <div className="flex gap-0 border border-t-0 border-neutral-200 rounded-b-lg bg-bg-card">
+          {/* Left pane: notification list */}
+          <div
+            className="w-[360px] shrink-0 overflow-y-auto border-r border-neutral-200"
+            role="menu"
+            aria-label="通知リスト"
+          >
+            <ul className="list-none">
+              {notifications.map((notif) => (
+                <li key={notif.id}>
+                  <button
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={selectedNotificationId === notif.id}
+                    className={`flex w-full cursor-pointer items-start gap-sm border-b border-neutral-100 px-md py-md text-left transition-colors duration-[var(--transition-default)] last:border-b-0 ${
+                      selectedNotificationId === notif.id
+                        ? "bg-primary-lighter"
+                        : notif.unread
+                          ? "bg-primary-lighter/50 hover:bg-neutral-50"
+                          : "hover:bg-neutral-50"
+                    }`}
+                    onClick={() => setSelectedNotificationId(notif.id)}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-0.5 flex items-center gap-sm">
+                        {notif.unread && (
+                          <span className="inline-block h-[7px] w-[7px] shrink-0 rounded-full bg-primary" />
+                        )}
+                        <span className="text-xs font-[var(--weight-medium)] text-neutral-500">
+                          {notif.appName}
+                        </span>
+                      </div>
+                      <div className="mb-xs truncate text-sm font-[var(--weight-medium)] leading-tight text-neutral-800">
+                        {notif.title}
+                      </div>
+                      <div className="flex items-center gap-sm text-xs text-neutral-400">
+                        <span>{notif.timeAgo}</span>
+                        <span className="font-[var(--weight-medium)] text-neutral-500">
+                          {notif.userName}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Right pane: detail iframe */}
+          <div className="min-w-0 flex-1">
+            {selectedNotification ? (
+              <div className="flex h-full flex-col">
+                {/* Breadcrumb */}
+                <nav className="border-b border-neutral-200 px-lg py-sm">
+                  <ol className="flex list-none items-center gap-xs text-sm text-neutral-500">
+                    <li>
+                      <Link
+                        to="/notifications"
+                        className="text-primary no-underline transition-colors duration-[var(--transition-default)] hover:text-primary-dark hover:underline"
+                      >
+                        通知
+                      </Link>
+                    </li>
+                    <li className="text-xs text-neutral-400" aria-hidden="true">
+                      &gt;
+                    </li>
+                    <li>
+                      <span className="text-neutral-600">
+                        {selectedNotification.appName}
+                      </span>
+                    </li>
+                    <li className="text-xs text-neutral-400" aria-hidden="true">
+                      &gt;
+                    </li>
+                    <li>
+                      <span className="text-neutral-800">
+                        {selectedNotification.title}
+                      </span>
+                    </li>
+                  </ol>
+                </nav>
+                {/* iframe */}
+                <div className="flex-1">
+                  <iframe
+                    src={selectedNotification.sourceUrl}
+                    title={selectedNotification.title}
+                    className="h-full min-h-[500px] w-full border-none"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex h-[500px] items-center justify-center text-sm text-neutral-500">
+                通知を選択してください
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         <ul className="list-none rounded-b-lg border border-t-0 border-neutral-200 bg-bg-card">

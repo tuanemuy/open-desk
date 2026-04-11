@@ -13,6 +13,7 @@ export type NotificationItem = {
   timeAgo: string;
   userName: string;
   unread: boolean;
+  sourceUrl: string;
 };
 
 export type NotificationsLoaderData = {
@@ -59,6 +60,22 @@ function sourceTypeToAppName(sourceType: string): string {
   }
 }
 
+/**
+ * Construct a source URL from sourceType and sourceId.
+ */
+function buildSourceUrl(sourceType: string, sourceId: string): string {
+  switch (sourceType) {
+    case "RECORD":
+      return `/records/${sourceId}`;
+    case "COMMENT":
+      return `/comments/${sourceId}`;
+    case "THREAD":
+      return `/threads/${sourceId}`;
+    default:
+      return `/notifications/${sourceId}`;
+  }
+}
+
 export async function loader({
   request,
 }: Route.LoaderArgs): Promise<NotificationsLoaderData> {
@@ -85,6 +102,7 @@ export async function loader({
     timeAgo: formatTimeAgo(n.createdAt),
     userName: n.senderId ?? "システム通知",
     unread: !n.isRead,
+    sourceUrl: buildSourceUrl(n.sourceType, n.sourceId),
   }));
 
   return { notifications };
