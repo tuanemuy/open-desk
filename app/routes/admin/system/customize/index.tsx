@@ -1,16 +1,22 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
-import { Upload } from "lucide-react";
-import { useState } from "react";
+import { Link2, Trash2, Upload, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { data } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
+import { getJsCssCustomization } from "@/core/application/system-settings/getJsCssCustomization";
+import { updateJsCssCustomization } from "@/core/application/system-settings/updateJsCssCustomization";
+import type { CustomFile } from "@/core/domain/system-settings/valueObject";
 import {
   createCompositeAction,
   defineHandler,
+  error,
   success,
   useCompositeAction,
 } from "@/lib/compositeAction";
+import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
@@ -18,16 +24,59 @@ export function meta(_args: Route.MetaArgs) {
   return [{ title: "JavaScript/CSSでカスタマイズ - OpenDeskシステム管理" }];
 }
 
+const SCOPE_MAP_TO_BACKEND = {
+  all: "ALL_USERS",
+  admin: "ADMIN_ONLY",
+  none: "DISABLED",
+} as const;
+
+const SCOPE_MAP_TO_UI = {
+  ALL_USERS: "all",
+  ADMIN_ONLY: "admin",
+  DISABLED: "none",
+} as const;
+
 const schema = z.object({
   scope: z.enum(["all", "admin", "none"]),
+  pcJsFiles: z.string().optional(),
+  mobileJsFiles: z.string().optional(),
+  pcCssFiles: z.string().optional(),
+  mobileCssFiles: z.string().optional(),
 });
 
 export const handlers = {
   updateCustomize: defineHandler({
     schema,
-    handler: async (_value, args) => {
+    handler: async (value, args) => {
       await requireAuth(args.request, container);
-      return success();
+
+      const parseFiles = (raw: string | undefined): CustomFile[] => {
+        if (!raw) return [];
+        try {
+          const parsed: unknown = JSON.parse(raw);
+          if (!Array.isArray(parsed)) return [];
+          return parsed as CustomFile[];
+        } catch {
+          return [];
+        }
+      };
+
+      return handleUseCase(() =>
+        updateJsCssCustomization({
+          container,
+          headers: args.request.headers,
+          input: {
+            scope: SCOPE_MAP_TO_BACKEND[value.scope],
+            pcJsFiles: parseFiles(value.pcJsFiles),
+            mobileJsFiles: parseFiles(value.mobileJsFiles),
+            pcCssFiles: parseFiles(value.pcCssFiles),
+            mobileCssFiles: parseFiles(value.mobileCssFiles),
+          },
+        }),
+      ).match(
+        (result) => success({ data: result }),
+        (e) => error({ "": [e.message] }),
+      );
     },
   }),
 };
@@ -38,19 +87,71 @@ export async function action(args: Route.ActionArgs) {
 
 export async function loader({ request }: Route.LoaderArgs) {
   await requireAuth(request, container);
-  return { scope: "none" as "all" | "admin" | "none" };
+
+  const result = await handleUseCase(() =>
+    getJsCssCustomization({
+      container,
+      headers: request.headers,
+      input: undefined,
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
+    },
+  );
+
+  return {
+    scope: SCOPE_MAP_TO_UI[result.scope] as "all" | "admin" | "none",
+    pcJsFiles: result.pcJsFiles as CustomFile[],
+    mobileJsFiles: result.mobileJsFiles as CustomFile[],
+    pcCssFiles: result.pcCssFiles as CustomFile[],
+    mobileCssFiles: result.mobileCssFiles as CustomFile[],
+  };
 }
 
-const FILE_SECTIONS = [
-  { id: "pc-js", label: "PC用のJavaScriptファイル" },
-  { id: "sp-js", label: "スマートフォン用のJavaScriptファイル" },
-  { id: "pc-css", label: "PC用のCSSファイル" },
-  { id: "sp-css", label: "スマートフォン用のCSSファイル" },
+type SectionId = "pc-js" | "sp-js" | "pc-css" | "sp-css";
+
+const FILE_SECTIONS: {
+  id: SectionId;
+  label: string;
+  stateKey: "pcJsFiles" | "mobileJsFiles" | "pcCssFiles" | "mobileCssFiles";
+}[] = [
+  { id: "pc-js", label: "PC用のJavaScriptファイル", stateKey: "pcJsFiles" },
+  {
+    id: "sp-js",
+    label: "スマートフォン用のJavaScriptファイル",
+    stateKey: "mobileJsFiles",
+  },
+  { id: "pc-css", label: "PC用のCSSファイル", stateKey: "pcCssFiles" },
+  {
+    id: "sp-css",
+    label: "スマートフォン用のCSSファイル",
+    stateKey: "mobileCssFiles",
+  },
 ];
+
+type FileLists = {
+  pcJsFiles: CustomFile[];
+  mobileJsFiles: CustomFile[];
+  pcCssFiles: CustomFile[];
+  mobileCssFiles: CustomFile[];
+};
 
 export default function CustomizePage({ loaderData }: Route.ComponentProps) {
   const { scope: initialScope } = loaderData;
   const [scope, setScope] = useState(initialScope);
+
+  const [fileLists, setFileLists] = useState<FileLists>({
+    pcJsFiles: [...loaderData.pcJsFiles],
+    mobileJsFiles: [...loaderData.mobileJsFiles],
+    pcCssFiles: [...loaderData.pcCssFiles],
+    mobileCssFiles: [...loaderData.mobileCssFiles],
+  });
+
+  const [addDialogSection, setAddDialogSection] = useState<SectionId | null>(
+    null,
+  );
 
   const fetcher = useCompositeAction<typeof handlers>();
 
@@ -74,6 +175,39 @@ export default function CustomizePage({ loaderData }: Route.ComponentProps) {
 
   const isPending = fetcher.isPending("updateCustomize");
 
+  const handleAddFile = useCallback(
+    (sectionId: SectionId, file: CustomFile) => {
+      const section = FILE_SECTIONS.find((s) => s.id === sectionId);
+      if (!section) return;
+      setFileLists((prev) => ({
+        ...prev,
+        [section.stateKey]: [...prev[section.stateKey], file],
+      }));
+      setAddDialogSection(null);
+    },
+    [],
+  );
+
+  const handleDeleteFile = useCallback(
+    (stateKey: keyof FileLists, index: number) => {
+      setFileLists((prev) => ({
+        ...prev,
+        [stateKey]: prev[stateKey].filter((_, i) => i !== index),
+      }));
+    },
+    [],
+  );
+
+  const handleCancel = useCallback(() => {
+    setScope(initialScope);
+    setFileLists({
+      pcJsFiles: [...loaderData.pcJsFiles],
+      mobileJsFiles: [...loaderData.mobileJsFiles],
+      pcCssFiles: [...loaderData.pcCssFiles],
+      mobileCssFiles: [...loaderData.mobileCssFiles],
+    });
+  }, [initialScope, loaderData]);
+
   return (
     <section>
       <h2 className="mb-lg border-b border-neutral-200 pb-md font-heading text-2xl font-[var(--weight-semibold)] leading-tight tracking-tight text-neutral-900">
@@ -82,6 +216,26 @@ export default function CustomizePage({ loaderData }: Route.ComponentProps) {
 
       <fetcher.Form method="post" {...getFormProps(form)}>
         <input type="hidden" name="intent" value="updateCustomize" />
+        <input
+          type="hidden"
+          name="pcJsFiles"
+          value={JSON.stringify(fileLists.pcJsFiles)}
+        />
+        <input
+          type="hidden"
+          name="mobileJsFiles"
+          value={JSON.stringify(fileLists.mobileJsFiles)}
+        />
+        <input
+          type="hidden"
+          name="pcCssFiles"
+          value={JSON.stringify(fileLists.pcCssFiles)}
+        />
+        <input
+          type="hidden"
+          name="mobileCssFiles"
+          value={JSON.stringify(fileLists.mobileCssFiles)}
+        />
 
         <div className="mb-lg rounded-lg border border-neutral-200 bg-bg-card p-lg">
           <div className="mb-lg">
@@ -119,9 +273,44 @@ export default function CustomizePage({ loaderData }: Route.ComponentProps) {
               <div className="mb-sm text-sm font-[var(--weight-medium)] text-neutral-600">
                 {section.label}
               </div>
+
+              {fileLists[section.stateKey].length > 0 && (
+                <div className="mb-sm rounded-md border border-neutral-200">
+                  {fileLists[section.stateKey].map((file, index) => (
+                    <div
+                      key={`${section.id}-${file.url}-${index}`}
+                      className="flex items-center gap-sm border-b border-neutral-200 px-md py-sm last:border-b-0"
+                    >
+                      <Link2 className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
+                      <span
+                        className="min-w-0 flex-1 truncate text-sm text-neutral-700"
+                        title={file.url}
+                      >
+                        {file.url}
+                      </span>
+                      <span className="shrink-0 text-xs text-neutral-400">
+                        {file.type === "URL" ? "URL" : "アップロード"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDeleteFile(section.stateKey, index)
+                        }
+                        className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-sm border-none bg-transparent text-neutral-400 transition-[color,background-color] duration-[var(--transition-default)] hover:bg-error-light hover:text-error focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        aria-label="削除"
+                        title="削除"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="flex items-center gap-md">
                 <button
                   type="button"
+                  onClick={() => setAddDialogSection(section.id)}
                   className="inline-flex h-9 items-center gap-sm rounded-md border border-neutral-200 bg-bg-card px-md font-body text-sm font-[var(--weight-medium)] text-neutral-700 transition-[border-color,background-color] duration-[var(--transition-default)] hover:border-neutral-300 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   <Upload className="h-3.5 w-3.5" />
@@ -143,13 +332,221 @@ export default function CustomizePage({ loaderData }: Route.ComponentProps) {
           </button>
           <button
             type="button"
-            onClick={() => setScope(initialScope)}
+            onClick={handleCancel}
             className="h-9 rounded-md border border-neutral-200 bg-bg-card px-md font-body text-sm font-[var(--weight-medium)] text-neutral-700 transition-[border-color,background-color] duration-[var(--transition-default)] hover:border-neutral-300 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             キャンセル
           </button>
         </div>
       </fetcher.Form>
+
+      {addDialogSection !== null && (
+        <AddFileDialog
+          sectionId={addDialogSection}
+          sectionLabel={
+            FILE_SECTIONS.find((s) => s.id === addDialogSection)?.label ?? ""
+          }
+          onAdd={handleAddFile}
+          onClose={() => setAddDialogSection(null)}
+        />
+      )}
     </section>
+  );
+}
+
+/* ============================================================
+ * Add File Dialog
+ * ============================================================ */
+
+type AddFileDialogProps = {
+  sectionId: SectionId;
+  sectionLabel: string;
+  onAdd: (sectionId: SectionId, file: CustomFile) => void;
+  onClose: () => void;
+};
+
+function AddFileDialog({
+  sectionId,
+  sectionLabel,
+  onAdd,
+  onClose,
+}: AddFileDialogProps) {
+  const [mode, setMode] = useState<"url" | "upload">("url");
+  const [urlValue, setUrlValue] = useState("");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [urlError, setUrlError] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setUrlError(null);
+
+    if (mode === "url") {
+      const trimmed = urlValue.trim();
+      if (!trimmed) {
+        setUrlError("URLを入力してください");
+        return;
+      }
+      try {
+        new URL(trimmed);
+      } catch {
+        setUrlError("有効なURLを入力してください");
+        return;
+      }
+      onAdd(sectionId, { type: "URL", url: trimmed, fileId: null });
+    } else {
+      if (!uploadFile) {
+        setUrlError("ファイルを選択してください");
+        return;
+      }
+      // For uploaded files, use the file name as a display URL placeholder.
+      // In a production environment, the file would be uploaded to a server
+      // and the returned URL would be used. Here we use a local object URL
+      // as a reference and the file name for display.
+      const fileUrl = uploadFile.name;
+      onAdd(sectionId, { type: "UPLOAD", url: fileUrl, fileId: null });
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-400 flex items-center justify-center">
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop overlay for dismissing modal */}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: Escape key handled by parent dialog */}
+      <div className="absolute inset-0 bg-neutral-900/20" onClick={onClose} />
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-label={`${sectionLabel} - ファイル追加`}
+        aria-modal="true"
+        className="relative z-10 w-[480px] rounded-xl border border-neutral-200 bg-bg-card p-lg shadow-lg"
+      >
+        <div className="mb-lg flex items-center justify-between">
+          <h3 className="font-heading text-lg font-[var(--weight-semibold)] text-neutral-900">
+            ファイルを追加
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-[28px] w-[28px] items-center justify-center rounded-md border-none bg-transparent text-neutral-400 transition-[color,background-color] duration-[var(--transition-default)] hover:bg-neutral-100 hover:text-neutral-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            aria-label="閉じる"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <p className="mb-md text-sm text-neutral-500">{sectionLabel}</p>
+
+        <div className="mb-lg flex gap-sm" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "url"}
+            onClick={() => {
+              setMode("url");
+              setUrlError(null);
+            }}
+            className={`flex-1 rounded-md border px-md py-sm text-center font-body text-sm font-[var(--weight-medium)] transition-[color,border-color,background-color] duration-[var(--transition-default)] ${
+              mode === "url"
+                ? "border-primary bg-primary-lighter text-primary"
+                : "border-neutral-200 bg-bg-card text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50"
+            }`}
+          >
+            URL指定
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "upload"}
+            onClick={() => {
+              setMode("upload");
+              setUrlError(null);
+            }}
+            className={`flex-1 rounded-md border px-md py-sm text-center font-body text-sm font-[var(--weight-medium)] transition-[color,border-color,background-color] duration-[var(--transition-default)] ${
+              mode === "upload"
+                ? "border-primary bg-primary-lighter text-primary"
+                : "border-neutral-200 bg-bg-card text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50"
+            }`}
+          >
+            ファイルアップロード
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          {mode === "url" ? (
+            <div className="mb-lg">
+              <label
+                htmlFor="file-url"
+                className="mb-xs block text-sm font-[var(--weight-medium)] text-neutral-600"
+              >
+                URL
+              </label>
+              <input
+                id="file-url"
+                type="text"
+                value={urlValue}
+                onChange={(e) => {
+                  setUrlValue(e.target.value);
+                  setUrlError(null);
+                }}
+                placeholder="https://example.com/script.js"
+                className="h-[34px] w-full rounded-sm border border-neutral-300 bg-bg-card px-md font-body text-sm text-neutral-800 outline-none transition-[border-color,box-shadow] duration-[var(--transition-default)] placeholder:text-neutral-400 focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-lighter)]"
+              />
+              {urlError && (
+                <p className="mt-xs text-xs text-error">{urlError}</p>
+              )}
+            </div>
+          ) : (
+            <div className="mb-lg">
+              <label
+                htmlFor="file-upload"
+                className="mb-xs block text-sm font-[var(--weight-medium)] text-neutral-600"
+              >
+                ファイル
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept=".js,.css"
+                onChange={(e) => {
+                  setUploadFile(e.target.files?.[0] ?? null);
+                  setUrlError(null);
+                }}
+                className="text-sm text-neutral-600 file:mr-md file:h-[34px] file:cursor-pointer file:rounded-md file:border file:border-neutral-200 file:bg-bg-card file:px-lg file:font-body file:text-sm file:font-[var(--weight-medium)] file:text-neutral-700 file:transition-[border-color,background-color] file:duration-[var(--transition-default)] hover:file:border-neutral-300 hover:file:bg-neutral-50"
+              />
+              <p className="mt-xs text-xs text-neutral-400">最大20MB</p>
+              {urlError && (
+                <p className="mt-xs text-xs text-error">{urlError}</p>
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-sm">
+            <button
+              type="button"
+              className="inline-flex h-[34px] items-center rounded-md border border-neutral-200 bg-bg-card px-md font-body text-sm font-[var(--weight-medium)] text-neutral-700 transition-[border-color,background-color] duration-[var(--transition-default)] hover:border-neutral-300 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              onClick={onClose}
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              className="inline-flex h-[34px] items-center rounded-md border border-primary bg-primary px-md font-body text-sm font-[var(--weight-medium)] text-on-primary transition-[background-color] duration-[var(--transition-default)] hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              追加
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
