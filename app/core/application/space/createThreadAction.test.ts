@@ -65,7 +65,13 @@ describe("createThreadAction", () => {
         operatorId: "user-1",
         actionName: "Copy to App",
         destinationAppId: "app-1",
-        fieldMappings: [{ sourceField: "COMMENT_TEXT", destinationFieldCode: "field_1" as import("@/core/domain/space/valueObject").FieldCode }],
+        fieldMappings: [
+          {
+            sourceField: "COMMENT_TEXT",
+            destinationFieldCode:
+              "field_1" as import("@/core/domain/space/valueObject").FieldCode,
+          },
+        ],
       },
     });
 
@@ -84,10 +90,17 @@ describe("createThreadAction", () => {
     await seedSystemPermission(container.db, "login-user-1");
     await seedApp(container.db);
 
-    const sourceFields = ["COMMENT_TEXT", "COMMENTER", "COMMENT_DATETIME", "THREAD_TITLE", "SPACE_NAME"] as const;
+    const sourceFields = [
+      "COMMENT_TEXT",
+      "COMMENTER",
+      "COMMENT_DATETIME",
+      "THREAD_TITLE",
+      "SPACE_NAME",
+    ] as const;
     const mappings = Array.from({ length: 100 }, (_, i) => ({
       sourceField: sourceFields[i % sourceFields.length],
-      destinationFieldCode: `field_${i}` as import("@/core/domain/space/valueObject").FieldCode,
+      destinationFieldCode:
+        `field_${i}` as import("@/core/domain/space/valueObject").FieldCode,
     }));
 
     const result = await createThreadAction({
@@ -117,7 +130,13 @@ describe("createThreadAction", () => {
         operatorId: "user-1",
         actionName: "A",
         destinationAppId: "app-1",
-        fieldMappings: [{ sourceField: "COMMENT_TEXT", destinationFieldCode: "field_1" as import("@/core/domain/space/valueObject").FieldCode }],
+        fieldMappings: [
+          {
+            sourceField: "COMMENT_TEXT",
+            destinationFieldCode:
+              "field_1" as import("@/core/domain/space/valueObject").FieldCode,
+          },
+        ],
       },
     });
 
@@ -138,7 +157,13 @@ describe("createThreadAction", () => {
         operatorId: "user-1",
         actionName: name,
         destinationAppId: "app-1",
-        fieldMappings: [{ sourceField: "COMMENT_TEXT", destinationFieldCode: "field_1" as import("@/core/domain/space/valueObject").FieldCode }],
+        fieldMappings: [
+          {
+            sourceField: "COMMENT_TEXT",
+            destinationFieldCode:
+              "field_1" as import("@/core/domain/space/valueObject").FieldCode,
+          },
+        ],
       },
     });
 
@@ -158,7 +183,13 @@ describe("createThreadAction", () => {
           operatorId: "user-1",
           actionName: "Test",
           destinationAppId: "app-1",
-          fieldMappings: [{ sourceField: "COMMENT_TEXT", destinationFieldCode: "field_1" as import("@/core/domain/space/valueObject").FieldCode }],
+          fieldMappings: [
+            {
+              sourceField: "COMMENT_TEXT",
+              destinationFieldCode:
+                "field_1" as import("@/core/domain/space/valueObject").FieldCode,
+            },
+          ],
         },
       }),
     ).rejects.toThrow(ForbiddenError);
@@ -178,7 +209,13 @@ describe("createThreadAction", () => {
           operatorId: "user-1",
           actionName: "",
           destinationAppId: "app-1",
-          fieldMappings: [{ sourceField: "COMMENT_TEXT", destinationFieldCode: "field_1" as import("@/core/domain/space/valueObject").FieldCode }],
+          fieldMappings: [
+            {
+              sourceField: "COMMENT_TEXT",
+              destinationFieldCode:
+                "field_1" as import("@/core/domain/space/valueObject").FieldCode,
+            },
+          ],
         },
       }),
     ).rejects.toThrow(BusinessRuleError);
@@ -198,7 +235,13 @@ describe("createThreadAction", () => {
           operatorId: "user-1",
           actionName: "a".repeat(129),
           destinationAppId: "app-1",
-          fieldMappings: [{ sourceField: "COMMENT_TEXT", destinationFieldCode: "field_1" as import("@/core/domain/space/valueObject").FieldCode }],
+          fieldMappings: [
+            {
+              sourceField: "COMMENT_TEXT",
+              destinationFieldCode:
+                "field_1" as import("@/core/domain/space/valueObject").FieldCode,
+            },
+          ],
         },
       }),
     ).rejects.toThrow(BusinessRuleError);
@@ -217,7 +260,13 @@ describe("createThreadAction", () => {
           operatorId: "user-1",
           actionName: "Test",
           destinationAppId: "non-existent-app",
-          fieldMappings: [{ sourceField: "COMMENT_TEXT", destinationFieldCode: "field_1" as import("@/core/domain/space/valueObject").FieldCode }],
+          fieldMappings: [
+            {
+              sourceField: "COMMENT_TEXT",
+              destinationFieldCode:
+                "field_1" as import("@/core/domain/space/valueObject").FieldCode,
+            },
+          ],
         },
       }),
     ).rejects.toThrow(NotFoundError);
@@ -249,7 +298,13 @@ describe("createThreadAction", () => {
     await seedSystemPermission(container.db, "login-user-1");
     await seedApp(container.db);
 
-    const sourceFields = ["COMMENT_TEXT", "COMMENTER", "COMMENT_DATETIME", "THREAD_TITLE", "SPACE_NAME"] as const;
+    const sourceFields = [
+      "COMMENT_TEXT",
+      "COMMENTER",
+      "COMMENT_DATETIME",
+      "THREAD_TITLE",
+      "SPACE_NAME",
+    ] as const;
     const mappings = Array.from({ length: 101 }, (_, i) => ({
       sourceField: sourceFields[i % sourceFields.length],
       destinationFieldCode: `field_${i}`,

@@ -205,3 +205,18 @@ export type LoginPageOutput = {
   title: string;
   backgroundImageFileId: string | null;
 };
+
+// ============================================
+// OAuth Integrations
+// ============================================
+
+export type OAuthIntegrationItemOutput = {
+  id: string;
+  name: string;
+  description: string;
+  enabled: boolean;
+};
+
+export type OAuthIntegrationsOutput = {
+  items: readonly OAuthIntegrationItemOutput[];
+};

@@ -5,8 +5,9 @@ import {
   ValidationErrorCode,
 } from "@/core/application/error";
 import type { ServiceArgs } from "@/core/application/types";
+import { ApiTokenRecord } from "@/core/domain/identity/entity";
 import type { ApiScope } from "@/core/domain/identity/valueObject";
-import { ApiToken, UserId } from "@/core/domain/identity/valueObject";
+import { BearerToken, UserId } from "@/core/domain/identity/valueObject";
 import type { IssueApiTokenOutput } from "./dto";
 
 const VALID_SCOPES: readonly ApiScope[] = [
@@ -21,6 +22,8 @@ const VALID_SCOPES: readonly ApiScope[] = [
 export type IssueApiTokenInput = {
   userId: string;
   scopes: string[];
+  summary: string;
+  expiresAt?: Date | null;
 };
 
 export async function issueApiToken({
@@ -37,6 +40,12 @@ export async function issueApiToken({
     throw new ValidationError(
       ValidationErrorCode.InvalidInput,
       "At least one scope is required",
+    );
+  }
+  if (input.summary.length === 0) {
+    throw new ValidationError(
+      ValidationErrorCode.InvalidInput,
+      "Summary is required",
     );
   }
 
@@ -64,10 +73,27 @@ export async function issueApiToken({
     );
   }
 
-  const apiToken = ApiToken.create(crypto.randomUUID(), validatedScopes);
+  const rawToken = container.bearerTokenHasher.generate();
+  const hashedToken = container.bearerTokenHasher.hash(rawToken);
+
+  const record = ApiTokenRecord.create({
+    userId,
+    tokenHash: hashedToken.value,
+    summary: input.summary,
+    scopes: validatedScopes,
+    expiresAt: input.expiresAt ?? null,
+  });
+
+  await container.unitOfWorkProvider.transaction(async (ctx) => {
+    await ctx.apiTokenRecordRepository.save(record);
+  });
 
   return {
-    token: apiToken.value,
-    scopes: [...apiToken.scopes],
+    id: record.id,
+    token: BearerToken.create(rawToken),
+    summary: record.summary,
+    scopes: [...record.scopes],
+    createdAt: record.createdAt,
+    expiresAt: record.expiresAt,
   };
 }

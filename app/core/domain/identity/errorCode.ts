@@ -60,6 +60,9 @@ export const IdentityErrorCode = {
   EmptyBearerToken: "IDENTITY_EMPTY_BEARER_TOKEN",
   BearerTokenTooShort: "IDENTITY_BEARER_TOKEN_TOO_SHORT",
   EmptyInternalId: "IDENTITY_EMPTY_INTERNAL_ID",
+
+  // ApiTokenRecord errors
+  ApiTokenAlreadyRevoked: "IDENTITY_API_TOKEN_ALREADY_REVOKED",
 } as const;
 
 export type IdentityErrorCode =

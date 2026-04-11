@@ -1,32 +1,44 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
+import { data } from "react-router";
 import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
+import { getExternalIntegration } from "@/core/application/system-settings/getExternalIntegration";
+import { updateExternalIntegration } from "@/core/application/system-settings/updateExternalIntegration";
 import {
   createCompositeAction,
   defineHandler,
+  error,
   success,
   useCompositeAction,
 } from "@/lib/compositeAction";
+import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-type MiscSettings = {
-  iframeEnabled: boolean;
-  referrerPolicyEnabled: boolean;
-  webhookEnabled: boolean;
-};
 
 export async function loader({ request }: Route.LoaderArgs) {
   await requireAuth(request, container);
 
-  const settings: MiscSettings = {
-    iframeEnabled: false,
-    referrerPolicyEnabled: true,
-    webhookEnabled: true,
-  };
+  const result = await handleUseCase(() =>
+    getExternalIntegration({
+      container,
+      headers: request.headers,
+      input: undefined,
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
+    },
+  );
 
-  return { settings };
+  return {
+    settings: {
+      iframeEnabled: result.allowIframe,
+      referrerPolicyEnabled: result.referrerPolicySameOrigin,
+      webhookEnabled: result.allowWebhook,
+    },
+  };
 }
 
 const saveMiscSchema = z.object({
@@ -38,9 +50,23 @@ const saveMiscSchema = z.object({
 export const handlers = {
   saveMisc: defineHandler({
     schema: saveMiscSchema,
-    handler: async (_value, args) => {
+    handler: async (value, args) => {
       await requireAuth(args.request, container);
-      return success();
+
+      return handleUseCase(() =>
+        updateExternalIntegration({
+          container,
+          headers: args.request.headers,
+          input: {
+            allowIframe: value.iframeEnabled === "true",
+            referrerPolicySameOrigin: value.referrerPolicyEnabled === "true",
+            allowWebhook: value.webhookEnabled === "true",
+          },
+        }),
+      ).match(
+        () => success(),
+        (e) => error({ "": [e.message] }),
+      );
     },
   }),
 };

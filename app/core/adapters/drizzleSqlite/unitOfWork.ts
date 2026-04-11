@@ -6,6 +6,8 @@ import type {
 import type { Database, Executor } from "./client";
 // app
 import { DrizzleSqliteApiTokenConfigRepository } from "./repositories/apiTokenConfigRepository";
+// identity
+import { DrizzleSqliteApiTokenRecordRepository } from "./repositories/apiTokenRecordRepository";
 // access-control
 import { DrizzleSqliteAppAclRepository } from "./repositories/appAclRepository";
 import { DrizzleSqliteAppActionRepository } from "./repositories/appActionRepository";
@@ -35,7 +37,6 @@ import { DrizzleSqliteFileRepository } from "./repositories/fileRepository";
 // people
 import { DrizzleSqliteFollowRepository } from "./repositories/followRepository";
 import { DrizzleSqliteFormLayoutRepository } from "./repositories/formLayoutRepository";
-// identity
 import { DrizzleSqliteGroupRepository } from "./repositories/groupRepository";
 import { DrizzleSqliteMembershipRepository } from "./repositories/membershipRepository";
 import { DrizzleSqliteMessageThreadRepository } from "./repositories/messageThreadRepository";
@@ -225,6 +226,7 @@ function createRepositories(db: Executor): Repositories {
     // file
     fileRepository: new DrizzleSqliteFileRepository(db),
     // identity
+    apiTokenRecordRepository: new DrizzleSqliteApiTokenRecordRepository(db),
     groupRepository: new DrizzleSqliteGroupRepository(db),
     membershipRepository: new DrizzleSqliteMembershipRepository(db),
     organizationRepository: new DrizzleSqliteOrganizationRepository(db),

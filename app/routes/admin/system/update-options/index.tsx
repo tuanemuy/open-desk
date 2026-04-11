@@ -1,15 +1,21 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { useState } from "react";
+import { data } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
+import { getUpdateOption } from "@/core/application/system-settings/getUpdateOption";
+import { updateUpdateOption } from "@/core/application/system-settings/updateUpdateOption";
+import type { FeatureToggle } from "@/core/domain/system-settings/valueObject";
 import {
   createCompositeAction,
   defineHandler,
+  error,
   success,
   useCompositeAction,
 } from "@/lib/compositeAction";
+import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
@@ -24,9 +30,25 @@ const schema = z.object({
 export const handlers = {
   updateOptions: defineHandler({
     schema,
-    handler: async (_value, args) => {
+    handler: async (value, args) => {
       await requireAuth(args.request, container);
-      return success();
+      return handleUseCase(() =>
+        updateUpdateOption({
+          container,
+          headers: args.request.headers,
+          input: {
+            channel: value.channel === "latest" ? "LATEST" : "MONTHLY",
+            disabledFeatures: [],
+            disabledLatestOnlyFeatures: [],
+            earlyAccessFeatures: [],
+            experimentalFeatures: [],
+            apiLabFeatures: [],
+          },
+        }),
+      ).match(
+        (result) => success({ data: result }),
+        (e) => error({ "": [e.message] }),
+      );
     },
   }),
 };
@@ -42,16 +64,36 @@ type FeatureOption = {
   expiry: string | null;
 };
 
+function toFeatureOptions(toggles: readonly FeatureToggle[]): FeatureOption[] {
+  return toggles.map((t) => ({
+    id: t.featureId,
+    label: t.name,
+    enabled: t.enabled,
+    expiry: t.expiresAt ? t.expiresAt.toISOString().slice(0, 10) : null,
+  }));
+}
+
 export async function loader({ request }: Route.LoaderArgs) {
   await requireAuth(request, container);
 
+  const result = await handleUseCase(() =>
+    getUpdateOption({ container, headers: request.headers, input: undefined }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
+    },
+  );
+
   return {
-    channel: "latest" as "latest" | "monthly",
-    monthlyFeatures: [] as FeatureOption[],
-    latestFeatures: [] as FeatureOption[],
-    previewFeatures: [] as FeatureOption[],
-    experimentalFeatures: [] as FeatureOption[],
-    apiLab: [] as FeatureOption[],
+    channel: (result.channel === "LATEST" ? "latest" : "monthly") as
+      | "latest"
+      | "monthly",
+    monthlyFeatures: toFeatureOptions(result.disabledFeatures),
+    latestFeatures: toFeatureOptions(result.disabledLatestOnlyFeatures),
+    previewFeatures: toFeatureOptions(result.earlyAccessFeatures),
+    experimentalFeatures: toFeatureOptions(result.experimentalFeatures),
+    apiLab: toFeatureOptions(result.apiLabFeatures),
   };
 }
 

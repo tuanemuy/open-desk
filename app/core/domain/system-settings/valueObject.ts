@@ -40,6 +40,7 @@ export type SettingKey =
   | "two_factor_auth"
   | "access_restriction"
   | "external_integration"
+  | "oauth_integrations"
   | "system_mail"
   | "locale"
   | "logo"
@@ -60,6 +61,7 @@ export const SETTING_KEYS: readonly SettingKey[] = [
   "two_factor_auth",
   "access_restriction",
   "external_integration",
+  "oauth_integrations",
   "system_mail",
   "locale",
   "logo",
@@ -356,6 +358,21 @@ export type ExternalIntegration = Readonly<{
 }>;
 
 // ============================================
+// OAuthIntegrations
+// ============================================
+
+export type OAuthIntegrationItem = Readonly<{
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly enabled: boolean;
+}>;
+
+export type OAuthIntegrations = Readonly<{
+  readonly items: readonly OAuthIntegrationItem[];
+}>;
+
+// ============================================
 // SystemMail
 // ============================================
 
@@ -430,6 +447,7 @@ export type SettingValue =
   | TwoFactorAuth
   | AccessRestriction
   | ExternalIntegration
+  | OAuthIntegrations
   | SystemMail
   | Locale
   | Logo
@@ -455,6 +473,7 @@ export type SettingKeyValueMap = {
   readonly two_factor_auth: TwoFactorAuth;
   readonly access_restriction: AccessRestriction;
   readonly external_integration: ExternalIntegration;
+  readonly oauth_integrations: OAuthIntegrations;
   readonly system_mail: SystemMail;
   readonly locale: Locale;
   readonly logo: Logo;

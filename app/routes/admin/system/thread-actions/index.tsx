@@ -1,22 +1,10 @@
-import { container } from "@/core/application/container/server.instance";
-import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
+
+export { action } from "./action";
+export { loader } from "./loader";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "スレッドのアクション - OpenDeskシステム管理" }];
-}
-
-type ThreadAction = {
-  id: string;
-  name: string;
-  destinationApp: string;
-  updatedBy: string;
-  updatedAt: string;
-};
-
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-  return { actions: [] as ThreadAction[] };
 }
 
 export default function ThreadActionsPage({
@@ -59,20 +47,20 @@ export default function ThreadActionsPage({
             <tbody>
               {actions.map((action) => (
                 <tr
-                  key={action.id}
+                  key={action.threadActionId}
                   className="transition-colors duration-[var(--transition-default)] last:*:border-b-0 hover:bg-neutral-100"
                 >
                   <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
-                    {action.name}
+                    {action.actionName}
                   </td>
                   <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
-                    {action.destinationApp}
+                    {action.destinationAppId}
                   </td>
                   <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
-                    {action.updatedBy}
+                    {action.modifierId}
                   </td>
                   <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
-                    {action.updatedAt}
+                    {action.modifiedAt.toLocaleString()}
                   </td>
                 </tr>
               ))}

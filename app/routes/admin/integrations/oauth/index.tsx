@@ -1,42 +1,38 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { data } from "react-router";
 import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
+import { getOAuthIntegrations } from "@/core/application/system-settings/getOAuthIntegrations";
+import { updateOAuthIntegration } from "@/core/application/system-settings/updateOAuthIntegration";
 import {
   createCompositeAction,
   defineHandler,
+  error,
   success,
   useCompositeAction,
 } from "@/lib/compositeAction";
+import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-type OAuthIntegration = {
-  id: string;
-  name: string;
-  description: string;
-  enabled: boolean;
-};
 
 export async function loader({ request }: Route.LoaderArgs) {
   await requireAuth(request, container);
 
-  const integrations: OAuthIntegration[] = [
-    {
-      id: "power-automate",
-      name: "Microsoft Power Automate",
-      description: "Power Automateとの連携を有効にします",
-      enabled: true,
+  const result = await handleUseCase(() =>
+    getOAuthIntegrations({
+      container,
+      headers: request.headers,
+      input: undefined,
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
     },
-    {
-      id: "slack",
-      name: "Slack",
-      description: "Slackとの連携を有効にします",
-      enabled: false,
-    },
-  ];
+  );
 
-  return { integrations };
+  return { integrations: result.items };
 }
 
 const toggleIntegrationSchema = z.object({
@@ -47,9 +43,22 @@ const toggleIntegrationSchema = z.object({
 export const handlers = {
   toggleIntegration: defineHandler({
     schema: toggleIntegrationSchema,
-    handler: async (_value, args) => {
+    handler: async (value, args) => {
       await requireAuth(args.request, container);
-      return success();
+
+      return handleUseCase(() =>
+        updateOAuthIntegration({
+          container,
+          headers: args.request.headers,
+          input: {
+            integrationId: value.integrationId,
+            enabled: value.enabled === "true",
+          },
+        }),
+      ).match(
+        () => success(),
+        (e) => error({ "": [e.message] }),
+      );
     },
   }),
 };

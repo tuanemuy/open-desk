@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { restoreApp } from "@/core/application/app/restoreApp";
 import { container } from "@/core/application/container/server.instance";
+import { restoreSpace } from "@/core/application/space/restoreSpace";
 import {
   createCompositeAction,
   defineHandler,
@@ -50,9 +51,22 @@ export const handlers = {
   }),
   restoreSpace: defineHandler({
     schema: restoreSpaceSchema,
-    handler: async (_value, args) => {
-      await requireAuth(args.request, container);
-      return success();
+    handler: async (value, args) => {
+      const auth = await requireAuth(args.request, container);
+
+      return handleUseCase(() =>
+        restoreSpace({
+          container,
+          headers: args.request.headers,
+          input: {
+            spaceId: value.spaceId,
+            operatorId: auth.userId,
+          },
+        }),
+      ).match(
+        (result) => success({ spaceId: result.spaceId }),
+        (e) => error({ spaceId: [e.message] }),
+      );
     },
   }),
 };

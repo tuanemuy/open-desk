@@ -12,6 +12,8 @@ import type {
 } from "./events";
 import { IdentityEvents } from "./events";
 import type {
+  ApiScope as ApiScopeType,
+  ApiTokenRecordId as ApiTokenRecordIdType,
   DisplayName as DisplayNameType,
   Email as EmailType,
   ExternalId as ExternalIdType,
@@ -29,6 +31,7 @@ import type {
   UserId as UserIdType,
 } from "./valueObject";
 import {
+  ApiTokenRecordId,
   DisplayName,
   GroupId,
   Language,
@@ -811,6 +814,81 @@ export const ScimExternalMapping = {
         internalId,
       },
       events: [],
+    };
+  },
+};
+
+// ============================================
+// ApiTokenRecord Entity
+// ============================================
+
+type _ApiTokenRecord = Readonly<{
+  id: ApiTokenRecordIdType;
+  userId: UserIdType;
+  tokenHash: string;
+  summary: string;
+  scopes: readonly ApiScopeType[];
+  createdAt: Date;
+  expiresAt: Date | null;
+  revokedAt: Date | null;
+}>;
+
+export type ApiTokenRecord = _ApiTokenRecord;
+
+export const ApiTokenRecord = {
+  /**
+   * Create a new ApiTokenRecord entity.
+   */
+  create: (params: {
+    userId: UserIdType;
+    tokenHash: string;
+    summary: string;
+    scopes: readonly ApiScopeType[];
+    expiresAt?: Date | null;
+  }): _ApiTokenRecord => {
+    if (params.tokenHash.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyApiTokenValue,
+        "Token hash cannot be empty",
+      );
+    }
+    if (params.scopes.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyApiTokenScopes,
+        "API token must have at least one scope",
+      );
+    }
+
+    return {
+      id: ApiTokenRecordId.generate(),
+      userId: params.userId,
+      tokenHash: params.tokenHash,
+      summary: params.summary,
+      scopes: params.scopes,
+      createdAt: new Date(),
+      expiresAt: params.expiresAt ?? null,
+      revokedAt: null,
+    };
+  },
+
+  /**
+   * Reconstruct an ApiTokenRecord entity from persisted data.
+   */
+  reconstruct: (data: _ApiTokenRecord): _ApiTokenRecord => data,
+
+  /**
+   * Revoke the API token record.
+   */
+  revoke: (record: _ApiTokenRecord): _ApiTokenRecord => {
+    if (record.revokedAt !== null) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.ApiTokenAlreadyRevoked,
+        `API token ${record.id} is already revoked`,
+      );
+    }
+    return {
+      ...record,
+      revokedAt: new Date(),
     };
   },
 };

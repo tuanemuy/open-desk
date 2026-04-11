@@ -1,15 +1,20 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { useState } from "react";
+import { data } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
+import { getMobileDisplay } from "@/core/application/system-settings/getMobileDisplay";
+import { updateMobileDisplay } from "@/core/application/system-settings/updateMobileDisplay";
 import {
   createCompositeAction,
   defineHandler,
+  error,
   success,
   useCompositeAction,
 } from "@/lib/compositeAction";
+import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
@@ -28,9 +33,21 @@ const schema = z.object({
 export const handlers = {
   updateMobile: defineHandler({
     schema,
-    handler: async (_value, args) => {
+    handler: async (value, args) => {
       await requireAuth(args.request, container);
-      return success();
+      return handleUseCase(() =>
+        updateMobileDisplay({
+          container,
+          headers: args.request.headers,
+          input: {
+            displayMode: value.displayMode === "mobile" ? "MOBILE" : "PC",
+            allowUserToggle: value.allowUserSwitch,
+          },
+        }),
+      ).match(
+        (result) => success({ data: result }),
+        (e) => error({ "": [e.message] }),
+      );
     },
   }),
 };
@@ -41,9 +58,21 @@ export async function action(args: Route.ActionArgs) {
 
 export async function loader({ request }: Route.LoaderArgs) {
   await requireAuth(request, container);
+
+  const result = await handleUseCase(() =>
+    getMobileDisplay({ container, headers: request.headers, input: undefined }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
+    },
+  );
+
   return {
-    displayMode: "mobile" as "mobile" | "pc",
-    allowUserSwitch: true,
+    displayMode: (result.displayMode === "MOBILE" ? "mobile" : "pc") as
+      | "mobile"
+      | "pc",
+    allowUserSwitch: result.allowUserToggle,
   };
 }
 

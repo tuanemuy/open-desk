@@ -1,6 +1,9 @@
+import { data } from "react-router";
 import type { LicenseInfo } from "@/components/admin/LicenseCard";
 import { LicenseCard } from "@/components/admin/LicenseCard";
 import { container } from "@/core/application/container/server.instance";
+import { listGuestUsers } from "@/core/application/identity/listGuestUsers";
+import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
@@ -20,16 +23,60 @@ type GuestUser = {
   trialExpiry: string | null;
 };
 
-export async function loader({ request }: Route.LoaderArgs) {
+export type GuestsLoaderData = {
+  licenses: LicenseInfo[];
+  guests: GuestUser[];
+};
+
+export async function loader({
+  request,
+}: Route.LoaderArgs): Promise<GuestsLoaderData> {
   await requireAuth(request, container);
+
+  const result = await handleUseCase(() =>
+    listGuestUsers({
+      container,
+      headers: request.headers,
+      input: { offset: 0, limit: 100 },
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
+    },
+  );
+
+  const guests: GuestUser[] = result.guestUsers.map((guest) => ({
+    id: guest.userId,
+    company: "",
+    name: guest.displayName,
+    email: guest.email,
+    status: guest.isActive ? ("active" as const) : ("inactive" as const),
+    lastLogin: guest.lastLoginAt?.toISOString() ?? "",
+    spaces: guest.guestSpaceNames,
+    licenseType: guest.licenseType,
+    trialExpiry: guest.trialExpiresAt?.toISOString() ?? null,
+  }));
 
   return {
     licenses: [
-      { label: "試用期間中のゲストユーザー数", current: 0, limit: null },
-      { label: "有料ゲストユーザー数", current: 0, limit: null },
-      { label: "有料ゲストユーザー数の契約数", current: 0, limit: null },
-    ] as LicenseInfo[],
-    guests: [] as GuestUser[],
+      {
+        label: "試用期間中のゲストユーザー数",
+        current: result.trialCount,
+        limit: null,
+      },
+      {
+        label: "有料ゲストユーザー数",
+        current: result.paidCount,
+        limit: null,
+      },
+      {
+        label: "有料ゲストユーザー数の契約数",
+        current: result.licensedCount,
+        limit: null,
+      },
+    ],
+    guests,
   };
 }
 

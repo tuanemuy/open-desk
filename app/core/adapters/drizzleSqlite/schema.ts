@@ -315,6 +315,36 @@ export const provisioningConfigs = sqliteTable("provisioning_configs", {
 });
 
 /**
+ * apiTokenRecords - APIトークンレコードテーブル
+ */
+export const apiTokenRecords = sqliteTable(
+  "api_token_records",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull(),
+    summary: text("summary").notNull(),
+    scopes: text("scopes", { mode: "json" })
+      .notNull()
+      .$type<string[]>()
+      .default([]),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    revokedAt: integer("revoked_at", { mode: "timestamp" }),
+  },
+  (table) => [
+    index("idx_api_token_records_user_id").on(table.userId),
+    index("idx_api_token_records_token_hash").on(table.tokenHash),
+  ],
+);
+
+/**
  * scimExternalMappings - SCIM外部マッピングテーブル
  */
 export const scimExternalMappings = sqliteTable(
@@ -1942,6 +1972,32 @@ export const notificationPreferences = sqliteTable("notification_preferences", {
     .default(sql`(unixepoch())`)
     .$onUpdate(() => new Date()),
 });
+
+/**
+ * pushSubscriptions - Web Push サブスクリプションテーブル
+ */
+export const pushSubscriptions = sqliteTable(
+  "push_subscriptions",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    endpoint: text("endpoint").notNull(),
+    keyP256dh: text("key_p256dh").notNull(),
+    keyAuth: text("key_auth").notNull(),
+    expirationTime: integer("expiration_time"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index("idx_push_subscriptions_user_id").on(table.userId),
+    uniqueIndex("uq_push_subscriptions_endpoint").on(table.endpoint),
+  ],
+);
 
 // ============================================================
 // 7. Portal ドメイン

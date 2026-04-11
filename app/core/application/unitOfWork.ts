@@ -25,6 +25,7 @@ import type { AuditLogSettingRepository } from "@/core/domain/audit/ports/auditL
 import type { UserAccessUsageRepository } from "@/core/domain/audit/ports/userAccessUsageRepository";
 import type { BookmarkRepository } from "@/core/domain/bookmark/ports/bookmarkRepository";
 import type { FileRepository } from "@/core/domain/file/ports/fileRepository";
+import type { ApiTokenRecordRepository } from "@/core/domain/identity/ports/apiTokenRecordRepository";
 import type { GroupRepository } from "@/core/domain/identity/ports/groupRepository";
 import type { MembershipRepository } from "@/core/domain/identity/ports/membershipRepository";
 import type { OrganizationRepository } from "@/core/domain/identity/ports/organizationRepository";
@@ -95,6 +96,7 @@ export type Repositories = {
   // file
   fileRepository: FileRepository;
   // identity
+  apiTokenRecordRepository: ApiTokenRecordRepository;
   groupRepository: GroupRepository;
   membershipRepository: MembershipRepository;
   organizationRepository: OrganizationRepository;

@@ -1,22 +1,41 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
+import { data } from "react-router";
 import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
+import { getLocale } from "@/core/application/system-settings/getLocale";
+import { updateLocale } from "@/core/application/system-settings/updateLocale";
 import { SELECT_CLASSES } from "@/lib/admin";
 import {
   createCompositeAction,
   defineHandler,
+  error,
   success,
   useCompositeAction,
 } from "@/lib/compositeAction";
+import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
 export async function loader({ request }: Route.LoaderArgs) {
   await requireAuth(request, container);
+
+  const result = await handleUseCase(() =>
+    getLocale({
+      container,
+      headers: request.headers,
+      input: undefined,
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
+    },
+  );
+
   return {
-    timezone: "Asia/Tokyo",
-    language: "ja",
+    timezone: result.timezone,
+    language: result.language,
   };
 }
 
@@ -28,9 +47,22 @@ const saveLocaleSchema = z.object({
 export const handlers = {
   saveLocale: defineHandler({
     schema: saveLocaleSchema,
-    handler: async (_value, args) => {
+    handler: async (value, args) => {
       await requireAuth(args.request, container);
-      return success();
+
+      return handleUseCase(() =>
+        updateLocale({
+          container,
+          headers: args.request.headers,
+          input: {
+            timezone: value.timezone,
+            language: value.language,
+          },
+        }),
+      ).match(
+        () => success(),
+        (e) => error({ "": [e.message] }),
+      );
     },
   }),
 };

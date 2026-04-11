@@ -37,4 +37,9 @@ export interface OrganizationRepository {
    * Delete an organization by its unique identifier.
    */
   delete(organizationId: OrganizationIdType): Promise<void>;
+
+  /**
+   * Find all organizations.
+   */
+  findAll(): Promise<Organization[]>;
 }

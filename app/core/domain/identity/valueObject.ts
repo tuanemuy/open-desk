@@ -659,6 +659,23 @@ export const ScimResourceType = {
 };
 
 // ============================================
+// ApiTokenRecordId
+// ============================================
+
+type _ApiTokenRecordId = string & { readonly brand: "ApiTokenRecordId" };
+
+export type ApiTokenRecordId = _ApiTokenRecordId;
+
+export const ApiTokenRecordId = {
+  create: (id: string): _ApiTokenRecordId => {
+    return id as _ApiTokenRecordId;
+  },
+  generate: (): _ApiTokenRecordId => {
+    return uuidv7() as _ApiTokenRecordId;
+  },
+};
+
+// ============================================
 // HashedBearerToken
 // ============================================
 

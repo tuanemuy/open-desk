@@ -87,8 +87,27 @@ export type LoginHistoryOutput = {
 };
 
 export type IssueApiTokenOutput = {
+  id: string;
   token: string;
+  summary: string;
   scopes: ApiScope[];
+  createdAt: Date;
+  expiresAt: Date | null;
+};
+
+export type ApiTokenItemOutput = {
+  id: string;
+  summary: string;
+  scopes: string[];
+  userId: string;
+  createdAt: Date;
+  expiresAt: Date | null;
+  isRevoked: boolean;
+};
+
+export type ListApiTokensOutput = {
+  tokens: ApiTokenItemOutput[];
+  totalCount: number;
 };
 
 export type RefreshOAuthTokenOutput = {
@@ -168,6 +187,49 @@ export type UpdateProvisioningConfigOutput = {
   tokenIssuedAt: Date | null;
   updatedAt: Date;
   generatedToken: string | null;
+};
+
+// CSV Import/Export DTOs
+
+export type CsvImportRowError = {
+  row: number;
+  message: string;
+};
+
+export type CsvImportUsersOutput = {
+  importedCount: number;
+  skippedCount: number;
+  errors: CsvImportRowError[];
+};
+
+export type CsvImportOrganizationsOutput = {
+  importedCount: number;
+  skippedCount: number;
+  errors: CsvImportRowError[];
+};
+
+export type CsvImportGroupsOutput = {
+  importedCount: number;
+  skippedCount: number;
+  errors: CsvImportRowError[];
+};
+
+export type CsvExportUsersOutput = {
+  csvContent: string;
+  fileName: string;
+  totalCount: number;
+};
+
+export type CsvExportOrganizationsOutput = {
+  csvContent: string;
+  fileName: string;
+  totalCount: number;
+};
+
+export type CsvExportGroupsOutput = {
+  csvContent: string;
+  fileName: string;
+  totalCount: number;
 };
 
 // SCIM DTOs

@@ -1,9 +1,12 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
+import { data } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
+import { getSystemMail } from "@/core/application/system-settings/getSystemMail";
 import { useCompositeAction } from "@/lib/compositeAction";
+import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 import type { handlers } from "./action";
@@ -12,8 +15,24 @@ export { action } from "./action";
 
 export async function loader({ request }: Route.LoaderArgs) {
   await requireAuth(request, container);
+
+  const result = await handleUseCase(() =>
+    getSystemMail({
+      container,
+      headers: request.headers,
+      input: undefined,
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
+    },
+  );
+
   return {
-    mailServer: "builtin" as "builtin" | "external",
+    fromAddress: result.fromAddress,
+    serverType: result.serverType,
+    externalServer: result.externalServer,
   };
 }
 
@@ -22,16 +41,16 @@ export function meta(_args: Route.MetaArgs) {
 }
 
 const mailSettingsSchema = z.object({
-  mailServer: z.enum(["builtin", "external"]),
+  serverType: z.enum(["BUILTIN", "EXTERNAL"]),
 });
 
 export default function SystemMailPage({ loaderData }: Route.ComponentProps) {
-  const { mailServer } = loaderData;
+  const { fromAddress, serverType } = loaderData;
   const fetcher = useCompositeAction<typeof handlers>();
 
   const [form, fields] = useForm({
     id: "mail-settings-form",
-    defaultValue: { mailServer },
+    defaultValue: { serverType },
     lastResult:
       fetcher.data?.intent === "updateMailSettings" ? fetcher.data : undefined,
     constraint: getZodConstraint(mailSettingsSchema),
@@ -58,6 +77,7 @@ export default function SystemMailPage({ loaderData }: Route.ComponentProps) {
 
       <fetcher.Form method="post" {...getFormProps(form)}>
         <input type="hidden" name="intent" value="updateMailSettings" />
+        <input type="hidden" name="fromAddress" value={fromAddress} />
         <div className="overflow-hidden rounded-lg border border-neutral-200 bg-bg-card p-lg">
           <div className="mb-lg">
             <div className="mb-md border-b border-neutral-200 pb-sm font-heading text-lg font-[var(--weight-semibold)] text-neutral-700">
@@ -67,9 +87,7 @@ export default function SystemMailPage({ loaderData }: Route.ComponentProps) {
               <span className="min-w-[200px] shrink-0 text-sm font-[var(--weight-medium)] text-neutral-600">
                 システムメールアドレス
               </span>
-              <span className="text-sm text-neutral-800">
-                no-reply@cybozu.com
-              </span>
+              <span className="text-sm text-neutral-800">{fromAddress}</span>
             </div>
           </div>
 
@@ -81,9 +99,9 @@ export default function SystemMailPage({ loaderData }: Route.ComponentProps) {
               <label className="flex cursor-pointer items-center gap-sm">
                 <input
                   type="radio"
-                  name={fields.mailServer.name}
-                  value="builtin"
-                  defaultChecked={mailServer === "builtin"}
+                  name={fields.serverType.name}
+                  value="BUILTIN"
+                  defaultChecked={serverType === "BUILTIN"}
                   className="h-[18px] w-[18px] shrink-0 cursor-pointer accent-primary"
                 />
                 <span className="text-base text-neutral-800">組み込み</span>
@@ -91,9 +109,9 @@ export default function SystemMailPage({ loaderData }: Route.ComponentProps) {
               <label className="flex cursor-pointer items-center gap-sm">
                 <input
                   type="radio"
-                  name={fields.mailServer.name}
-                  value="external"
-                  defaultChecked={mailServer === "external"}
+                  name={fields.serverType.name}
+                  value="EXTERNAL"
+                  defaultChecked={serverType === "EXTERNAL"}
                   className="h-[18px] w-[18px] shrink-0 cursor-pointer accent-primary"
                 />
                 <span className="text-base text-neutral-800">外部サーバー</span>

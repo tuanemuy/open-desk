@@ -1,19 +1,12 @@
 import { FileUp } from "lucide-react";
-import { container } from "@/core/application/container/server.instance";
-import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
+
+export { action } from "./action";
+export { loader } from "./loader";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "プラグイン - OpenDeskシステム管理" }];
 }
-
-type Plugin = {
-  id: string;
-  name: string;
-  description: string;
-  status: "active" | "inactive";
-  appCount: number;
-};
 
 const PREINSTALLED_PLUGINS = [
   "サイボウズ Office スケジュール連携",
@@ -23,11 +16,6 @@ const PREINSTALLED_PLUGINS = [
   "Garoonスケジュール連携",
   "メールワイズ連携",
 ];
-
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-  return { plugins: [] as Plugin[] };
-}
 
 export default function PluginsPage({ loaderData }: Route.ComponentProps) {
   const { plugins } = loaderData;
@@ -77,7 +65,7 @@ export default function PluginsPage({ loaderData }: Route.ComponentProps) {
             <tbody>
               {plugins.map((plugin) => (
                 <tr
-                  key={plugin.id}
+                  key={plugin.pluginId}
                   className="transition-colors duration-[var(--transition-default)] last:*:border-b-0 hover:bg-neutral-100"
                 >
                   <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
@@ -89,17 +77,17 @@ export default function PluginsPage({ loaderData }: Route.ComponentProps) {
                   <td className="border-b border-neutral-200 px-md py-sm">
                     <span
                       className={`inline-flex items-center gap-xs rounded-full px-sm py-0.5 text-xs font-[var(--weight-medium)] ${
-                        plugin.status === "active"
+                        plugin.isActive
                           ? "bg-success-light text-success"
                           : "bg-neutral-150 text-neutral-500"
                       }`}
                     >
                       <span className="inline-block h-1.5 w-1.5 rounded-full bg-current" />
-                      {plugin.status === "active" ? "有効" : "無効"}
+                      {plugin.isActive ? "有効" : "無効"}
                     </span>
                   </td>
                   <td className="border-b border-neutral-200 px-md py-sm text-right text-neutral-800">
-                    {plugin.appCount}
+                    {plugin.installedAppIds.length}
                   </td>
                 </tr>
               ))}

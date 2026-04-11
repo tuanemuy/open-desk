@@ -1,62 +1,75 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import {
-  createCompositeAction,
-  defineHandler,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { requireAuth } from "@/lib/session.server";
+import { SELECT_CLASSES } from "@/lib/admin";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
+import type { handlers } from "./action";
 
-type SecuritySettings = {
-  samlEnabled: boolean;
-  twoFactorEnabled: boolean;
-  userPasswordMinLength: number;
-  adminPasswordMinLength: number;
-  complexity: string;
-  allowLoginNamePassword: boolean;
-  passwordExpiry: string;
-  passwordHistoryCount: number;
-  allowPasswordChange: boolean;
-  requirePasswordChange: boolean;
-  allowPasswordReset: boolean;
-  lockoutAttempts: number;
-  lockoutDuration: string;
-  sessionTimeout: string;
-  autoCompleteLoginName: boolean;
-  allowBrowserSave: boolean;
-  autoLoginEnabled: boolean;
-  autoLoginDuration: string;
-};
+export { action } from "./action";
+export { loader } from "./loader";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
+export function meta(_args: Route.MetaArgs) {
+  return [
+    {
+      title: "ログインのセキュリティ設定 - cybozu.com共通管理 - OpenDesk",
+    },
+  ];
+}
 
-  const settings: SecuritySettings = {
-    samlEnabled: false,
-    twoFactorEnabled: false,
-    userPasswordMinLength: 8,
-    adminPasswordMinLength: 8,
-    complexity: "alphanumeric",
-    allowLoginNamePassword: false,
-    passwordExpiry: "unlimited",
-    passwordHistoryCount: 0,
-    allowPasswordChange: true,
-    requirePasswordChange: false,
-    allowPasswordReset: true,
-    lockoutAttempts: 10,
-    lockoutDuration: "3min",
-    sessionTimeout: "24h",
-    autoCompleteLoginName: false,
-    allowBrowserSave: false,
-    autoLoginEnabled: false,
-    autoLoginDuration: "1week",
-  };
+function formatLockoutDuration(minutes: number | null): string {
+  switch (minutes) {
+    case 3:
+      return "3min";
+    case 15:
+      return "15min";
+    case 30:
+      return "30min";
+    case 60:
+      return "60min";
+    case null:
+      return "never";
+    default:
+      return "3min";
+  }
+}
 
-  return { settings };
+function formatSessionTimeout(minutes: number): string {
+  switch (minutes) {
+    case 15:
+      return "15min";
+    case 30:
+      return "30min";
+    case 60:
+      return "1h";
+    case 120:
+      return "2h";
+    case 240:
+      return "4h";
+    case 480:
+      return "8h";
+    case 720:
+      return "12h";
+    case 1440:
+      return "24h";
+    default:
+      return "24h";
+  }
+}
+
+function formatComplexity(
+  complexity: "NONE" | "ALPHANUMERIC" | "ALPHANUMERIC_SPECIAL",
+): string {
+  switch (complexity) {
+    case "NONE":
+      return "NONE";
+    case "ALPHANUMERIC":
+      return "ALPHANUMERIC";
+    case "ALPHANUMERIC_SPECIAL":
+      return "ALPHANUMERIC_SPECIAL";
+    default:
+      return "ALPHANUMERIC";
+  }
 }
 
 const saveSecuritySchema = z.object({
@@ -70,30 +83,6 @@ const saveSecuritySchema = z.object({
   sessionTimeout: z.string(),
 });
 
-export const handlers = {
-  saveSettings: defineHandler({
-    schema: saveSecuritySchema,
-    handler: async (_value, args) => {
-      await requireAuth(args.request, container);
-      return success();
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
-
-export function meta(_args: Route.MetaArgs) {
-  return [
-    {
-      title: "ログインのセキュリティ設定 - cybozu.com共通管理 - OpenDesk",
-    },
-  ];
-}
-
-import { SELECT_CLASSES } from "@/lib/admin";
-
 export default function LoginSecurityPage({
   loaderData,
 }: Route.ComponentProps) {
@@ -105,10 +94,10 @@ export default function LoginSecurityPage({
     id: "security-settings-form",
     lastResult:
       fetcher.data?.intent === "saveSettings" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.saveSettings.schema),
+    constraint: getZodConstraint(saveSecuritySchema),
     shouldValidate: "onSubmit",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: handlers.saveSettings.schema });
+      return parseWithZod(formData, { schema: saveSecuritySchema });
     },
   });
 
@@ -134,7 +123,7 @@ export default function LoginSecurityPage({
                   id="samlEnabled"
                   name="samlEnabled"
                   value="true"
-                  defaultChecked={settings.samlEnabled}
+                  defaultChecked={settings.samlAuth.enabled}
                   className="mt-[2px] h-[18px] w-[18px] shrink-0 cursor-pointer accent-primary"
                 />
                 <div>
@@ -155,7 +144,7 @@ export default function LoginSecurityPage({
                   id="twoFactorEnabled"
                   name="twoFactorEnabled"
                   value="true"
-                  defaultChecked={settings.twoFactorEnabled}
+                  defaultChecked={settings.twoFactorAuth.enabled}
                   className="mt-[2px] h-[18px] w-[18px] shrink-0 cursor-pointer accent-primary"
                 />
                 <div>
@@ -190,7 +179,7 @@ export default function LoginSecurityPage({
                 <select
                   id="sec-userPasswordMinLength"
                   name="userPasswordMinLength"
-                  defaultValue={String(settings.userPasswordMinLength)}
+                  defaultValue={String(settings.passwordPolicy.userMinLength)}
                   className={SELECT_CLASSES}
                 >
                   {[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((n) => (
@@ -210,7 +199,7 @@ export default function LoginSecurityPage({
                 <select
                   id="sec-adminPasswordMinLength"
                   name="adminPasswordMinLength"
-                  defaultValue={String(settings.adminPasswordMinLength)}
+                  defaultValue={String(settings.passwordPolicy.adminMinLength)}
                   className={SELECT_CLASSES}
                 >
                   {[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((n) => (
@@ -230,12 +219,14 @@ export default function LoginSecurityPage({
                 <select
                   id="sec-complexity"
                   name="complexity"
-                  defaultValue={settings.complexity}
+                  defaultValue={formatComplexity(
+                    settings.passwordPolicy.complexity,
+                  )}
                   className={SELECT_CLASSES}
                 >
-                  <option value="none">制限なし</option>
-                  <option value="alphanumeric">アルファベットと数字</option>
-                  <option value="complex">
+                  <option value="NONE">制限なし</option>
+                  <option value="ALPHANUMERIC">アルファベットと数字</option>
+                  <option value="ALPHANUMERIC_SPECIAL">
                     アルファベット＋数字＋特殊文字
                   </option>
                 </select>
@@ -260,7 +251,9 @@ export default function LoginSecurityPage({
                 <select
                   id="sec-lockoutAttempts"
                   name="lockoutAttempts"
-                  defaultValue={String(settings.lockoutAttempts)}
+                  defaultValue={String(
+                    settings.lockoutPolicy.maxFailedAttempts ?? 0,
+                  )}
                   className={SELECT_CLASSES}
                 >
                   <option value="3">3回</option>
@@ -279,7 +272,9 @@ export default function LoginSecurityPage({
                 <select
                   id="sec-lockoutDuration"
                   name="lockoutDuration"
-                  defaultValue={settings.lockoutDuration}
+                  defaultValue={formatLockoutDuration(
+                    settings.lockoutPolicy.lockoutDurationMinutes,
+                  )}
                   className={SELECT_CLASSES}
                 >
                   <option value="3min">3分</option>
@@ -306,7 +301,9 @@ export default function LoginSecurityPage({
                 <select
                   id="sec-sessionTimeout"
                   name="sessionTimeout"
-                  defaultValue={settings.sessionTimeout}
+                  defaultValue={formatSessionTimeout(
+                    settings.sessionPolicy.sessionLifetimeMinutes,
+                  )}
                   className={SELECT_CLASSES}
                 >
                   <option value="15min">15分</option>

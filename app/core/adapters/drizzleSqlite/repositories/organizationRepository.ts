@@ -158,4 +158,21 @@ export class DrizzleSqliteOrganizationRepository
       );
     }
   }
+
+  async findAll(): Promise<Organization[]> {
+    try {
+      const results = await this.executor
+        .select()
+        .from(organizations)
+        .orderBy(organizations.orderIndex);
+
+      return results.map((r) => this.into(r));
+    } catch (error) {
+      throw new SystemError(
+        SystemErrorCode.DatabaseError,
+        "Failed to find all organizations",
+        error,
+      );
+    }
+  }
 }

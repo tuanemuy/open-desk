@@ -1,6 +1,9 @@
+import { data } from "react-router";
 import { toast } from "sonner";
 import { container } from "@/core/application/container/server.instance";
+import { getAccessRestriction } from "@/core/application/system-settings/getAccessRestriction";
 import { useCompositeAction } from "@/lib/compositeAction";
+import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 import type { handlers } from "./action";
@@ -9,20 +12,50 @@ export { action } from "./action";
 
 export async function loader({ request }: Route.LoaderArgs) {
   await requireAuth(request, container);
-  return {};
+
+  const result = await handleUseCase(() =>
+    getAccessRestriction({
+      container,
+      headers: request.headers,
+      input: undefined,
+    }),
+  ).match(
+    (result) => result,
+    (e) => {
+      throw data({ message: e.message }, { status: e.status });
+    },
+  );
+
+  return {
+    ipRestrictionEnabled: result.ipRestrictionEnabled,
+    allowedIps: result.allowedIps,
+    basicAuthEnabled: result.basicAuthEnabled,
+    basicAuthUsername: result.basicAuthUsername,
+  };
 }
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "アクセス制限 - cybozu.com共通管理 - OpenDesk" }];
 }
 
-export default function NetworkSecurityPage(_props: Route.ComponentProps) {
+export default function NetworkSecurityPage({
+  loaderData,
+}: Route.ComponentProps) {
+  const {
+    ipRestrictionEnabled,
+    allowedIps,
+    basicAuthEnabled,
+    basicAuthUsername,
+  } = loaderData;
   const fetcher = useCompositeAction<typeof handlers>();
 
   fetcher.register("save", {
     onSuccess: () => toast.success("保存しました"),
-    onHandlerError: () => toast.error("保存に失敗しました"),
+    onHandlerError: ({ error }) =>
+      toast.error(error?.[""]?.[0] ?? "保存に失敗しました"),
   });
+
+  const ipAllowListDefault = allowedIps.map((ip) => ip.cidr).join("\n");
 
   return (
     <section>
@@ -49,6 +82,7 @@ export default function NetworkSecurityPage(_props: Route.ComponentProps) {
               id="ip-restriction"
               name="ipRestriction"
               value="on"
+              defaultChecked={ipRestrictionEnabled}
               className="mt-[2px] h-[18px] w-[18px] shrink-0 cursor-pointer accent-primary"
             />
             <label
@@ -61,6 +95,7 @@ export default function NetworkSecurityPage(_props: Route.ComponentProps) {
           <textarea
             name="ipAllowList"
             rows={5}
+            defaultValue={ipAllowListDefault}
             placeholder="例: 192.168.1.0/24"
             className="w-full rounded-sm border border-neutral-300 bg-bg-card p-md font-body text-sm text-neutral-800 outline-none transition-[border-color,box-shadow] duration-[var(--transition-default)] placeholder:text-neutral-400 focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-lighter)]"
           />
@@ -79,6 +114,7 @@ export default function NetworkSecurityPage(_props: Route.ComponentProps) {
               id="basic-auth"
               name="basicAuth"
               value="on"
+              defaultChecked={basicAuthEnabled}
               className="mt-[2px] h-[18px] w-[18px] shrink-0 cursor-pointer accent-primary"
             />
             <label

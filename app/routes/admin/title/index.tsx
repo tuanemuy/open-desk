@@ -1,11 +1,10 @@
-import { container } from "@/core/application/container/server.instance";
-import { requireAuth } from "@/lib/session.server";
+import { toast } from "sonner";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
+import type { handlers } from "./action";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-  return { titles: [] as { id: string; name: string }[] };
-}
+export { action } from "./action";
+export { loader } from "./loader";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "役職 - cybozu.com共通管理 - OpenDesk" }];
@@ -13,6 +12,13 @@ export function meta(_args: Route.MetaArgs) {
 
 export default function TitlePage({ loaderData }: Route.ComponentProps) {
   const { titles } = loaderData;
+  const fetcher = useCompositeAction<typeof handlers>();
+
+  fetcher.register("deleteTitle", {
+    onSuccess: () => toast.success("役職を削除しました"),
+    onHandlerError: ({ error }) =>
+      toast.error(error?.[""]?.[0] ?? "削除に失敗しました"),
+  });
 
   return (
     <section>
@@ -38,19 +44,28 @@ export default function TitlePage({ loaderData }: Route.ComponentProps) {
             <tbody>
               {titles.map((title) => (
                 <tr
-                  key={title.id}
+                  key={title.titleId}
                   className="border-b border-neutral-200 transition-colors duration-[var(--transition-default)] last:border-b-0 hover:bg-neutral-100"
                 >
                   <td className="px-md py-sm text-base text-neutral-800">
                     {title.name}
                   </td>
                   <td className="px-md py-sm">
-                    <button
-                      type="button"
-                      className="bg-transparent text-sm font-[var(--weight-medium)] text-error transition-colors duration-[var(--transition-default)] hover:underline"
-                    >
-                      削除
-                    </button>
+                    <fetcher.Form method="post">
+                      <input type="hidden" name="intent" value="deleteTitle" />
+                      <input
+                        type="hidden"
+                        name="titleId"
+                        value={title.titleId}
+                      />
+                      <button
+                        type="submit"
+                        disabled={fetcher.isPending("deleteTitle")}
+                        className="bg-transparent text-sm font-[var(--weight-medium)] text-error transition-colors duration-[var(--transition-default)] hover:underline disabled:opacity-50"
+                      >
+                        削除
+                      </button>
+                    </fetcher.Form>
                   </td>
                 </tr>
               ))}

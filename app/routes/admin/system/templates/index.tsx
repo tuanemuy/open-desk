@@ -1,22 +1,11 @@
 import { FileDown, FileUp, Plus, Trash2 } from "lucide-react";
-import { container } from "@/core/application/container/server.instance";
-import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
+
+export { action } from "./action";
+export { loader } from "./loader";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "アプリテンプレート - OpenDeskシステム管理" }];
-}
-
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-  return {
-    templates: [] as {
-      id: string;
-      name: string;
-      description: string;
-      createdAt: string;
-    }[],
-  };
 }
 
 export default function TemplatesPage({ loaderData }: Route.ComponentProps) {
@@ -82,17 +71,17 @@ export default function TemplatesPage({ loaderData }: Route.ComponentProps) {
             <tbody>
               {templates.map((t) => (
                 <tr
-                  key={t.id}
+                  key={t.templateId}
                   className="transition-colors duration-[var(--transition-default)] last:*:border-b-0 hover:bg-neutral-100"
                 >
                   <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
-                    {t.id}
+                    {t.templateId}
                   </td>
                   <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
                     {t.name}
                   </td>
                   <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
-                    {t.createdAt}
+                    {t.createdAt.toLocaleString()}
                   </td>
                 </tr>
               ))}

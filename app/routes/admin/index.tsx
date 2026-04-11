@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { container } from "@/core/application/container/server.instance";
+import { getDiskUsage } from "@/core/application/system-settings/getDiskUsage";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 
@@ -23,23 +24,44 @@ type ContractData = {
 };
 
 export async function loader({ request }: Route.LoaderArgs) {
+  const headers = request.headers;
   await requireAuth(request, container);
 
-  const userListResult = await container.unitOfWorkProvider.transaction(
-    async (ctx) => {
-      return ctx.userRepository.list({ offset: 0, limit: 1 });
-    },
-  );
+  const { userCount, appCount, spaceCount } =
+    await container.unitOfWorkProvider.transaction(async (ctx) => {
+      const userListResult = await ctx.userRepository.list({
+        offset: 0,
+        limit: 1,
+      });
+      const appCount = await ctx.appRepository.countAll();
+      const spaceCount = await ctx.spaceRepository.count({});
+
+      return {
+        userCount: userListResult.totalCount,
+        appCount,
+        spaceCount,
+      };
+    });
+
+  const { usedBytes, limitBytes } = await getDiskUsage({
+    container,
+    headers,
+    input: undefined,
+  });
+
+  const bytesPerGb = 1024 * 1024 * 1024;
+  const diskUsedGb = Math.round((usedBytes / bytesPerGb) * 100) / 100;
+  const diskLimitGb = Math.round((limitBytes / bytesPerGb) * 100) / 100;
 
   const contractData: ContractData = {
     courseName: "OpenDesk スタンダードコース",
     usageItems: [
-      { label: "ユーザー", used: userListResult.totalCount, limit: 50 },
-      { label: "アプリ", used: 15, limit: 1000 },
-      { label: "スペース", used: 8, limit: 500 },
+      { label: "ユーザー", used: userCount, limit: 50 },
+      { label: "アプリ", used: appCount, limit: 1000 },
+      { label: "スペース", used: spaceCount, limit: 500 },
     ],
-    diskUsedGb: 2.3,
-    diskLimitGb: 5,
+    diskUsedGb,
+    diskLimitGb,
     additionalServices: [
       {
         name: "Garoon",

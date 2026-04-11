@@ -1,35 +1,16 @@
-import { container } from "@/core/application/container/server.instance";
-import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
+
+export { action } from "./action";
+export { loader } from "./loader";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "アプリグループ - OpenDeskシステム管理" }];
 }
 
-type AppGroup = {
-  id: string;
-  name: string;
-  accessControl: string;
-  appCount: number;
-};
-
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-  return {
-    defaultGroup: "Public",
-    groups: [
-      {
-        id: "1",
-        name: "Public",
-        accessControl: "すべてのユーザー",
-        appCount: 15,
-      },
-    ] as AppGroup[],
-  };
-}
-
 export default function AppGroupsPage({ loaderData }: Route.ComponentProps) {
-  const { defaultGroup, groups } = loaderData;
+  const { groups } = loaderData;
+
+  const defaultGroup = groups.find((g) => g.isDefault);
 
   return (
     <section>
@@ -49,11 +30,11 @@ export default function AppGroupsPage({ loaderData }: Route.ComponentProps) {
         </label>
         <select
           id="default-app-group"
-          defaultValue={defaultGroup}
+          defaultValue={defaultGroup?.appGroupId}
           className="h-9 w-[200px] cursor-pointer rounded-sm border border-neutral-300 bg-bg-card px-md font-body text-base text-neutral-800 outline-none transition-[border-color,box-shadow] duration-[var(--transition-default)] focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-lighter)]"
         >
           {groups.map((g) => (
-            <option key={g.id} value={g.name}>
+            <option key={g.appGroupId} value={g.appGroupId}>
               {g.name}
             </option>
           ))}
@@ -74,7 +55,7 @@ export default function AppGroupsPage({ loaderData }: Route.ComponentProps) {
                 アプリグループ名
               </th>
               <th className="border-b border-neutral-200 bg-bg-section px-md py-sm text-left text-sm font-[var(--weight-medium)] text-neutral-600 whitespace-nowrap">
-                アクセス権
+                デフォルト
               </th>
               <th className="border-b border-neutral-200 bg-bg-section px-md py-sm text-right text-sm font-[var(--weight-medium)] text-neutral-600 whitespace-nowrap">
                 所属するアプリ
@@ -84,20 +65,20 @@ export default function AppGroupsPage({ loaderData }: Route.ComponentProps) {
           <tbody>
             {groups.map((group) => (
               <tr
-                key={group.id}
+                key={group.appGroupId}
                 className="transition-colors duration-[var(--transition-default)] last:*:border-b-0 hover:bg-neutral-100"
               >
                 <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
-                  {group.id}
+                  {group.appGroupId}
                 </td>
                 <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
                   {group.name}
                 </td>
                 <td className="border-b border-neutral-200 px-md py-sm text-neutral-800">
-                  {group.accessControl}
+                  {group.isDefault ? "はい" : "-"}
                 </td>
                 <td className="border-b border-neutral-200 px-md py-sm text-right text-neutral-800">
-                  {group.appCount}
+                  {group.appIds.length}
                 </td>
               </tr>
             ))}
