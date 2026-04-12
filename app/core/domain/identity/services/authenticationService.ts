@@ -113,7 +113,10 @@ export async function authenticateByPassword(
     };
   }
 
-  // Lockout check (always executed regardless of lockoutPolicy values)
+  // Lockout check (always executed regardless of lockoutPolicy values).
+  // Note: failedLoginAttempts is NOT reset when the lock expires — if the user
+  // enters a wrong password after expiry, the count continues from where it was,
+  // causing an immediate re-lock. This is intentional for security.
   if (
     credentials.lockedUntil !== null &&
     credentials.lockedUntil > new Date()
