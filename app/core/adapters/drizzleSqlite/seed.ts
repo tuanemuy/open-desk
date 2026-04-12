@@ -228,9 +228,11 @@ async function main() {
   const contactFieldId = uuidv7();
   const postalFieldId = uuidv7();
   const telFieldId = uuidv7();
+  const faxFieldId = uuidv7();
   const addressFieldId = uuidv7();
   const rankFieldId = uuidv7();
   const emailFieldId = uuidv7();
+  const notesFieldId = uuidv7();
 
   const fieldRows = [
     {
@@ -319,6 +321,23 @@ async function main() {
       },
     },
     {
+      id: faxFieldId,
+      appId: customerAppId,
+      fieldCode: "fax",
+      label: "FAX(数字のみ)",
+      noLabel: false,
+      fieldType: "SINGLE_LINE_TEXT",
+      required: false,
+      isUnique: false,
+      properties: {
+        type: "SINGLE_LINE_TEXT",
+        expression: null,
+        hideExpression: false,
+        minLength: null,
+        maxLength: null,
+      },
+    },
+    {
       id: addressFieldId,
       appId: customerAppId,
       fieldCode: "address",
@@ -367,10 +386,23 @@ async function main() {
         maxLength: null,
       },
     },
+    {
+      id: notesFieldId,
+      appId: customerAppId,
+      fieldCode: "notes",
+      label: "備考",
+      noLabel: false,
+      fieldType: "MULTI_LINE_TEXT",
+      required: false,
+      isUnique: false,
+      properties: {
+        type: "MULTI_LINE_TEXT",
+      },
+    },
   ];
 
   await db.insert(fields).values(fieldRows).onConflictDoNothing();
-  console.log("  - 8 fields created");
+  console.log("  - 10 fields created");
 
   // ----------------------------------------------------------------
   // 7. Create form layout
@@ -454,6 +486,20 @@ async function main() {
       fields: [
         {
           type: "SINGLE_LINE_TEXT",
+          code: "fax",
+          label: null,
+          elementId: null,
+          size: { width: null, height: null, innerHeight: null },
+        },
+      ],
+      innerLayout: null,
+    },
+    {
+      type: "ROW",
+      code: null,
+      fields: [
+        {
+          type: "SINGLE_LINE_TEXT",
           code: "address",
           label: null,
           elementId: null,
@@ -483,6 +529,20 @@ async function main() {
         {
           type: "SINGLE_LINE_TEXT",
           code: "email",
+          label: null,
+          elementId: null,
+          size: { width: null, height: null, innerHeight: null },
+        },
+      ],
+      innerLayout: null,
+    },
+    {
+      type: "ROW",
+      code: null,
+      fields: [
+        {
+          type: "MULTI_LINE_TEXT",
+          code: "notes",
           label: null,
           elementId: null,
           size: { width: null, height: null, innerHeight: null },
@@ -525,9 +585,11 @@ async function main() {
           "contact_name",
           "postal_code",
           "tel",
+          "fax",
           "address",
           "customer_rank",
           "email",
+          "notes",
         ],
         pager: true,
         sort: [],
@@ -555,9 +617,11 @@ async function main() {
         contact_name: { value: "田中太郎", type: "SINGLE_LINE_TEXT" },
         postal_code: { value: "1000001", type: "SINGLE_LINE_TEXT" },
         tel: { value: "0312345678", type: "SINGLE_LINE_TEXT" },
+        fax: { value: "0312345679", type: "SINGLE_LINE_TEXT" },
         address: { value: "東京都千代田区千代田1-1", type: "SINGLE_LINE_TEXT" },
         customer_rank: { value: "A", type: "DROP_DOWN" },
         email: { value: "tanaka@sample-a.com", type: "SINGLE_LINE_TEXT" },
+        notes: { value: "主要取引先。月次定例あり。", type: "MULTI_LINE_TEXT" },
       },
       creatorId: adminId,
       modifierId: adminId,
@@ -572,9 +636,14 @@ async function main() {
         contact_name: { value: "鈴木花子", type: "SINGLE_LINE_TEXT" },
         postal_code: { value: "2000002", type: "SINGLE_LINE_TEXT" },
         tel: { value: "0456789012", type: "SINGLE_LINE_TEXT" },
+        fax: { value: "0456789013", type: "SINGLE_LINE_TEXT" },
         address: { value: "神奈川県横浜市西区1-2", type: "SINGLE_LINE_TEXT" },
         customer_rank: { value: "B", type: "DROP_DOWN" },
         email: { value: "suzuki@sample-b.com", type: "SINGLE_LINE_TEXT" },
+        notes: {
+          value: "新規開拓先。技術部門との連携検討中。",
+          type: "MULTI_LINE_TEXT",
+        },
       },
       creatorId: adminId,
       modifierId: adminId,
@@ -589,9 +658,14 @@ async function main() {
         contact_name: { value: "佐藤次郎", type: "SINGLE_LINE_TEXT" },
         postal_code: { value: "3000003", type: "SINGLE_LINE_TEXT" },
         tel: { value: "0523456789", type: "SINGLE_LINE_TEXT" },
+        fax: { value: "0523456790", type: "SINGLE_LINE_TEXT" },
         address: { value: "大阪府大阪市北区3-3", type: "SINGLE_LINE_TEXT" },
         customer_rank: { value: "C", type: "DROP_DOWN" },
         email: { value: "sato@sample-c.com", type: "SINGLE_LINE_TEXT" },
+        notes: {
+          value: "年間契約更新予定。担当者変更の可能性あり。",
+          type: "MULTI_LINE_TEXT",
+        },
       },
       creatorId: adminId,
       modifierId: adminId,
