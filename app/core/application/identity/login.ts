@@ -7,11 +7,13 @@ import {
 import type { ServiceArgs } from "@/core/application/types";
 import { authenticateByPassword } from "@/core/domain/identity/services/authenticationService";
 import {
+  LockoutPolicy,
   LoginName,
   Password,
   PasswordPolicy,
   SessionPolicy,
 } from "@/core/domain/identity/valueObject";
+import { SystemSetting } from "@/core/domain/system-settings/entity";
 import type { LoginOutput } from "./dto";
 
 export type LoginInput = {
@@ -48,6 +50,21 @@ export async function login({
   );
 
   const result = await container.unitOfWorkProvider.transaction(async (ctx) => {
+    const lockoutSetting =
+      await ctx.systemSettingsRepository.findByKey("lockout_policy");
+    const lockoutPolicy = lockoutSetting
+      ? LockoutPolicy.create({
+          maxFailedAttempts: SystemSetting.getTypedValue(
+            lockoutSetting,
+            "lockout_policy",
+          ).maxFailedAttempts,
+          lockoutDuration: SystemSetting.getTypedValue(
+            lockoutSetting,
+            "lockout_policy",
+          ).lockoutDurationMinutes,
+        })
+      : LockoutPolicy.default();
+
     return authenticateByPassword(
       {
         userRepository: ctx.userRepository,
@@ -61,6 +78,7 @@ export async function login({
         userAgent: input.userAgent,
         country: input.country,
         sessionPolicy,
+        lockoutPolicy,
       },
     );
   });

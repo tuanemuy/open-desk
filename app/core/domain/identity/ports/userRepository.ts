@@ -90,7 +90,23 @@ export interface UserRepository {
     userId: UserIdType;
     hashedPassword: HashedPasswordType;
     isActive: boolean;
+    failedLoginAttempts: number;
+    lockedUntil: Date | null;
   } | null>;
+
+  /**
+   * Record a failed login attempt by updating the failed login count and optional lock time.
+   */
+  recordFailedLogin(
+    userId: UserIdType,
+    failedAttempts: number,
+    lockedUntil: Date | null,
+  ): Promise<void>;
+
+  /**
+   * Clear failed login state (reset failedLoginAttempts to 0 and lockedUntil to null).
+   */
+  clearFailedLogin(userId: UserIdType): Promise<void>;
 
   /**
    * Find users belonging to the specified organization.

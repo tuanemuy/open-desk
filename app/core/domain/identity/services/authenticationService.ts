@@ -12,6 +12,7 @@ import type { SessionRepository } from "@/core/domain/identity/ports/sessionRepo
 import type { UserRepository } from "@/core/domain/identity/ports/userRepository";
 import type {
   ApiScope,
+  LockoutPolicy as LockoutPolicyType,
   LoginName as LoginNameType,
   SessionId as SessionIdType,
   SessionPolicy as SessionPolicyType,
@@ -74,6 +75,13 @@ export type AuthenticationServiceDeps = {
 
 /**
  * Authenticate a user by password and create a session.
+ *
+ * Side effects:
+ * - On password verification failure (when lockout policy is enabled):
+ *   calls `deps.userRepository.recordFailedLogin` to increment the failure count
+ *   and optionally set the lock time.
+ * - On password verification success (when previous failures exist):
+ *   calls `deps.userRepository.clearFailedLogin` to reset the failure count.
  */
 export async function authenticateByPassword(
   deps: Pick<
@@ -87,6 +95,7 @@ export async function authenticateByPassword(
     userAgent: string;
     country?: string;
     sessionPolicy: SessionPolicyType;
+    lockoutPolicy: LockoutPolicyType;
   },
 ): Promise<DomainResult<Session, AuthenticationError>> {
   const credentials = await deps.userRepository.findCredentialsByLoginName(
@@ -103,13 +112,51 @@ export async function authenticateByPassword(
     };
   }
 
+  // Lockout check (always executed regardless of lockoutPolicy values)
+  if (
+    credentials.lockedUntil !== null &&
+    credentials.lockedUntil > new Date()
+  ) {
+    return {
+      ok: false,
+      error: {
+        kind: "AccountLocked",
+        userId: credentials.userId,
+        unlockAt: credentials.lockedUntil,
+      },
+    };
+  }
+
   // Verify the password against the stored hash
   const isPasswordValid = await deps.passwordHasher.verify(
     params.password,
     credentials.hashedPassword,
   );
   if (!isPasswordValid) {
+    // Record failed login attempt when lockout policy is enabled
+    if (params.lockoutPolicy.maxFailedAttempts !== null) {
+      const newCount = credentials.failedLoginAttempts + 1;
+      let lockedUntil: Date | null = null;
+      if (newCount >= params.lockoutPolicy.maxFailedAttempts) {
+        lockedUntil =
+          params.lockoutPolicy.lockoutDuration === null
+            ? new Date("9999-12-31")
+            : new Date(
+                Date.now() + params.lockoutPolicy.lockoutDuration * 60 * 1000,
+              );
+      }
+      await deps.userRepository.recordFailedLogin(
+        credentials.userId,
+        newCount,
+        lockedUntil,
+      );
+    }
     return { ok: false, error: { kind: "InvalidCredentials" } };
+  }
+
+  // Clear failed login state on successful authentication
+  if (credentials.failedLoginAttempts > 0 || credentials.lockedUntil !== null) {
+    await deps.userRepository.clearFailedLogin(credentials.userId);
   }
 
   const { entity: session } = SessionEntity.create({
