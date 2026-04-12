@@ -29,6 +29,9 @@ export const handlers = {
         return error({ "": ["Authentication required"] });
       }
 
+      const isGuest =
+        new URL(args.request.url).searchParams.get("guest") === "true";
+
       const member = MemberEntity.create({
         type: MemberEntityType.User,
         id: auth.userId,
@@ -39,7 +42,7 @@ export const handlers = {
         { entity: member, isAdmin: true, includeSubs: false },
       ] as const;
 
-      if (value.isGuest) {
+      if (isGuest) {
         return handleUseCase(() =>
           createGuestSpace({
             container,

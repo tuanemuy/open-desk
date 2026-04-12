@@ -24,6 +24,9 @@ export default function NewSpacePage({ loaderData }: Route.ComponentProps) {
     lastResult:
       fetcher.data?.intent === "createSpace" ? fetcher.data : undefined,
     constraint: getZodConstraint(createSpaceSchema),
+    defaultValue: {
+      isPrivate: isGuest ? "on" : undefined,
+    },
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
@@ -43,7 +46,7 @@ export default function NewSpacePage({ loaderData }: Route.ComponentProps) {
     "w-full rounded-sm border border-neutral-300 bg-bg-card px-md py-sm font-body text-base leading-normal text-neutral-800 outline-none transition-[border-color] duration-[var(--transition-default)] placeholder:text-neutral-400 hover:not-focus:border-neutral-400 focus:border-primary";
 
   return (
-    <div className="mx-auto max-w-[800px] px-lg px-xl">
+    <div className="mx-auto max-w-[800px] px-xl">
       {/* Breadcrumb */}
       <nav>
         <ol className="mb-md flex list-none items-center gap-xs text-sm text-neutral-500">
@@ -66,14 +69,15 @@ export default function NewSpacePage({ loaderData }: Route.ComponentProps) {
 
       <fetcher.Form method="post" {...getFormProps(form)}>
         <input type="hidden" name="intent" value="createSpace" />
-        <input type="hidden" name="isGuest" value={isGuest ? "true" : ""} />
 
         {/* Form Card */}
         <div className="mb-lg rounded-lg border border-neutral-200 bg-bg-card p-lg">
           {/* Form-level errors */}
-          {form.errors && (
+          {form.errors && form.errors.length > 0 && (
             <div className="mb-md rounded-sm border border-error bg-error/10 px-md py-sm text-sm text-error">
-              {form.errors}
+              {form.errors.map((e) => (
+                <p key={e}>{e}</p>
+              ))}
             </div>
           )}
 
@@ -99,18 +103,29 @@ export default function NewSpacePage({ loaderData }: Route.ComponentProps) {
 
           {/* Private checkbox */}
           <div className="mb-lg">
-            <label className="flex items-center gap-sm text-sm text-neutral-700">
-              <input
-                {...getInputProps(fields.isPrivate, { type: "checkbox" })}
-                disabled={isGuest}
-                defaultChecked={isGuest}
-              />
-              Private space
-            </label>
-            {isGuest && (
-              <p className="mt-xs text-xs text-neutral-500">
-                Guest spaces are always private.
-              </p>
+            {isGuest ? (
+              <>
+                <input type="hidden" name="isPrivate" value="on" />
+                <label className="flex items-center gap-sm text-sm text-neutral-500">
+                  <input
+                    type="checkbox"
+                    checked
+                    disabled
+                    className="pointer-events-none"
+                  />
+                  Private space
+                </label>
+                <p className="mt-xs text-xs text-neutral-500">
+                  Guest spaces are always private.
+                </p>
+              </>
+            ) : (
+              <label className="flex items-center gap-sm text-sm text-neutral-700">
+                <input
+                  {...getInputProps(fields.isPrivate, { type: "checkbox" })}
+                />
+                Private space
+              </label>
             )}
           </div>
 

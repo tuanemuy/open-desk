@@ -40,7 +40,7 @@ export default function AppStorePage({ loaderData }: Route.ComponentProps) {
   const isPending = fetcher.isPending("createBlank");
 
   return (
-    <div className="mx-auto max-w-[1400px] px-lg px-xl">
+    <div className="mx-auto max-w-[1400px] px-xl">
       {/* Breadcrumb */}
       <nav>
         <ol className="mb-md flex list-none items-center gap-xs text-sm text-neutral-500">
@@ -69,9 +69,11 @@ export default function AppStorePage({ loaderData }: Route.ComponentProps) {
         <fetcher.Form method="post" {...getFormProps(form)}>
           <input type="hidden" name="intent" value="createBlank" />
           {/* Form-level errors */}
-          {form.errors && (
+          {form.errors && form.errors.length > 0 && (
             <div className="mb-md rounded-sm border border-error bg-error/10 px-md py-sm text-sm text-error">
-              {form.errors}
+              {form.errors.map((e) => (
+                <p key={e}>{e}</p>
+              ))}
             </div>
           )}
           <button

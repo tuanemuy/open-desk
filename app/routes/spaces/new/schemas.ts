@@ -5,5 +5,4 @@ export const createSpaceSchema = z.object({
   isPrivate: z.coerce.boolean().default(false),
   useMultiThread: z.coerce.boolean().default(false),
   fixedMember: z.coerce.boolean().default(false),
-  isGuest: z.coerce.boolean().default(false),
 });
