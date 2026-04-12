@@ -3,9 +3,8 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { SELECT_CLASSES } from "@/lib/admin";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import { saveLocaleSchema } from "./schemas";
-
 import type { handlers } from "./action.server";
+import { saveLocaleSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";

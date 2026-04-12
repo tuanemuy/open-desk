@@ -4,9 +4,8 @@ import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import { createGroupSchema } from "./schemas";
-
 import type { handlers } from "./action.server";
+import { createGroupSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";

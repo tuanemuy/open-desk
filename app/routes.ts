@@ -17,6 +17,7 @@ export default [
 
     route("portal", "routes/portal/index.tsx"),
     route("apps", "routes/apps/index.tsx"),
+    route("apps/store", "routes/apps/store/index.tsx"),
     route("apps/:appId", "routes/apps/app/index.tsx"),
     route("apps/:appId/records/new", "routes/apps/app/records/new/index.tsx"),
     route(
@@ -24,6 +25,7 @@ export default [
       "routes/apps/app/records/record/index.tsx",
     ),
     route("apps/:appId/settings", "routes/apps/app/settings/index.tsx"),
+    route("spaces/new", "routes/spaces/new/index.tsx"),
     route("spaces/:spaceId", "routes/spaces/space/index.tsx"),
     route(
       "spaces/:spaceId/threads/:threadId",
