@@ -550,9 +550,9 @@ export const PasswordPolicy = {
     allowUserReset: boolean;
   }): _PasswordPolicy => {
     if (
+      !Number.isInteger(params.minLength) ||
       params.minLength < PASSWORD_MIN_LENGTH_MIN ||
-      params.minLength > PASSWORD_MIN_LENGTH_MAX ||
-      !Number.isInteger(params.minLength)
+      params.minLength > PASSWORD_MIN_LENGTH_MAX
     ) {
       throw new BusinessRuleError(
         IdentityErrorCode.InvalidPasswordMinLength,
@@ -560,9 +560,9 @@ export const PasswordPolicy = {
       );
     }
     if (
+      !Number.isInteger(params.historyCount) ||
       params.historyCount < PASSWORD_HISTORY_COUNT_MIN ||
-      params.historyCount > PASSWORD_HISTORY_COUNT_MAX ||
-      !Number.isInteger(params.historyCount)
+      params.historyCount > PASSWORD_HISTORY_COUNT_MAX
     ) {
       throw new BusinessRuleError(
         IdentityErrorCode.InvalidPasswordHistoryCount,
@@ -755,9 +755,9 @@ export const LockoutPolicy = {
   }): _LockoutPolicy => {
     if (
       params.maxFailedAttempts !== null &&
-      (params.maxFailedAttempts < LOCKOUT_MAX_ATTEMPTS_MIN ||
-        params.maxFailedAttempts > LOCKOUT_MAX_ATTEMPTS_MAX ||
-        !Number.isInteger(params.maxFailedAttempts))
+      (!Number.isInteger(params.maxFailedAttempts) ||
+        params.maxFailedAttempts < LOCKOUT_MAX_ATTEMPTS_MIN ||
+        params.maxFailedAttempts > LOCKOUT_MAX_ATTEMPTS_MAX)
     ) {
       throw new BusinessRuleError(
         IdentityErrorCode.InvalidLockoutMaxAttempts,
@@ -806,9 +806,9 @@ export type SessionPolicy = _SessionPolicy;
 export const SessionPolicy = {
   create: (timeoutMinutes: number): _SessionPolicy => {
     if (
+      !Number.isInteger(timeoutMinutes) ||
       timeoutMinutes < SESSION_TIMEOUT_MIN ||
-      timeoutMinutes > SESSION_TIMEOUT_MAX ||
-      !Number.isInteger(timeoutMinutes)
+      timeoutMinutes > SESSION_TIMEOUT_MAX
     ) {
       throw new BusinessRuleError(
         IdentityErrorCode.InvalidSessionTimeout,

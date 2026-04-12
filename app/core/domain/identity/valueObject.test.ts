@@ -151,6 +151,20 @@ describe("LockoutPolicy.create", () => {
     );
   });
 
+  it("should throw BusinessRuleError when maxFailedAttempts is Infinity", () => {
+    expect(() =>
+      LockoutPolicy.create({
+        maxFailedAttempts: Number.POSITIVE_INFINITY,
+        lockoutDuration: null,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidLockoutMaxAttempts,
+      }),
+    );
+  });
+
   // --- 異常系: lockoutDuration 非正値 ---
 
   it("should throw BusinessRuleError when lockoutDuration is 0", () => {
@@ -412,6 +426,30 @@ describe("PasswordPolicy.create", () => {
     );
   });
 
+  // --- 正常系 / 境界値: minLength ---
+
+  it("should accept minLength at minimum boundary (3)", () => {
+    const policy = PasswordPolicy.create({ ...validParams, minLength: 3 });
+    expect(policy.minLength).toBe(3);
+  });
+
+  it("should accept minLength at maximum boundary (15)", () => {
+    const policy = PasswordPolicy.create({ ...validParams, minLength: 15 });
+    expect(policy.minLength).toBe(15);
+  });
+
+  // --- 正常系 / 境界値: historyCount ---
+
+  it("should accept historyCount at minimum boundary (0)", () => {
+    const policy = PasswordPolicy.create({ ...validParams, historyCount: 0 });
+    expect(policy.historyCount).toBe(0);
+  });
+
+  it("should accept historyCount at maximum boundary (15)", () => {
+    const policy = PasswordPolicy.create({ ...validParams, historyCount: 15 });
+    expect(policy.historyCount).toBe(15);
+  });
+
   // --- 異常系: minLength 非整数 ---
 
   it("should throw BusinessRuleError when minLength is a non-integer float (8.5)", () => {
@@ -442,6 +480,20 @@ describe("PasswordPolicy.create", () => {
     );
   });
 
+  it("should throw BusinessRuleError when minLength is Infinity", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        minLength: Number.POSITIVE_INFINITY,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordMinLength,
+      }),
+    );
+  });
+
   // --- 異常系: historyCount 非整数 ---
 
   it("should throw BusinessRuleError when historyCount is a non-integer float (3.7)", () => {
@@ -463,6 +515,20 @@ describe("PasswordPolicy.create", () => {
       PasswordPolicy.create({
         ...validParams,
         historyCount: Number.NaN,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordHistoryCount,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when historyCount is Infinity", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        historyCount: Number.POSITIVE_INFINITY,
       }),
     ).toThrow(
       expect.objectContaining({
