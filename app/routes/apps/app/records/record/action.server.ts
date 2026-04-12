@@ -15,12 +15,7 @@ export const handlers = {
   addComment: defineHandler({
     schema: addCommentSchema,
     handler: async (value, args) => {
-      let auth: Awaited<ReturnType<typeof requireAuth>>;
-      try {
-        auth = await requireAuth(args.request, container);
-      } catch {
-        return error({ "": ["Authentication required"] });
-      }
+      const auth = await requireAuth(args.request, container);
 
       const appId = args.params.appId as string;
       const recordId = args.params.recordId as string;

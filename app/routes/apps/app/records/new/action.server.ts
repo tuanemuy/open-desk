@@ -16,12 +16,7 @@ export const handlers = {
   createRecord: defineHandler({
     schema: createRecordSchema,
     handler: async (value, args) => {
-      let auth: Awaited<ReturnType<typeof requireAuth>>;
-      try {
-        auth = await requireAuth(args.request, container);
-      } catch {
-        return error({ "": ["Authentication required"] });
-      }
+      const auth = await requireAuth(args.request, container);
 
       const appId = args.params.appId as string;
       const fieldValues = new Map<string, FieldValue>();

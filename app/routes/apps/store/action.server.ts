@@ -15,12 +15,7 @@ export const handlers = {
   createBlank: defineHandler({
     schema: createAppBlankSchema,
     handler: async (value, args) => {
-      let auth: Awaited<ReturnType<typeof requireAuth>>;
-      try {
-        auth = await requireAuth(args.request, container);
-      } catch {
-        return error({ "": ["Authentication required"] });
-      }
+      const auth = await requireAuth(args.request, container);
 
       return handleUseCase(() =>
         createAppBlank({
