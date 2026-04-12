@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { BusinessRuleError } from "@/core/domain/error";
 import { IdentityErrorCode } from "@/core/domain/identity/errorCode";
 import { LockoutPolicy } from "@/core/domain/identity/valueObject";
 
@@ -68,6 +67,7 @@ describe("LockoutPolicy.create", () => {
       }),
     ).toThrow(
       expect.objectContaining({
+        name: "BusinessRuleError",
         code: IdentityErrorCode.InconsistentLockoutPolicy,
       }),
     );
@@ -81,6 +81,7 @@ describe("LockoutPolicy.create", () => {
       }),
     ).toThrow(
       expect.objectContaining({
+        name: "BusinessRuleError",
         code: IdentityErrorCode.InconsistentLockoutPolicy,
       }),
     );
@@ -96,6 +97,7 @@ describe("LockoutPolicy.create", () => {
       }),
     ).toThrow(
       expect.objectContaining({
+        name: "BusinessRuleError",
         code: IdentityErrorCode.InvalidLockoutMaxAttempts,
       }),
     );
@@ -109,6 +111,7 @@ describe("LockoutPolicy.create", () => {
       }),
     ).toThrow(
       expect.objectContaining({
+        name: "BusinessRuleError",
         code: IdentityErrorCode.InvalidLockoutMaxAttempts,
       }),
     );
@@ -124,6 +127,7 @@ describe("LockoutPolicy.create", () => {
       }),
     ).toThrow(
       expect.objectContaining({
+        name: "BusinessRuleError",
         code: IdentityErrorCode.InvalidLockoutDuration,
       }),
     );
@@ -137,6 +141,7 @@ describe("LockoutPolicy.create", () => {
       }),
     ).toThrow(
       expect.objectContaining({
+        name: "BusinessRuleError",
         code: IdentityErrorCode.InvalidLockoutDuration,
       }),
     );
@@ -152,6 +157,7 @@ describe("LockoutPolicy.create", () => {
       }),
     ).toThrow(
       expect.objectContaining({
+        name: "BusinessRuleError",
         code: IdentityErrorCode.InvalidLockoutDuration,
       }),
     );
