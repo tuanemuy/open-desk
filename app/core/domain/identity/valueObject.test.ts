@@ -223,6 +223,34 @@ describe("LockoutPolicy.create", () => {
       }),
     );
   });
+
+  it("should throw BusinessRuleError when lockoutDuration is NaN", () => {
+    expect(() =>
+      LockoutPolicy.create({
+        maxFailedAttempts: 5,
+        lockoutDuration: Number.NaN,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidLockoutDuration,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when lockoutDuration is Infinity", () => {
+    expect(() =>
+      LockoutPolicy.create({
+        maxFailedAttempts: 5,
+        lockoutDuration: Number.POSITIVE_INFINITY,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidLockoutDuration,
+      }),
+    );
+  });
 });
 
 describe("PasswordPolicy.create", () => {
@@ -238,6 +266,15 @@ describe("PasswordPolicy.create", () => {
 
   // --- 正常系 ---
 
+  it("should accept expirationDays: null (no expiration)", () => {
+    const policy = PasswordPolicy.create({
+      ...validParams,
+      expirationDays: null,
+    });
+
+    expect(policy.expirationDays).toBeNull();
+  });
+
   it("should accept expirationDays: 30 (positive integer)", () => {
     const policy = PasswordPolicy.create({
       ...validParams,
@@ -245,6 +282,45 @@ describe("PasswordPolicy.create", () => {
     });
 
     expect(policy.expirationDays).toBe(30);
+  });
+
+  it("should accept expirationDays: 1 (minimum positive integer boundary)", () => {
+    const policy = PasswordPolicy.create({
+      ...validParams,
+      expirationDays: 1,
+    });
+
+    expect(policy.expirationDays).toBe(1);
+  });
+
+  // --- 異常系: expirationDays 非正値 ---
+
+  it("should throw BusinessRuleError when expirationDays is 0", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        expirationDays: 0,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordExpirationDays,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when expirationDays is negative", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        expirationDays: -1,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordExpirationDays,
+      }),
+    );
   });
 
   // --- 異常系: expirationDays 非整数 ---
@@ -268,6 +344,34 @@ describe("PasswordPolicy.create", () => {
       PasswordPolicy.create({
         ...validParams,
         expirationDays: 0.5,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordExpirationDays,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when expirationDays is NaN", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        expirationDays: Number.NaN,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordExpirationDays,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when expirationDays is Infinity", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        expirationDays: Number.POSITIVE_INFINITY,
       }),
     ).toThrow(
       expect.objectContaining({
