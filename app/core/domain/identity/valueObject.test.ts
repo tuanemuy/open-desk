@@ -3,6 +3,7 @@ import { IdentityErrorCode } from "@/core/domain/identity/errorCode";
 import {
   LockoutPolicy,
   PasswordPolicy,
+  SessionPolicy,
 } from "@/core/domain/identity/valueObject";
 
 describe("LockoutPolicy.create", () => {
@@ -111,6 +112,36 @@ describe("LockoutPolicy.create", () => {
       LockoutPolicy.create({
         maxFailedAttempts: 11,
         lockoutDuration: 30,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidLockoutMaxAttempts,
+      }),
+    );
+  });
+
+  // --- 異常系: maxFailedAttempts 非整数 ---
+
+  it("should throw BusinessRuleError when maxFailedAttempts is a non-integer float (5.5)", () => {
+    expect(() =>
+      LockoutPolicy.create({
+        maxFailedAttempts: 5.5,
+        lockoutDuration: null,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidLockoutMaxAttempts,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when maxFailedAttempts is NaN", () => {
+    expect(() =>
+      LockoutPolicy.create({
+        maxFailedAttempts: Number.NaN,
+        lockoutDuration: null,
       }),
     ).toThrow(
       expect.objectContaining({
@@ -377,6 +408,136 @@ describe("PasswordPolicy.create", () => {
       expect.objectContaining({
         name: "BusinessRuleError",
         code: IdentityErrorCode.InvalidPasswordExpirationDays,
+      }),
+    );
+  });
+
+  // --- 異常系: minLength 非整数 ---
+
+  it("should throw BusinessRuleError when minLength is a non-integer float (8.5)", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        minLength: 8.5,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordMinLength,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when minLength is NaN", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        minLength: Number.NaN,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordMinLength,
+      }),
+    );
+  });
+
+  // --- 異常系: historyCount 非整数 ---
+
+  it("should throw BusinessRuleError when historyCount is a non-integer float (3.7)", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        historyCount: 3.7,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordHistoryCount,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when historyCount is NaN", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        historyCount: Number.NaN,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordHistoryCount,
+      }),
+    );
+  });
+});
+
+describe("SessionPolicy.create", () => {
+  // --- 正常系 ---
+
+  it("should accept timeoutMinutes: 30 (valid integer)", () => {
+    const policy = SessionPolicy.create(30);
+    expect(policy.timeoutMinutes).toBe(30);
+  });
+
+  // --- 境界値 ---
+
+  it("should accept timeoutMinutes at minimum boundary (15)", () => {
+    const policy = SessionPolicy.create(15);
+    expect(policy.timeoutMinutes).toBe(15);
+  });
+
+  it("should accept timeoutMinutes at maximum boundary (1440)", () => {
+    const policy = SessionPolicy.create(1440);
+    expect(policy.timeoutMinutes).toBe(1440);
+  });
+
+  // --- 異常系: 範囲外 ---
+
+  it("should throw BusinessRuleError when timeoutMinutes is below minimum (14)", () => {
+    expect(() => SessionPolicy.create(14)).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidSessionTimeout,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when timeoutMinutes exceeds maximum (1441)", () => {
+    expect(() => SessionPolicy.create(1441)).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidSessionTimeout,
+      }),
+    );
+  });
+
+  // --- 異常系: 非整数 ---
+
+  it("should throw BusinessRuleError when timeoutMinutes is a non-integer float (30.5)", () => {
+    expect(() => SessionPolicy.create(30.5)).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidSessionTimeout,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when timeoutMinutes is NaN", () => {
+    expect(() => SessionPolicy.create(Number.NaN)).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidSessionTimeout,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when timeoutMinutes is Infinity", () => {
+    expect(() => SessionPolicy.create(Number.POSITIVE_INFINITY)).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidSessionTimeout,
       }),
     );
   });

@@ -551,20 +551,22 @@ export const PasswordPolicy = {
   }): _PasswordPolicy => {
     if (
       params.minLength < PASSWORD_MIN_LENGTH_MIN ||
-      params.minLength > PASSWORD_MIN_LENGTH_MAX
+      params.minLength > PASSWORD_MIN_LENGTH_MAX ||
+      !Number.isInteger(params.minLength)
     ) {
       throw new BusinessRuleError(
         IdentityErrorCode.InvalidPasswordMinLength,
-        `Password minimum length must be between ${PASSWORD_MIN_LENGTH_MIN} and ${PASSWORD_MIN_LENGTH_MAX}`,
+        `Password minimum length must be an integer between ${PASSWORD_MIN_LENGTH_MIN} and ${PASSWORD_MIN_LENGTH_MAX}`,
       );
     }
     if (
       params.historyCount < PASSWORD_HISTORY_COUNT_MIN ||
-      params.historyCount > PASSWORD_HISTORY_COUNT_MAX
+      params.historyCount > PASSWORD_HISTORY_COUNT_MAX ||
+      !Number.isInteger(params.historyCount)
     ) {
       throw new BusinessRuleError(
         IdentityErrorCode.InvalidPasswordHistoryCount,
-        `Password history count must be between ${PASSWORD_HISTORY_COUNT_MIN} and ${PASSWORD_HISTORY_COUNT_MAX}`,
+        `Password history count must be an integer between ${PASSWORD_HISTORY_COUNT_MIN} and ${PASSWORD_HISTORY_COUNT_MAX}`,
       );
     }
     if (
@@ -754,11 +756,12 @@ export const LockoutPolicy = {
     if (
       params.maxFailedAttempts !== null &&
       (params.maxFailedAttempts < LOCKOUT_MAX_ATTEMPTS_MIN ||
-        params.maxFailedAttempts > LOCKOUT_MAX_ATTEMPTS_MAX)
+        params.maxFailedAttempts > LOCKOUT_MAX_ATTEMPTS_MAX ||
+        !Number.isInteger(params.maxFailedAttempts))
     ) {
       throw new BusinessRuleError(
         IdentityErrorCode.InvalidLockoutMaxAttempts,
-        `Lockout max failed attempts must be between ${LOCKOUT_MAX_ATTEMPTS_MIN} and ${LOCKOUT_MAX_ATTEMPTS_MAX}`,
+        `Lockout max failed attempts must be an integer between ${LOCKOUT_MAX_ATTEMPTS_MIN} and ${LOCKOUT_MAX_ATTEMPTS_MAX}`,
       );
     }
     if (
@@ -804,11 +807,12 @@ export const SessionPolicy = {
   create: (timeoutMinutes: number): _SessionPolicy => {
     if (
       timeoutMinutes < SESSION_TIMEOUT_MIN ||
-      timeoutMinutes > SESSION_TIMEOUT_MAX
+      timeoutMinutes > SESSION_TIMEOUT_MAX ||
+      !Number.isInteger(timeoutMinutes)
     ) {
       throw new BusinessRuleError(
         IdentityErrorCode.InvalidSessionTimeout,
-        `Session timeout must be between ${SESSION_TIMEOUT_MIN} and ${SESSION_TIMEOUT_MAX} minutes`,
+        `Session timeout must be an integer between ${SESSION_TIMEOUT_MIN} and ${SESSION_TIMEOUT_MAX} minutes`,
       );
     }
     return { timeoutMinutes };
