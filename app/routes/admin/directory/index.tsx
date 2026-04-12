@@ -7,10 +7,10 @@ import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 import { createOrgSchema, createUserSchema } from "./schemas";
 
+import type { handlers } from "./action.server";
+
 export { action } from "./action.server";
 export { loader } from "./loader.server";
-
-import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "組織/ユーザー - cybozu.com共通管理 - OpenDesk" }];

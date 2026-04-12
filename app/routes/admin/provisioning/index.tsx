@@ -2,11 +2,11 @@ import { toast } from "sonner";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
+import type { handlers } from "./action.server";
+
 export { action } from "./action.server";
 export type { ProvisioningLoaderData } from "./loader.server";
 export { loader } from "./loader.server";
-
-import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "プロビジョニング - cybozu.com共通管理 - OpenDesk" }];

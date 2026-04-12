@@ -6,10 +6,10 @@ import { z } from "zod";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
+import type { handlers } from "./action.server";
+
 export { action } from "./action.server";
 export { loader } from "./loader.server";
-
-import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "ゲストユーザーの認証 - OpenDeskシステム管理" }];

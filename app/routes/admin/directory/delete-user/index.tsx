@@ -2,10 +2,10 @@ import { Trash2 } from "lucide-react";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
+import type { handlers } from "./action.server";
+
 export { action } from "./action.server";
 export { loader } from "./loader.server";
-
-import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "ユーザーの一括削除 - cybozu.com共通管理 - OpenDesk" }];

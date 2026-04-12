@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import type { BookmarkListByCategoryOutput } from "@/core/application/bookmark/dto";
 import type { BookmarkId } from "@/core/domain/bookmark/valueObject";
 import { useCompositeAction } from "@/lib/compositeAction";
-import type { handlers } from "@/routes/api/bookmarks-impl.server";
+import type { handlers } from "@/routes/api/bookmarks";
 
 type TabId = "app" | "search" | "other";
 

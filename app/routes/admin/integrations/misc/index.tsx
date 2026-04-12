@@ -4,10 +4,10 @@ import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 import { saveMiscSchema } from "./schemas";
 
+import type { handlers } from "./action.server";
+
 export { action } from "./action.server";
 export { loader } from "./loader.server";
-
-import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "その他の設定 - cybozu.com共通管理 - OpenDesk" }];
