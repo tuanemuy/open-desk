@@ -2,11 +2,11 @@ import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
 import type { handlers } from "./action.server";
+import { mobileSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";
@@ -14,14 +14,6 @@ export { loader } from "./loader.server";
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "スマートフォンでの表示 - OpenDeskシステム管理" }];
 }
-
-const schema = z.object({
-  displayMode: z.enum(["mobile", "pc"]),
-  allowUserSwitch: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-});
 
 export default function MobilePage({ loaderData }: Route.ComponentProps) {
   const { displayMode: initialMode, allowUserSwitch: initialAllowSwitch } =
@@ -35,11 +27,11 @@ export default function MobilePage({ loaderData }: Route.ComponentProps) {
     id: "mobile-form",
     lastResult:
       fetcher.data?.intent === "updateMobile" ? fetcher.data : undefined,
-    constraint: getZodConstraint(schema),
+    constraint: getZodConstraint(mobileSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema });
+      return parseWithZod(formData, { schema: mobileSchema });
     },
   });
 

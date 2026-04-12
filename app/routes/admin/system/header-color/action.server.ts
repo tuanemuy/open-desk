@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
 import { updateHeaderColor } from "@/core/application/system-settings/updateHeaderColor";
 import {
@@ -10,12 +9,7 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-const updateHeaderColorSchema = z.object({
-  color: z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/, "有効なHEXカラーコードを入力してください"),
-});
+import { updateHeaderColorSchema } from "./schemas";
 
 export const handlers = {
   updateHeaderColor: defineHandler({

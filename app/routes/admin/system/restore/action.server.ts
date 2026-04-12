@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { restoreApp } from "@/core/application/app/restoreApp";
 import { container } from "@/core/application/container/server.instance";
 import { restoreSpace } from "@/core/application/space/restoreSpace";
@@ -11,14 +10,7 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-const restoreAppSchema = z.object({
-  appId: z.string().min(1, "アプリIDを入力してください"),
-});
-
-const restoreSpaceSchema = z.object({
-  spaceId: z.string().min(1, "スペースIDを入力してください"),
-});
+import { restoreAppSchema, restoreSpaceSchema } from "./schemas";
 
 export const handlers = {
   restoreApp: defineHandler({

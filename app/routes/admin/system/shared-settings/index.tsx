@@ -2,11 +2,11 @@ import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
 import type { handlers } from "./action.server";
+import { sharedSettingsSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";
@@ -14,13 +14,6 @@ export { loader } from "./loader.server";
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "アプリの共通設定 - OpenDeskシステム管理" }];
 }
-
-const schema = z.object({
-  prohibitEveryoneAdmin: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-});
 
 export default function SharedSettingsPage({
   loaderData,
@@ -36,11 +29,11 @@ export default function SharedSettingsPage({
       fetcher.data?.intent === "updateSharedSettings"
         ? fetcher.data
         : undefined,
-    constraint: getZodConstraint(schema),
+    constraint: getZodConstraint(sharedSettingsSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema });
+      return parseWithZod(formData, { schema: sharedSettingsSchema });
     },
   });
 

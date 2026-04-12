@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { addSystemPermission } from "@/core/application/access-control/addSystemPermission";
 import { deleteSystemPermission } from "@/core/application/access-control/deleteSystemPermission";
 import { updateSystemPermission } from "@/core/application/access-control/updateSystemPermission";
@@ -12,83 +11,11 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-const addPermissionSchema = z.object({
-  entityType: z.enum(["USER", "GROUP", "ORGANIZATION"]),
-  entityCode: z.string().min(1, "コードを入力してください"),
-  includeSubs: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  systemAdmin: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  appGroupViewable: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  appGroupManageable: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  appCreate: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  appManage: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  spaceCreate: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  guestSpaceCreate: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-});
-
-const updatePermissionSchema = z.object({
-  systemPermissionId: z.string().min(1),
-  systemAdmin: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  appGroupViewable: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  appGroupManageable: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  appCreate: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  appManage: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  spaceCreate: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  guestSpaceCreate: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  includeSubs: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-});
-
-const deletePermissionSchema = z.object({
-  systemPermissionId: z.string().min(1),
-});
+import {
+  addPermissionSchema,
+  deletePermissionSchema,
+  updatePermissionSchema,
+} from "./schemas";
 
 export const handlers = {
   addPermission: defineHandler({

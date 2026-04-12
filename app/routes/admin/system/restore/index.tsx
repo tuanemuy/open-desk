@@ -1,11 +1,11 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { toast } from "sonner";
-import { z } from "zod";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
 import type { handlers } from "./action.server";
+import { restoreAppSchema, restoreSpaceSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";
@@ -13,14 +13,6 @@ export { loader } from "./loader.server";
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "アプリ／スペースの復旧 - OpenDeskシステム管理" }];
 }
-
-const restoreAppSchema = z.object({
-  appId: z.string().min(1, "アプリIDを入力してください"),
-});
-
-const restoreSpaceSchema = z.object({
-  spaceId: z.string().min(1, "スペースIDを入力してください"),
-});
 
 export default function RestorePage(_props: Route.ComponentProps) {
   const fetcher = useCompositeAction<typeof handlers>();

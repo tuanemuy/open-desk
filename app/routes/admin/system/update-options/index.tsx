@@ -2,11 +2,11 @@ import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
 import type { handlers } from "./action.server";
+import { updateOptionsSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";
@@ -21,10 +21,6 @@ type FeatureOption = {
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "アップデートオプション - OpenDeskシステム管理" }];
 }
-
-const schema = z.object({
-  channel: z.enum(["latest", "monthly"]),
-});
 
 export default function UpdateOptionsPage({
   loaderData,
@@ -45,11 +41,11 @@ export default function UpdateOptionsPage({
     id: "update-options-form",
     lastResult:
       fetcher.data?.intent === "updateOptions" ? fetcher.data : undefined,
-    constraint: getZodConstraint(schema),
+    constraint: getZodConstraint(updateOptionsSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema });
+      return parseWithZod(formData, { schema: updateOptionsSchema });
     },
   });
 

@@ -3,12 +3,12 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Link2, Trash2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import type { CustomFile } from "@/core/domain/system-settings/valueObject";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
 import type { handlers } from "./action.server";
+import { customizeSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";
@@ -16,14 +16,6 @@ export { loader } from "./loader.server";
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "JavaScript/CSSでカスタマイズ - OpenDeskシステム管理" }];
 }
-
-const schema = z.object({
-  scope: z.enum(["all", "admin", "none"]),
-  pcJsFiles: z.string().optional(),
-  mobileJsFiles: z.string().optional(),
-  pcCssFiles: z.string().optional(),
-  mobileCssFiles: z.string().optional(),
-});
 
 type SectionId = "pc-js" | "sp-js" | "pc-css" | "sp-css";
 
@@ -74,11 +66,11 @@ export default function CustomizePage({ loaderData }: Route.ComponentProps) {
     id: "customize-form",
     lastResult:
       fetcher.data?.intent === "updateCustomize" ? fetcher.data : undefined,
-    constraint: getZodConstraint(schema),
+    constraint: getZodConstraint(customizeSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema });
+      return parseWithZod(formData, { schema: customizeSchema });
     },
   });
 

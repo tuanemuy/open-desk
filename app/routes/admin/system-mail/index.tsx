@@ -2,7 +2,6 @@ import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { data } from "react-router";
 import { toast } from "sonner";
-import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
 import { getSystemMail } from "@/core/application/system-settings/getSystemMail";
 import { useCompositeAction } from "@/lib/compositeAction";
@@ -10,6 +9,7 @@ import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 import type { handlers } from "./action.server";
+import { updateMailSettingsSchema } from "./schemas";
 
 export { action } from "./action.server";
 
@@ -40,10 +40,6 @@ export function meta(_args: Route.MetaArgs) {
   return [{ title: "システムメール - cybozu.com共通管理 - OpenDesk" }];
 }
 
-const mailSettingsSchema = z.object({
-  serverType: z.enum(["BUILTIN", "EXTERNAL"]),
-});
-
 export default function SystemMailPage({ loaderData }: Route.ComponentProps) {
   const { fromAddress, serverType } = loaderData;
   const fetcher = useCompositeAction<typeof handlers>();
@@ -53,11 +49,11 @@ export default function SystemMailPage({ loaderData }: Route.ComponentProps) {
     defaultValue: { serverType },
     lastResult:
       fetcher.data?.intent === "updateMailSettings" ? fetcher.data : undefined,
-    constraint: getZodConstraint(mailSettingsSchema),
+    constraint: getZodConstraint(updateMailSettingsSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: mailSettingsSchema });
+      return parseWithZod(formData, { schema: updateMailSettingsSchema });
     },
   });
 

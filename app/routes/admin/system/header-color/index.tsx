@@ -2,10 +2,10 @@ import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 import type { handlers } from "./action.server";
+import { updateHeaderColorSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";
@@ -28,12 +28,6 @@ const PRESET_COLORS = [
   "#f8f9fa",
 ];
 
-const colorSchema = z.object({
-  color: z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/, "有効なHEXカラーコードを入力してください"),
-});
-
 export default function HeaderColorPage({ loaderData }: Route.ComponentProps) {
   const { currentColor } = loaderData;
   const [color, setColor] = useState(currentColor);
@@ -44,11 +38,11 @@ export default function HeaderColorPage({ loaderData }: Route.ComponentProps) {
     id: "header-color-form",
     lastResult:
       fetcher.data?.intent === "updateHeaderColor" ? fetcher.data : undefined,
-    constraint: getZodConstraint(colorSchema),
+    constraint: getZodConstraint(updateHeaderColorSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: colorSchema });
+      return parseWithZod(formData, { schema: updateHeaderColorSchema });
     },
   });
 

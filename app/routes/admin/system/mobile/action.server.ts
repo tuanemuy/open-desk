@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
 import { updateMobileDisplay } from "@/core/application/system-settings/updateMobileDisplay";
 import {
@@ -10,18 +9,11 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-const schema = z.object({
-  displayMode: z.enum(["mobile", "pc"]),
-  allowUserSwitch: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-});
+import { mobileSchema } from "./schemas";
 
 export const handlers = {
   updateMobile: defineHandler({
-    schema,
+    schema: mobileSchema,
     handler: async (value, args) => {
       await requireAuth(args.request, container);
       return handleUseCase(() =>
