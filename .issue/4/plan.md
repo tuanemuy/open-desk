@@ -18,8 +18,7 @@
 
 ### 含まれないもの
 - フォームスキーマ (schemas.ts) のプロパティ名変更（フォームのフィールド名はUIの関心事であり、DBフィールドコードと一致する必要はない）
-- action.server.ts に存在するが seed.ts にないフィールド（fax, notes）の対応
-- email の fieldType 不一致（action: LINK, seed: SINGLE_LINE_TEXT）の対応
+- action.server.ts に存在するが seed.ts にないフィールド（fax, notes）の対応（別Issue起票予定）
 
 ## 実装ステップ
 
@@ -39,7 +38,22 @@
   - L66: `field.fieldCode === "rank"` → `field.fieldCode === "customer_rank"`
 - **理由:** DB の fields テーブルの顧客ランクフィールドのコードは `customer_rank` であるため
 
-### 3. コード品質チェック
+### 3. 一覧画面 loader.server.ts のフィールドコード修正（レビュー指摘追加）
+
+- **対象ファイル:** `app/routes/apps/app/loader.server.ts`
+- **変更内容:**
+  - L106: `getText("company")` → `getText("company_name")`
+  - L108: `getText("person")` → `getText("contact_name")`
+- **理由:** 一覧画面でも同様の不一致があり、会社名と担当者名が空表示になる
+
+### 4. email フィールドの type 修正（レビュー指摘追加）
+
+- **対象ファイル:** `app/routes/apps/app/records/new/action.server.ts`
+- **変更内容:**
+  - L79: `type: "LINK"` → `type: "SINGLE_LINE_TEXT"`
+- **理由:** DB 定義では email は SINGLE_LINE_TEXT だが、LINK として保存しようとするとバリデーションエラーになる
+
+### 5. コード品質チェック
 
 - `pnpm typecheck` で型チェック
 - `pnpm lint:fix && pnpm format` でコード品質確認

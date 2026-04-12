@@ -76,7 +76,7 @@ export const handlers = {
       }
       if (value.email) {
         fieldValues.set("email", {
-          type: "LINK",
+          type: "SINGLE_LINE_TEXT",
           value: value.email,
         });
       }
