@@ -63,7 +63,10 @@ export async function loader({
 
   const rankOptions: RankOption[] = [{ value: "", label: "-----" }];
   for (const field of fields) {
-    if (field.properties.type === "DROP_DOWN" && field.fieldCode === "rank") {
+    if (
+      field.properties.type === "DROP_DOWN" &&
+      field.fieldCode === "customer_rank"
+    ) {
       for (const opt of field.properties.options) {
         rankOptions.push({ value: opt.label, label: opt.label });
       }
