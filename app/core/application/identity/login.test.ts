@@ -452,6 +452,66 @@ describe("login", () => {
       expect(row.lockedUntil).toBeNull();
     });
 
+    it("should re-lock account when login fails after lock expiry", async () => {
+      const container = getContainer();
+      const lockedUntil = new Date(Date.now() - 1000); // expired
+      const { id } = await createActiveUser(container, {
+        failedLoginAttempts: 5,
+        lockedUntil,
+      });
+      await seedLockoutPolicy(container, {
+        maxFailedAttempts: 5,
+        lockoutDurationMinutes: 30,
+      });
+
+      await expect(
+        login({
+          container,
+          headers: createMockHeaders(),
+          input: {
+            loginName: "test@example.com",
+            password: "wrongpassword",
+            ipAddress: "192.168.1.1",
+            userAgent: "TestBrowser/1.0",
+          },
+        }),
+      ).rejects.toThrow(UnauthenticatedError);
+
+      const row = await getUserRow(container, id);
+      expect(row.failedLoginAttempts).toBe(6);
+      expect(row.lockedUntil).not.toBeNull();
+    });
+
+    it("should set permanent lock when lockoutDurationMinutes is null", async () => {
+      const container = getContainer();
+      const { id } = await createActiveUser(container, {
+        failedLoginAttempts: 4,
+      });
+      await seedLockoutPolicy(container, {
+        maxFailedAttempts: 5,
+        lockoutDurationMinutes: null,
+      });
+
+      await expect(
+        login({
+          container,
+          headers: createMockHeaders(),
+          input: {
+            loginName: "test@example.com",
+            password: "wrongpassword",
+            ipAddress: "192.168.1.1",
+            userAgent: "TestBrowser/1.0",
+          },
+        }),
+      ).rejects.toThrow(UnauthenticatedError);
+
+      const row = await getUserRow(container, id);
+      expect(row.failedLoginAttempts).toBe(5);
+      expect(row.lockedUntil).not.toBeNull();
+      // Should be set to far future (9999-12-31)
+      expect(row.lockedUntil?.getFullYear()).toBe(9999);
+    });
+
     it("should not lock account when lockout_policy is not configured", async () => {
       const container = getContainer();
       const { id } = await createActiveUser(container);

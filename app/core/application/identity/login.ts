@@ -52,18 +52,19 @@ export async function login({
   const result = await container.unitOfWorkProvider.transaction(async (ctx) => {
     const lockoutSetting =
       await ctx.systemSettingsRepository.findByKey("lockout_policy");
-    const lockoutPolicy = lockoutSetting
-      ? LockoutPolicy.create({
-          maxFailedAttempts: SystemSetting.getTypedValue(
-            lockoutSetting,
-            "lockout_policy",
-          ).maxFailedAttempts,
-          lockoutDuration: SystemSetting.getTypedValue(
-            lockoutSetting,
-            "lockout_policy",
-          ).lockoutDurationMinutes,
-        })
-      : LockoutPolicy.default();
+    let lockoutPolicy: ReturnType<typeof LockoutPolicy.create>;
+    if (lockoutSetting) {
+      const lockoutValue = SystemSetting.getTypedValue(
+        lockoutSetting,
+        "lockout_policy",
+      );
+      lockoutPolicy = LockoutPolicy.create({
+        maxFailedAttempts: lockoutValue.maxFailedAttempts,
+        lockoutDuration: lockoutValue.lockoutDurationMinutes,
+      });
+    } else {
+      lockoutPolicy = LockoutPolicy.default();
+    }
 
     return authenticateByPassword(
       {
@@ -96,6 +97,7 @@ export async function login({
           "User account is inactive",
         );
       case "AccountLocked":
+        // Intentionally uses InvalidCredentials code to avoid leaking lock status to attackers
         throw new UnauthenticatedError(
           UnauthenticatedErrorCode.InvalidCredentials,
           "Account is locked",

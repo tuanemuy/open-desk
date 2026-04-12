@@ -742,6 +742,8 @@ type _LockoutPolicy = Readonly<{
 export type LockoutPolicy = _LockoutPolicy;
 
 export const LockoutPolicy = {
+  /** Date used to represent permanent lockout (no auto-unlock). */
+  PERMANENT_LOCK_DATE: new Date("9999-12-31"),
   create: (params: {
     maxFailedAttempts: number | null;
     lockoutDuration: number | null;

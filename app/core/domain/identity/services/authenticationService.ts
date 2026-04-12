@@ -10,13 +10,14 @@ import type {
 import type { PasswordHasher } from "@/core/domain/identity/ports/passwordHasher";
 import type { SessionRepository } from "@/core/domain/identity/ports/sessionRepository";
 import type { UserRepository } from "@/core/domain/identity/ports/userRepository";
-import type {
-  ApiScope,
-  LockoutPolicy as LockoutPolicyType,
-  LoginName as LoginNameType,
-  SessionId as SessionIdType,
-  SessionPolicy as SessionPolicyType,
-  UserId as UserIdType,
+import {
+  type ApiScope,
+  LockoutPolicy,
+  type LockoutPolicy as LockoutPolicyType,
+  type LoginName as LoginNameType,
+  type SessionId as SessionIdType,
+  type SessionPolicy as SessionPolicyType,
+  type UserId as UserIdType,
 } from "@/core/domain/identity/valueObject";
 
 // ============================================
@@ -140,7 +141,7 @@ export async function authenticateByPassword(
       if (newCount >= params.lockoutPolicy.maxFailedAttempts) {
         lockedUntil =
           params.lockoutPolicy.lockoutDuration === null
-            ? new Date("9999-12-31")
+            ? LockoutPolicy.PERMANENT_LOCK_DATE
             : new Date(
                 Date.now() + params.lockoutPolicy.lockoutDuration * 60 * 1000,
               );
