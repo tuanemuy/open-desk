@@ -450,6 +450,54 @@ describe("PasswordPolicy.create", () => {
     expect(policy.historyCount).toBe(15);
   });
 
+  // --- 異常系: minLength 範囲外 ---
+
+  it("should throw BusinessRuleError when minLength is below minimum (2)", () => {
+    expect(() =>
+      PasswordPolicy.create({ ...validParams, minLength: 2 }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordMinLength,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when minLength exceeds maximum (16)", () => {
+    expect(() =>
+      PasswordPolicy.create({ ...validParams, minLength: 16 }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordMinLength,
+      }),
+    );
+  });
+
+  // --- 異常系: historyCount 範囲外 ---
+
+  it("should throw BusinessRuleError when historyCount is below minimum (-1)", () => {
+    expect(() =>
+      PasswordPolicy.create({ ...validParams, historyCount: -1 }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordHistoryCount,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when historyCount exceeds maximum (16)", () => {
+    expect(() =>
+      PasswordPolicy.create({ ...validParams, historyCount: 16 }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordHistoryCount,
+      }),
+    );
+  });
+
   // --- 異常系: minLength 非整数 ---
 
   it("should throw BusinessRuleError when minLength is a non-integer float (8.5)", () => {
