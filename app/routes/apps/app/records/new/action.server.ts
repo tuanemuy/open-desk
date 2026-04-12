@@ -27,7 +27,7 @@ export const handlers = {
       const fieldValues = new Map<string, FieldValue>();
 
       if (value.company) {
-        fieldValues.set("company", {
+        fieldValues.set("company_name", {
           type: "SINGLE_LINE_TEXT",
           value: value.company,
         });
@@ -39,7 +39,7 @@ export const handlers = {
         });
       }
       if (value.person) {
-        fieldValues.set("person", {
+        fieldValues.set("contact_name", {
           type: "SINGLE_LINE_TEXT",
           value: value.person,
         });
@@ -69,14 +69,14 @@ export const handlers = {
         });
       }
       if (value.rank) {
-        fieldValues.set("rank", {
+        fieldValues.set("customer_rank", {
           type: "DROP_DOWN",
           value: value.rank,
         });
       }
       if (value.email) {
         fieldValues.set("email", {
-          type: "LINK",
+          type: "SINGLE_LINE_TEXT",
           value: value.email,
         });
       }

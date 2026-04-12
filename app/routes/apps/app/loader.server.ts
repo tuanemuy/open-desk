@@ -103,9 +103,9 @@ export async function loader({
       return {
         id: r.recordId as string,
         recordNo: index + 1,
-        company: getText("company"),
+        company: getText("company_name"),
         department: getText("department"),
-        person: getText("person"),
+        person: getText("contact_name"),
         address: getText("address"),
       };
     });
