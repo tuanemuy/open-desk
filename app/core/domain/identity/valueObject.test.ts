@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { IdentityErrorCode } from "@/core/domain/identity/errorCode";
-import { LockoutPolicy } from "@/core/domain/identity/valueObject";
+import {
+  LockoutPolicy,
+  PasswordPolicy,
+} from "@/core/domain/identity/valueObject";
 
 describe("LockoutPolicy.create", () => {
   // --- 正常系 ---
@@ -173,6 +176,103 @@ describe("LockoutPolicy.create", () => {
       expect.objectContaining({
         name: "BusinessRuleError",
         code: IdentityErrorCode.InvalidLockoutDuration,
+      }),
+    );
+  });
+
+  // --- 異常系: lockoutDuration 非整数 ---
+
+  it("should throw BusinessRuleError when lockoutDuration is a non-integer float (3.7)", () => {
+    expect(() =>
+      LockoutPolicy.create({
+        maxFailedAttempts: 5,
+        lockoutDuration: 3.7,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidLockoutDuration,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when lockoutDuration is a positive non-integer float (0.5)", () => {
+    expect(() =>
+      LockoutPolicy.create({
+        maxFailedAttempts: 5,
+        lockoutDuration: 0.5,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidLockoutDuration,
+      }),
+    );
+  });
+
+  it("should throw InvalidLockoutDuration (not InconsistentLockoutPolicy) when maxFailedAttempts is null and lockoutDuration is a non-integer float (3.7)", () => {
+    expect(() =>
+      LockoutPolicy.create({
+        maxFailedAttempts: null,
+        lockoutDuration: 3.7,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidLockoutDuration,
+      }),
+    );
+  });
+});
+
+describe("PasswordPolicy.create", () => {
+  const validParams = {
+    minLength: 8,
+    complexity: "alphanumeric" as const,
+    allowSameAsLoginName: false,
+    expirationDays: null as number | null,
+    historyCount: 3,
+    allowUserChange: true,
+    allowUserReset: true,
+  };
+
+  // --- 正常系 ---
+
+  it("should accept expirationDays: 30 (positive integer)", () => {
+    const policy = PasswordPolicy.create({
+      ...validParams,
+      expirationDays: 30,
+    });
+
+    expect(policy.expirationDays).toBe(30);
+  });
+
+  // --- 異常系: expirationDays 非整数 ---
+
+  it("should throw BusinessRuleError when expirationDays is a non-integer float (3.7)", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        expirationDays: 3.7,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordExpirationDays,
+      }),
+    );
+  });
+
+  it("should throw BusinessRuleError when expirationDays is a positive non-integer float (0.5)", () => {
+    expect(() =>
+      PasswordPolicy.create({
+        ...validParams,
+        expirationDays: 0.5,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidPasswordExpirationDays,
       }),
     );
   });

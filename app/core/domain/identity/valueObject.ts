@@ -567,7 +567,10 @@ export const PasswordPolicy = {
         `Password history count must be between ${PASSWORD_HISTORY_COUNT_MIN} and ${PASSWORD_HISTORY_COUNT_MAX}`,
       );
     }
-    if (params.expirationDays !== null && params.expirationDays <= 0) {
+    if (
+      params.expirationDays !== null &&
+      (params.expirationDays <= 0 || !Number.isInteger(params.expirationDays))
+    ) {
       throw new BusinessRuleError(
         IdentityErrorCode.InvalidPasswordExpirationDays,
         "Password expiration days must be a positive integer",
@@ -758,7 +761,10 @@ export const LockoutPolicy = {
         `Lockout max failed attempts must be between ${LOCKOUT_MAX_ATTEMPTS_MIN} and ${LOCKOUT_MAX_ATTEMPTS_MAX}`,
       );
     }
-    if (params.lockoutDuration !== null && params.lockoutDuration <= 0) {
+    if (
+      params.lockoutDuration !== null &&
+      (params.lockoutDuration <= 0 || !Number.isInteger(params.lockoutDuration))
+    ) {
       throw new BusinessRuleError(
         IdentityErrorCode.InvalidLockoutDuration,
         "Lockout duration must be a positive integer",
