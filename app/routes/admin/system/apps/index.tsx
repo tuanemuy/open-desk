@@ -2,9 +2,9 @@ import { Download } from "lucide-react";
 import { Link } from "react-router";
 import { LicenseCard } from "@/components/admin/LicenseCard";
 import type { Route } from "./+types/index";
-import type { AppItem } from "./loader";
+import type { AppItem } from "./loader.server";
 
-export { loader } from "./loader";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "アプリ管理 - OpenDeskシステム管理" }];

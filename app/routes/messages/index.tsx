@@ -1,7 +1,7 @@
 import { MessageSquare } from "lucide-react";
 import type { Route } from "./+types/index";
 
-export { loader } from "./loader";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "メッセージ - OpenDesk" }];

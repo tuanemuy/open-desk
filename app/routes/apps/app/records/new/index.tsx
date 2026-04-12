@@ -10,10 +10,11 @@ import { Paperclip } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import { handlers } from "./action";
+import type { handlers } from "./action.server";
+import { createRecordSchema } from "./schemas";
 
-export { action } from "./action";
-export { loader } from "./loader";
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
 export function meta({ data }: Route.MetaArgs) {
   const appName = data?.app?.name ?? "App";
@@ -30,11 +31,11 @@ export default function NewRecordPage({ loaderData }: Route.ComponentProps) {
     id: "create-record-form",
     lastResult:
       fetcher.data?.intent === "createRecord" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.createRecord.schema),
+    constraint: getZodConstraint(createRecordSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: handlers.createRecord.schema });
+      return parseWithZod(formData, { schema: createRecordSchema });
     },
   });
 

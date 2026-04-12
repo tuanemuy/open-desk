@@ -1,71 +1,12 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { data } from "react-router";
-import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import { getOAuthIntegrations } from "@/core/application/system-settings/getOAuthIntegrations";
-import { updateOAuthIntegration } from "@/core/application/system-settings/updateOAuthIntegration";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
-  const result = await handleUseCase(() =>
-    getOAuthIntegrations({
-      container,
-      headers: request.headers,
-      input: undefined,
-    }),
-  ).match(
-    (result) => result,
-    (e) => {
-      throw data({ message: e.message }, { status: e.status });
-    },
-  );
-
-  return { integrations: result.items };
-}
-
-const toggleIntegrationSchema = z.object({
-  integrationId: z.string().min(1),
-  enabled: z.string(),
-});
-
-export const handlers = {
-  toggleIntegration: defineHandler({
-    schema: toggleIntegrationSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-
-      return handleUseCase(() =>
-        updateOAuthIntegration({
-          container,
-          headers: args.request.headers,
-          input: {
-            integrationId: value.integrationId,
-            enabled: value.enabled === "true",
-          },
-        }),
-      ).match(
-        () => success(),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "外部連携 > OAuth - cybozu.com共通管理 - OpenDesk" }];

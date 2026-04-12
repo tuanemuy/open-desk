@@ -5,10 +5,11 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import { handlers } from "./action";
+import type { handlers } from "./action.server";
+import { addCommentSchema } from "./schemas";
 
-export { action } from "./action";
-export { loader } from "./loader";
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
 export function meta({ data }: Route.MetaArgs) {
   const appName = data?.app?.name ?? "App";
@@ -44,11 +45,11 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
     id: "comment-form",
     lastResult:
       fetcher.data?.intent === "addComment" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.addComment.schema),
+    constraint: getZodConstraint(addCommentSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: handlers.addComment.schema });
+      return parseWithZod(formData, { schema: addCommentSchema });
     },
   });
 

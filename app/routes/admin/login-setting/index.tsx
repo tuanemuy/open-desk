@@ -7,9 +7,9 @@ import { useCompositeAction } from "@/lib/compositeAction";
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-import type { handlers } from "./action";
+import type { handlers } from "./action.server";
 
-export { action } from "./action";
+export { action } from "./action.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
   await requireAuth(request, container);

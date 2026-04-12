@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
 import { createRecord } from "@/core/application/record/createRecord";
 import type { FieldValue } from "@/core/domain/record/valueObject";
@@ -11,19 +10,7 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-const createRecordSchema = z.object({
-  company: z.string().optional(),
-  department: z.string().optional(),
-  person: z.string().optional(),
-  postalCode: z.string().max(7, "Must be 7 characters or less").optional(),
-  tel: z.string().optional(),
-  fax: z.string().optional(),
-  address: z.string().optional(),
-  rank: z.string().optional(),
-  email: z.string().optional(),
-  notes: z.string().optional(),
-});
+import { createRecordSchema } from "./schemas";
 
 export const handlers = {
   createRecord: defineHandler({

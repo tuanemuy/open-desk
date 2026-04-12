@@ -1,120 +1,12 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import { issueApiToken } from "@/core/application/identity/issueApiToken";
-import { listApiTokens } from "@/core/application/identity/listApiTokens";
-import { revokeApiToken } from "@/core/application/identity/revokeApiToken";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
-type ApiTokenItem = {
-  id: string;
-  summary: string;
-  scopes: string[];
-  userId: string;
-  createdAt: string;
-  expiresAt: string | null;
-  isRevoked: boolean;
-};
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-
-  const result = await listApiTokens({
-    container,
-    headers: request.headers,
-    input: {
-      offset: 0,
-      limit: 100,
-    },
-  });
-
-  const tokens: ApiTokenItem[] = result.tokens.map((t) => ({
-    id: t.id,
-    summary: t.summary,
-    scopes: t.scopes,
-    userId: t.userId,
-    createdAt: t.createdAt.toISOString(),
-    expiresAt: t.expiresAt ? t.expiresAt.toISOString() : null,
-    isRevoked: t.isRevoked,
-  }));
-
-  return { tokens };
-}
-
-const issueTokenSchema = z.object({
-  summary: z.string().min(1, "概要を入力してください"),
-  scopes: z
-    .string()
-    .min(1, "スコープを選択してください")
-    .transform((v) => v.split(",")),
-});
-
-const revokeTokenSchema = z.object({
-  tokenId: z.string().min(1, "トークンIDを指定してください"),
-});
-
-export const handlers = {
-  issueToken: defineHandler({
-    schema: issueTokenSchema,
-    handler: async (value, args) => {
-      const auth = await requireAuth(args.request, container);
-
-      return handleUseCase(() =>
-        issueApiToken({
-          container,
-          headers: args.request.headers,
-          input: {
-            userId: auth.userId,
-            scopes: value.scopes,
-            summary: value.summary,
-          },
-        }),
-      ).match(
-        (result) =>
-          success({
-            id: result.id,
-            token: result.token,
-            summary: result.summary,
-            scopes: result.scopes,
-          }),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-  revokeToken: defineHandler({
-    schema: revokeTokenSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-
-      return handleUseCase(() =>
-        revokeApiToken({
-          container,
-          headers: args.request.headers,
-          input: {
-            tokenId: value.tokenId,
-          },
-        }),
-      ).match(
-        () => success(),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "APIトークン - cybozu.com共通管理 - OpenDesk" }];

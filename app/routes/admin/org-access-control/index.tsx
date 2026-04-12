@@ -3,10 +3,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import type { handlers } from "./action";
+import type { handlers } from "./action.server";
 
-export { action } from "./action";
-export { loader } from "./loader";
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "組織間のアクセス権 - cybozu.com共通管理 - OpenDesk" }];

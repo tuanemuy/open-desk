@@ -2,9 +2,9 @@ import { Bookmark, CheckCircle, LayoutGrid, List } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import type { Route } from "./+types/index";
-import type { NotificationItem } from "./loader";
+import type { NotificationItem } from "./loader.server";
 
-export { loader } from "./loader";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "通知 - OpenDesk" }];

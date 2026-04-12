@@ -5,11 +5,11 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import type { handlers } from "./action";
-import type { FeatureSettings } from "./loader";
+import type { handlers } from "./action.server";
+import type { FeatureSettings } from "./loader.server";
 
-export { action } from "./action";
-export { loader } from "./loader";
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "利用する機能の選択 - OpenDeskシステム管理" }];

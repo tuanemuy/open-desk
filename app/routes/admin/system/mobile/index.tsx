@@ -1,22 +1,15 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { useState } from "react";
-import { data } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import { getMobileDisplay } from "@/core/application/system-settings/getMobileDisplay";
-import { updateMobileDisplay } from "@/core/application/system-settings/updateMobileDisplay";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
+
+export { action } from "./action.server";
+export { loader } from "./loader.server";
+
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "スマートフォンでの表示 - OpenDeskシステム管理" }];
@@ -29,52 +22,6 @@ const schema = z.object({
     .optional()
     .transform((v) => v === "on"),
 });
-
-export const handlers = {
-  updateMobile: defineHandler({
-    schema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-      return handleUseCase(() =>
-        updateMobileDisplay({
-          container,
-          headers: args.request.headers,
-          input: {
-            displayMode: value.displayMode === "mobile" ? "MOBILE" : "PC",
-            allowUserToggle: value.allowUserSwitch,
-          },
-        }),
-      ).match(
-        (result) => success({ data: result }),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
-
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-
-  const result = await handleUseCase(() =>
-    getMobileDisplay({ container, headers: request.headers, input: undefined }),
-  ).match(
-    (result) => result,
-    (e) => {
-      throw data({ message: e.message }, { status: e.status });
-    },
-  );
-
-  return {
-    displayMode: (result.displayMode === "MOBILE" ? "mobile" : "pc") as
-      | "mobile"
-      | "pc",
-    allowUserSwitch: result.allowUserToggle,
-  };
-}
 
 export default function MobilePage({ loaderData }: Route.ComponentProps) {
   const { displayMode: initialMode, allowUserSwitch: initialAllowSwitch } =

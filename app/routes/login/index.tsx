@@ -3,9 +3,10 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Link } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import { handlers } from "./action";
+import type { handlers } from "./action.server";
+import { loginSchema } from "./schemas";
 
-export { action } from "./action";
+export { action } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "Login - OpenDesk" }];
@@ -17,11 +18,11 @@ export default function LoginPage(_props: Route.ComponentProps) {
   const [form, fields] = useForm({
     id: "login-form",
     lastResult: fetcher.data?.intent === "login" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.login.schema),
+    constraint: getZodConstraint(loginSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: handlers.login.schema });
+      return parseWithZod(formData, { schema: loginSchema });
     },
   });
 

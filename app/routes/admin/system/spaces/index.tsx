@@ -3,7 +3,7 @@ import type { SpaceUsageDto } from "@/core/application/space/dto";
 import { formatDate } from "@/lib/admin";
 import type { Route } from "./+types/index";
 
-export { loader } from "./loader";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "スペース管理 - OpenDeskシステム管理" }];

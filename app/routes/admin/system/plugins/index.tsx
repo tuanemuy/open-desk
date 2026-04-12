@@ -1,8 +1,8 @@
 import { FileUp } from "lucide-react";
 import type { Route } from "./+types/index";
 
-export { action } from "./action";
-export { loader } from "./loader";
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "プラグイン - OpenDeskシステム管理" }];

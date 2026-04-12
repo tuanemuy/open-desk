@@ -1,83 +1,12 @@
-import { data } from "react-router";
 import { toast } from "sonner";
-import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import type { ProvisioningConfigOutput } from "@/core/application/identity/dto";
-import { getProvisioningConfig } from "@/core/application/identity/getProvisioningConfig";
-import { updateProvisioningConfig } from "@/core/application/identity/updateProvisioningConfig";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
-export type ProvisioningLoaderData = {
-  config: ProvisioningConfigOutput;
-};
+export { action } from "./action.server";
+export type { ProvisioningLoaderData } from "./loader.server";
+export { loader } from "./loader.server";
 
-export async function loader({
-  request,
-}: Route.LoaderArgs): Promise<ProvisioningLoaderData> {
-  await requireAuth(request, container);
-
-  const config = await handleUseCase(() =>
-    getProvisioningConfig({
-      container,
-      headers: request.headers,
-      input: undefined,
-    }),
-  ).match(
-    (result) => result,
-    (e) => {
-      throw data({ message: e.message }, { status: e.status });
-    },
-  );
-
-  return { config };
-}
-
-const updateProvisioningSchema = z.object({
-  isEnabled: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-  regenerateToken: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-});
-
-export const handlers = {
-  updateProvisioning: defineHandler({
-    schema: updateProvisioningSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-
-      return handleUseCase(() =>
-        updateProvisioningConfig({
-          container,
-          headers: args.request.headers,
-          input: {
-            isEnabled: value.isEnabled,
-            regenerateToken: value.regenerateToken,
-          },
-        }),
-      ).match(
-        (result) => success({ config: result }),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "プロビジョニング - cybozu.com共通管理 - OpenDesk" }];

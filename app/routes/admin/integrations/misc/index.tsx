@@ -1,79 +1,13 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
-import { data } from "react-router";
-import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import { getExternalIntegration } from "@/core/application/system-settings/getExternalIntegration";
-import { updateExternalIntegration } from "@/core/application/system-settings/updateExternalIntegration";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
+import { saveMiscSchema } from "./schemas";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
-  const result = await handleUseCase(() =>
-    getExternalIntegration({
-      container,
-      headers: request.headers,
-      input: undefined,
-    }),
-  ).match(
-    (result) => result,
-    (e) => {
-      throw data({ message: e.message }, { status: e.status });
-    },
-  );
-
-  return {
-    settings: {
-      iframeEnabled: result.allowIframe,
-      referrerPolicyEnabled: result.referrerPolicySameOrigin,
-      webhookEnabled: result.allowWebhook,
-    },
-  };
-}
-
-const saveMiscSchema = z.object({
-  iframeEnabled: z.string().optional(),
-  referrerPolicyEnabled: z.string().optional(),
-  webhookEnabled: z.string().optional(),
-});
-
-export const handlers = {
-  saveMisc: defineHandler({
-    schema: saveMiscSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-
-      return handleUseCase(() =>
-        updateExternalIntegration({
-          container,
-          headers: args.request.headers,
-          input: {
-            allowIframe: value.iframeEnabled === "true",
-            referrerPolicySameOrigin: value.referrerPolicyEnabled === "true",
-            allowWebhook: value.webhookEnabled === "true",
-          },
-        }),
-      ).match(
-        () => success(),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "その他の設定 - cybozu.com共通管理 - OpenDesk" }];
@@ -87,10 +21,10 @@ export default function MiscSettingsPage({ loaderData }: Route.ComponentProps) {
   const [form] = useForm({
     id: "misc-settings-form",
     lastResult: fetcher.data?.intent === "saveMisc" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.saveMisc.schema),
+    constraint: getZodConstraint(saveMiscSchema),
     shouldValidate: "onSubmit",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: handlers.saveMisc.schema });
+      return parseWithZod(formData, { schema: saveMiscSchema });
     },
   });
 

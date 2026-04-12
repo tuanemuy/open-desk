@@ -2,92 +2,14 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import { createGroup } from "@/core/application/identity/createGroup";
-import { deleteGroup } from "@/core/application/identity/deleteGroup";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
+import { createGroupSchema } from "./schemas";
 
-type GroupItem = {
-  groupId: string;
-  name: string;
-  code: string;
-};
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-
-  const groupResult = await container.unitOfWorkProvider.transaction(
-    async (ctx) => {
-      return ctx.groupRepository.list({ offset: 0, limit: 100 });
-    },
-  );
-
-  const groups: GroupItem[] = groupResult.groups.map((g) => ({
-    groupId: g.groupId,
-    name: g.name,
-    code: g.code,
-  }));
-
-  return { groups, totalCount: groupResult.totalCount };
-}
-
-const createGroupSchema = z.object({
-  name: z.string().min(1, "グループ名を入力してください"),
-  code: z.string().min(1, "グループコードを入力してください"),
-});
-
-const deleteGroupSchema = z.object({
-  groupId: z.string().min(1),
-});
-
-export const handlers = {
-  createGroup: defineHandler({
-    schema: createGroupSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-      return handleUseCase(() =>
-        createGroup({
-          container,
-          headers: args.request.headers,
-          input: value,
-        }),
-      ).match(
-        (result) => success({ groupId: result.groupId }),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-  deleteGroup: defineHandler({
-    schema: deleteGroupSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-      return handleUseCase(() =>
-        deleteGroup({
-          container,
-          headers: args.request.headers,
-          input: { groupId: value.groupId },
-        }),
-      ).match(
-        () => success(),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [
@@ -106,11 +28,11 @@ export default function GroupPage({ loaderData }: Route.ComponentProps) {
     id: "create-group-form",
     lastResult:
       fetcher.data?.intent === "createGroup" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.createGroup.schema),
+    constraint: getZodConstraint(createGroupSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: handlers.createGroup.schema });
+      return parseWithZod(formData, { schema: createGroupSchema });
     },
   });
 

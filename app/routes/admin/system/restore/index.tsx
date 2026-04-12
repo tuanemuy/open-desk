@@ -2,19 +2,13 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { toast } from "sonner";
 import { z } from "zod";
-import { restoreApp } from "@/core/application/app/restoreApp";
-import { container } from "@/core/application/container/server.instance";
-import { restoreSpace } from "@/core/application/space/restoreSpace";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
+
+export { action } from "./action.server";
+export { loader } from "./loader.server";
+
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "アプリ／スペースの復旧 - OpenDeskシステム管理" }];
@@ -27,58 +21,6 @@ const restoreAppSchema = z.object({
 const restoreSpaceSchema = z.object({
   spaceId: z.string().min(1, "スペースIDを入力してください"),
 });
-
-export const handlers = {
-  restoreApp: defineHandler({
-    schema: restoreAppSchema,
-    handler: async (value, args) => {
-      const auth = await requireAuth(args.request, container);
-
-      return handleUseCase(() =>
-        restoreApp({
-          container,
-          headers: args.request.headers,
-          input: {
-            appId: value.appId,
-            executorId: auth.userId,
-          },
-        }),
-      ).match(
-        (result) => success({ appId: result.appId }),
-        (e) => error({ appId: [e.message] }),
-      );
-    },
-  }),
-  restoreSpace: defineHandler({
-    schema: restoreSpaceSchema,
-    handler: async (value, args) => {
-      const auth = await requireAuth(args.request, container);
-
-      return handleUseCase(() =>
-        restoreSpace({
-          container,
-          headers: args.request.headers,
-          input: {
-            spaceId: value.spaceId,
-            operatorId: auth.userId,
-          },
-        }),
-      ).match(
-        (result) => success({ spaceId: result.spaceId }),
-        (e) => error({ spaceId: [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
-
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-  return {};
-}
 
 export default function RestorePage(_props: Route.ComponentProps) {
   const fetcher = useCompositeAction<typeof handlers>();

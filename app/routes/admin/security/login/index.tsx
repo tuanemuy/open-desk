@@ -4,10 +4,10 @@ import { z } from "zod";
 import { SELECT_CLASSES } from "@/lib/admin";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import type { handlers } from "./action";
+import type { handlers } from "./action.server";
 
-export { action } from "./action";
-export { loader } from "./loader";
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [

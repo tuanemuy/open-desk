@@ -1,5 +1,4 @@
 import { redirect } from "react-router";
-import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
 import { login } from "@/core/application/identity/login";
 import {
@@ -10,11 +9,7 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { createSessionCookie } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-const loginSchema = z.object({
-  loginName: z.string().min(1, "Please enter your email address"),
-  password: z.string().min(1, "Please enter your password"),
-});
+import { loginSchema } from "./schemas";
 
 export const handlers = {
   login: defineHandler({

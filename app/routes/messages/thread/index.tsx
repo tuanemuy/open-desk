@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import type { Route } from "./+types/index";
 
-export { loader } from "./loader";
+export { loader } from "./loader.server";
 
 export function meta({ data }: Route.MetaArgs) {
   const name = data?.recipient?.name ?? "メッセージ";

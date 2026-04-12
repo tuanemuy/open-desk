@@ -2,39 +2,20 @@ import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Link2, Trash2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { data } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import { getJsCssCustomization } from "@/core/application/system-settings/getJsCssCustomization";
-import { updateJsCssCustomization } from "@/core/application/system-settings/updateJsCssCustomization";
 import type { CustomFile } from "@/core/domain/system-settings/valueObject";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
+
+export { action } from "./action.server";
+export { loader } from "./loader.server";
+
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "JavaScript/CSSでカスタマイズ - OpenDeskシステム管理" }];
 }
-
-const SCOPE_MAP_TO_BACKEND = {
-  all: "ALL_USERS",
-  admin: "ADMIN_ONLY",
-  none: "DISABLED",
-} as const;
-
-const SCOPE_MAP_TO_UI = {
-  ALL_USERS: "all",
-  ADMIN_ONLY: "admin",
-  DISABLED: "none",
-} as const;
 
 const schema = z.object({
   scope: z.enum(["all", "admin", "none"]),
@@ -43,72 +24,6 @@ const schema = z.object({
   pcCssFiles: z.string().optional(),
   mobileCssFiles: z.string().optional(),
 });
-
-export const handlers = {
-  updateCustomize: defineHandler({
-    schema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-
-      const parseFiles = (raw: string | undefined): CustomFile[] => {
-        if (!raw) return [];
-        try {
-          const parsed: unknown = JSON.parse(raw);
-          if (!Array.isArray(parsed)) return [];
-          return parsed as CustomFile[];
-        } catch {
-          return [];
-        }
-      };
-
-      return handleUseCase(() =>
-        updateJsCssCustomization({
-          container,
-          headers: args.request.headers,
-          input: {
-            scope: SCOPE_MAP_TO_BACKEND[value.scope],
-            pcJsFiles: parseFiles(value.pcJsFiles),
-            mobileJsFiles: parseFiles(value.mobileJsFiles),
-            pcCssFiles: parseFiles(value.pcCssFiles),
-            mobileCssFiles: parseFiles(value.mobileCssFiles),
-          },
-        }),
-      ).match(
-        (result) => success({ data: result }),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
-
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-
-  const result = await handleUseCase(() =>
-    getJsCssCustomization({
-      container,
-      headers: request.headers,
-      input: undefined,
-    }),
-  ).match(
-    (result) => result,
-    (e) => {
-      throw data({ message: e.message }, { status: e.status });
-    },
-  );
-
-  return {
-    scope: SCOPE_MAP_TO_UI[result.scope] as "all" | "admin" | "none",
-    pcJsFiles: result.pcJsFiles as CustomFile[],
-    mobileJsFiles: result.mobileJsFiles as CustomFile[],
-    pcCssFiles: result.pcCssFiles as CustomFile[],
-    mobileCssFiles: result.mobileCssFiles as CustomFile[],
-  };
-}
 
 type SectionId = "pc-js" | "sp-js" | "pc-css" | "sp-css";
 

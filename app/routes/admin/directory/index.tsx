@@ -3,169 +3,14 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Plus, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import { activateUser } from "@/core/application/identity/activateUser";
-import {
-  type CreateOrganizationInput,
-  createOrganization,
-} from "@/core/application/identity/createOrganization";
-import { createUser } from "@/core/application/identity/createUser";
-import { deactivateUser } from "@/core/application/identity/deactivateUser";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
+import { createOrgSchema, createUserSchema } from "./schemas";
 
-type UserItem = {
-  userId: string;
-  displayName: string;
-  loginName: string;
-  isActive: boolean;
-};
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
-type OrgItem = {
-  organizationId: string;
-  name: string;
-  code: string;
-};
-
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-
-  const url = new URL(request.url);
-  const filterParam = url.searchParams.get("filter") ?? "all";
-  const page = Math.max(1, Number(url.searchParams.get("page") ?? "1"));
-  const limit = 20;
-  const offset = (page - 1) * limit;
-
-  const filterMap: Record<string, boolean | undefined> = {
-    all: undefined,
-    active: true,
-    inactive: false,
-  };
-  const isActive = filterMap[filterParam];
-
-  const [userResult, organizations] = await Promise.all([
-    container.unitOfWorkProvider.transaction(async (ctx) => {
-      return ctx.userRepository.list({
-        offset,
-        limit,
-        filter: isActive !== undefined ? { isActive } : undefined,
-      });
-    }),
-    container.unitOfWorkProvider.transaction(async (ctx) => {
-      return ctx.organizationRepository.findRoot();
-    }),
-  ]);
-
-  const users: UserItem[] = userResult.users.map((u) => ({
-    userId: u.userId,
-    displayName: u.displayName,
-    loginName: u.loginName,
-    isActive: u.isActive,
-  }));
-
-  const orgs: OrgItem[] = organizations.map((o) => ({
-    organizationId: o.organizationId,
-    name: o.name,
-    code: o.code,
-  }));
-
-  return {
-    users,
-    organizations: orgs,
-    totalCount: userResult.totalCount,
-    filter: filterParam,
-    page,
-    totalPages: Math.ceil(userResult.totalCount / limit),
-  };
-}
-
-const createUserSchema = z.object({
-  loginName: z.string().min(1, "ログイン名を入力してください"),
-  displayName: z.string().min(1, "表示名を入力してください"),
-  email: z.string().email("有効なメールアドレスを入力してください"),
-  password: z.string().min(8, "パスワードは8文字以上で入力してください"),
-});
-
-const createOrgSchema = z.object({
-  name: z.string().min(1, "組織名を入力してください"),
-  code: z.string().min(1, "組織コードを入力してください"),
-  parentOrganizationId: z.string().optional(),
-});
-
-const toggleUserStatusSchema = z.object({
-  userId: z.string().min(1),
-  action: z.enum(["activate", "deactivate"]),
-});
-
-export const handlers = {
-  createUser: defineHandler({
-    schema: createUserSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-      return handleUseCase(() =>
-        createUser({
-          container,
-          headers: args.request.headers,
-          input: value,
-        }),
-      ).match(
-        (result) => success({ userId: result.userId }),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-  createOrganization: defineHandler({
-    schema: createOrgSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-      const input: CreateOrganizationInput = {
-        name: value.name,
-        code: value.code,
-        parentOrganizationId: value.parentOrganizationId || undefined,
-      };
-      return handleUseCase(() =>
-        createOrganization({
-          container,
-          headers: args.request.headers,
-          input,
-        }),
-      ).match(
-        (result) => success({ organizationId: result.organizationId }),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-  toggleUserStatus: defineHandler({
-    schema: toggleUserStatusSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-      const fn = value.action === "activate" ? activateUser : deactivateUser;
-      return handleUseCase(() =>
-        fn({
-          container,
-          headers: args.request.headers,
-          input: { userId: value.userId },
-        }),
-      ).match(
-        () => success(),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "組織/ユーザー - cybozu.com共通管理 - OpenDesk" }];
@@ -184,11 +29,11 @@ export default function DirectoryPage({ loaderData }: Route.ComponentProps) {
     id: "create-user-form",
     lastResult:
       fetcher.data?.intent === "createUser" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.createUser.schema),
+    constraint: getZodConstraint(createUserSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: handlers.createUser.schema });
+      return parseWithZod(formData, { schema: createUserSchema });
     },
   });
 
@@ -196,12 +41,12 @@ export default function DirectoryPage({ loaderData }: Route.ComponentProps) {
     id: "create-org-form",
     lastResult:
       fetcher.data?.intent === "createOrganization" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.createOrganization.schema),
+    constraint: getZodConstraint(createOrgSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
       return parseWithZod(formData, {
-        schema: handlers.createOrganization.schema,
+        schema: createOrgSchema,
       });
     },
   });

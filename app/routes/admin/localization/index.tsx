@@ -1,75 +1,14 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
-import { data } from "react-router";
-import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import { getLocale } from "@/core/application/system-settings/getLocale";
-import { updateLocale } from "@/core/application/system-settings/updateLocale";
 import { SELECT_CLASSES } from "@/lib/admin";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
+import { saveLocaleSchema } from "./schemas";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
-  const result = await handleUseCase(() =>
-    getLocale({
-      container,
-      headers: request.headers,
-      input: undefined,
-    }),
-  ).match(
-    (result) => result,
-    (e) => {
-      throw data({ message: e.message }, { status: e.status });
-    },
-  );
-
-  return {
-    timezone: result.timezone,
-    language: result.language,
-  };
-}
-
-const saveLocaleSchema = z.object({
-  timezone: z.string().min(1),
-  language: z.string().min(1),
-});
-
-export const handlers = {
-  saveLocale: defineHandler({
-    schema: saveLocaleSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-
-      return handleUseCase(() =>
-        updateLocale({
-          container,
-          headers: args.request.headers,
-          input: {
-            timezone: value.timezone,
-            language: value.language,
-          },
-        }),
-      ).match(
-        () => success(),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "ロケール - cybozu.com共通管理 - OpenDesk" }];
@@ -84,10 +23,10 @@ export default function LocalizationPage({ loaderData }: Route.ComponentProps) {
     id: "locale-form",
     lastResult:
       fetcher.data?.intent === "saveLocale" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.saveLocale.schema),
+    constraint: getZodConstraint(saveLocaleSchema),
     shouldValidate: "onSubmit",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: handlers.saveLocale.schema });
+      return parseWithZod(formData, { schema: saveLocaleSchema });
     },
   });
 

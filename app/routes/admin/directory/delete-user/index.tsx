@@ -1,74 +1,11 @@
 import { Trash2 } from "lucide-react";
-import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import { deleteUser } from "@/core/application/identity/deleteUser";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 
-type UserItem = {
-  userId: string;
-  displayName: string;
-  loginName: string;
-  isActive: boolean;
-};
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-
-  const userResult = await container.unitOfWorkProvider.transaction(
-    async (ctx) => {
-      return ctx.userRepository.list({
-        offset: 0,
-        limit: 100,
-        filter: { isActive: false },
-      });
-    },
-  );
-
-  const users: UserItem[] = userResult.users.map((u) => ({
-    userId: u.userId,
-    displayName: u.displayName,
-    loginName: u.loginName,
-    isActive: u.isActive,
-  }));
-
-  return { users, totalCount: userResult.totalCount };
-}
-
-const deleteUserSchema = z.object({
-  userId: z.string().min(1, "ユーザーIDが必要です"),
-});
-
-export const handlers = {
-  deleteUser: defineHandler({
-    schema: deleteUserSchema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-      return handleUseCase(() =>
-        deleteUser({
-          container,
-          headers: args.request.headers,
-          input: { userId: value.userId },
-        }),
-      ).match(
-        () => success(),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "ユーザーの一括削除 - cybozu.com共通管理 - OpenDesk" }];

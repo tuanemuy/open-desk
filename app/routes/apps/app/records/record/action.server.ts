@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
 import { postComment } from "@/core/application/record/postComment";
 import {
@@ -10,10 +9,7 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-const addCommentSchema = z.object({
-  comment: z.string().min(1, "Please enter a comment"),
-});
+import { addCommentSchema } from "./schemas";
 
 export const handlers = {
   addComment: defineHandler({

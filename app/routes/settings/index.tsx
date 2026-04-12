@@ -4,11 +4,12 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import { handlers } from "./action";
-import type { TimeFormat } from "./loader";
+import type { handlers } from "./action.server";
+import type { TimeFormat } from "./loader.server";
+import { updateTimeFormatSchema } from "./schemas";
 
-export { action } from "./action";
-export { loader } from "./loader";
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "個人設定 - OpenDesk" }];
@@ -25,12 +26,12 @@ export default function SettingsPage({ loaderData }: Route.ComponentProps) {
     id: "time-format-form",
     lastResult:
       fetcher.data?.intent === "updateTimeFormat" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.updateTimeFormat.schema),
+    constraint: getZodConstraint(updateTimeFormatSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
       return parseWithZod(formData, {
-        schema: handlers.updateTimeFormat.schema,
+        schema: updateTimeFormatSchema,
       });
     },
   });

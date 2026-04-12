@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
 import { updateUserProfile } from "@/core/application/identity/updateUserProfile";
 import {
@@ -8,10 +7,7 @@ import {
 } from "@/lib/compositeAction";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-const updateTimeFormatSchema = z.object({
-  timeFormat: z.enum(["12h", "24h"]),
-});
+import { updateTimeFormatSchema } from "./schemas";
 
 export const handlers = {
   updateTimeFormat: defineHandler({

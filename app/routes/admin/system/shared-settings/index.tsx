@@ -1,22 +1,15 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { useState } from "react";
-import { data } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
-import { getSharedAppSettings } from "@/core/application/system-settings/getSharedAppSettings";
-import { updateSharedAppSettings } from "@/core/application/system-settings/updateSharedAppSettings";
-import {
-  createCompositeAction,
-  defineHandler,
-  error,
-  success,
-  useCompositeAction,
-} from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
+import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
+
+export { action } from "./action.server";
+export { loader } from "./loader.server";
+
+import type { handlers } from "./action.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "アプリの共通設定 - OpenDeskシステム管理" }];
@@ -28,48 +21,6 @@ const schema = z.object({
     .optional()
     .transform((v) => v === "on"),
 });
-
-export const handlers = {
-  updateSharedSettings: defineHandler({
-    schema,
-    handler: async (value, args) => {
-      await requireAuth(args.request, container);
-      return handleUseCase(() =>
-        updateSharedAppSettings({
-          container,
-          headers: args.request.headers,
-          input: { prohibitEveryoneAdmin: value.prohibitEveryoneAdmin },
-        }),
-      ).match(
-        (result) => success({ data: result }),
-        (e) => error({ "": [e.message] }),
-      );
-    },
-  }),
-};
-
-export async function action(args: Route.ActionArgs) {
-  return createCompositeAction(args, handlers);
-}
-
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-
-  const result = await handleUseCase(() =>
-    getSharedAppSettings({
-      container,
-      headers: request.headers,
-      input: undefined,
-    }),
-  ).match(
-    (result) => result,
-    (e) => {
-      throw data({ message: e.message }, { status: e.status });
-    },
-  );
-
-  return { prohibitEveryoneAdmin: result.prohibitEveryoneAdmin };
-}
 
 export default function SharedSettingsPage({
   loaderData,
