@@ -10,12 +10,14 @@ import type {
 import type { PasswordHasher } from "@/core/domain/identity/ports/passwordHasher";
 import type { SessionRepository } from "@/core/domain/identity/ports/sessionRepository";
 import type { UserRepository } from "@/core/domain/identity/ports/userRepository";
-import type {
-  ApiScope,
-  LoginName as LoginNameType,
-  SessionId as SessionIdType,
-  SessionPolicy as SessionPolicyType,
-  UserId as UserIdType,
+import {
+  type ApiScope,
+  LockoutPolicy,
+  type LockoutPolicy as LockoutPolicyType,
+  type LoginName as LoginNameType,
+  type SessionId as SessionIdType,
+  type SessionPolicy as SessionPolicyType,
+  type UserId as UserIdType,
 } from "@/core/domain/identity/valueObject";
 
 // ============================================
@@ -74,6 +76,13 @@ export type AuthenticationServiceDeps = {
 
 /**
  * Authenticate a user by password and create a session.
+ *
+ * Side effects:
+ * - On password verification failure (when lockout policy is enabled):
+ *   calls `deps.userRepository.recordFailedLogin` to increment the failure count
+ *   and optionally set the lock time.
+ * - On password verification success (when previous failures exist):
+ *   calls `deps.userRepository.clearFailedLogin` to reset the failure count.
  */
 export async function authenticateByPassword(
   deps: Pick<
@@ -87,6 +96,7 @@ export async function authenticateByPassword(
     userAgent: string;
     country?: string;
     sessionPolicy: SessionPolicyType;
+    lockoutPolicy: LockoutPolicyType;
   },
 ): Promise<DomainResult<Session, AuthenticationError>> {
   const credentials = await deps.userRepository.findCredentialsByLoginName(
@@ -103,13 +113,54 @@ export async function authenticateByPassword(
     };
   }
 
+  // Lockout check (always executed regardless of lockoutPolicy values).
+  // Note: failedLoginAttempts is NOT reset when the lock expires — if the user
+  // enters a wrong password after expiry, the count continues from where it was,
+  // causing an immediate re-lock. This is intentional for security.
+  if (
+    credentials.lockedUntil !== null &&
+    credentials.lockedUntil > new Date()
+  ) {
+    return {
+      ok: false,
+      error: {
+        kind: "AccountLocked",
+        userId: credentials.userId,
+        unlockAt: credentials.lockedUntil,
+      },
+    };
+  }
+
   // Verify the password against the stored hash
   const isPasswordValid = await deps.passwordHasher.verify(
     params.password,
     credentials.hashedPassword,
   );
   if (!isPasswordValid) {
+    // Record failed login attempt when lockout policy is enabled
+    if (params.lockoutPolicy.maxFailedAttempts !== null) {
+      const newCount = credentials.failedLoginAttempts + 1;
+      let lockedUntil: Date | null = null;
+      if (newCount >= params.lockoutPolicy.maxFailedAttempts) {
+        lockedUntil =
+          params.lockoutPolicy.lockoutDuration === null
+            ? LockoutPolicy.PERMANENT_LOCK_DATE
+            : new Date(
+                Date.now() + params.lockoutPolicy.lockoutDuration * 60 * 1000,
+              );
+      }
+      await deps.userRepository.recordFailedLogin(
+        credentials.userId,
+        newCount,
+        lockedUntil,
+      );
+    }
     return { ok: false, error: { kind: "InvalidCredentials" } };
+  }
+
+  // Clear failed login state on successful authentication
+  if (credentials.failedLoginAttempts > 0 || credentials.lockedUntil !== null) {
+    await deps.userRepository.clearFailedLogin(credentials.userId);
   }
 
   const { entity: session } = SessionEntity.create({

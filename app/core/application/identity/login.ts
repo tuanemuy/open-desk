@@ -7,11 +7,13 @@ import {
 import type { ServiceArgs } from "@/core/application/types";
 import { authenticateByPassword } from "@/core/domain/identity/services/authenticationService";
 import {
+  LockoutPolicy,
   LoginName,
   Password,
   PasswordPolicy,
   SessionPolicy,
 } from "@/core/domain/identity/valueObject";
+import { SystemSetting } from "@/core/domain/system-settings/entity";
 import type { LoginOutput } from "./dto";
 
 export type LoginInput = {
@@ -48,6 +50,22 @@ export async function login({
   );
 
   const result = await container.unitOfWorkProvider.transaction(async (ctx) => {
+    const lockoutSetting =
+      await ctx.systemSettingsRepository.findByKey("lockout_policy");
+    let lockoutPolicy: ReturnType<typeof LockoutPolicy.create>;
+    if (lockoutSetting) {
+      const lockoutValue = SystemSetting.getTypedValue(
+        lockoutSetting,
+        "lockout_policy",
+      );
+      lockoutPolicy = LockoutPolicy.create({
+        maxFailedAttempts: lockoutValue.maxFailedAttempts,
+        lockoutDuration: lockoutValue.lockoutDurationMinutes,
+      });
+    } else {
+      lockoutPolicy = LockoutPolicy.default();
+    }
+
     return authenticateByPassword(
       {
         userRepository: ctx.userRepository,
@@ -61,6 +79,7 @@ export async function login({
         userAgent: input.userAgent,
         country: input.country,
         sessionPolicy,
+        lockoutPolicy,
       },
     );
   });
@@ -78,6 +97,7 @@ export async function login({
           "User account is inactive",
         );
       case "AccountLocked":
+        // Intentionally uses InvalidCredentials code to avoid leaking lock status to attackers
         throw new UnauthenticatedError(
           UnauthenticatedErrorCode.InvalidCredentials,
           "Account is locked",

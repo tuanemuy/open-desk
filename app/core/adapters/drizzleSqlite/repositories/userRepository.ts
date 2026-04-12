@@ -129,6 +129,8 @@ export class DrizzleSqliteUserRepository implements UserRepository {
     userId: UserIdType;
     hashedPassword: HashedPasswordType;
     isActive: boolean;
+    failedLoginAttempts: number;
+    lockedUntil: Date | null;
   } | null> {
     try {
       const results = await this.executor
@@ -137,6 +139,8 @@ export class DrizzleSqliteUserRepository implements UserRepository {
           passwordHash: users.passwordHash,
           passwordAlgorithm: users.passwordAlgorithm,
           isActive: users.isActive,
+          failedLoginAttempts: users.failedLoginAttempts,
+          lockedUntil: users.lockedUntil,
         })
         .from(users)
         .where(eq(users.loginName, loginName))
@@ -154,11 +158,55 @@ export class DrizzleSqliteUserRepository implements UserRepository {
           algorithm: row.passwordAlgorithm,
         } as HashedPasswordType,
         isActive: row.isActive,
+        failedLoginAttempts: row.failedLoginAttempts,
+        lockedUntil: row.lockedUntil ?? null,
       };
     } catch (error) {
       throw new SystemError(
         SystemErrorCode.DatabaseError,
         "Failed to find credentials by login name",
+        error,
+      );
+    }
+  }
+
+  async recordFailedLogin(
+    userId: UserIdType,
+    failedAttempts: number,
+    lockedUntil: Date | null,
+  ): Promise<void> {
+    try {
+      await this.executor
+        .update(users)
+        .set({
+          failedLoginAttempts: failedAttempts,
+          lockedUntil,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      throw new SystemError(
+        SystemErrorCode.DatabaseError,
+        "Failed to record failed login",
+        error,
+      );
+    }
+  }
+
+  async clearFailedLogin(userId: UserIdType): Promise<void> {
+    try {
+      await this.executor
+        .update(users)
+        .set({
+          failedLoginAttempts: 0,
+          lockedUntil: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      throw new SystemError(
+        SystemErrorCode.DatabaseError,
+        "Failed to clear failed login",
         error,
       );
     }
