@@ -22,12 +22,7 @@ export const handlers = {
   createSpace: defineHandler({
     schema: createSpaceSchema,
     handler: async (value, args) => {
-      let auth: Awaited<ReturnType<typeof requireAuth>>;
-      try {
-        auth = await requireAuth(args.request, container);
-      } catch {
-        return error({ "": ["Authentication required"] });
-      }
+      const auth = await requireAuth(args.request, container);
 
       const isGuest =
         new URL(args.request.url).searchParams.get("guest") === "true";
