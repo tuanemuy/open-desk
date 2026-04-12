@@ -767,7 +767,7 @@ export const LockoutPolicy = {
     if (params.maxFailedAttempts === null && params.lockoutDuration !== null) {
       throw new BusinessRuleError(
         IdentityErrorCode.InconsistentLockoutPolicy,
-        "lockoutDuration must be null when maxFailedAttempts is null (lockout disabled)",
+        "Lockout duration must not be set when lockout is disabled (maxFailedAttempts is null)",
       );
     }
     return {
