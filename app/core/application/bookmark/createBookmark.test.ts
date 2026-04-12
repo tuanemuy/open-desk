@@ -55,7 +55,7 @@ describe("createBookmark", () => {
       input: {
         userId,
         name: "App Bookmark",
-        url: "https://example.com/k/4/",
+        url: "https://example.com/apps/abc123",
       },
     });
 
@@ -73,7 +73,7 @@ describe("createBookmark", () => {
       input: {
         userId,
         name: "Search Bookmark",
-        url: "https://example.com/k/search?keyword=test",
+        url: "https://example.com/search?keyword=test",
       },
     });
 

@@ -1357,3 +1357,243 @@
 | 操作者にシステム管理権限がない | SystemPermissionDeniedError |
 | 対象ユーザーがゲストユーザーでない | NotGuestUserError |
 | 対象ユーザーが存在しない | UserNotFoundError |
+
+---
+
+## 31. スレッドアクション一覧取得
+
+### 概要
+
+システムに登録されたスレッドアクションの一覧を取得する。システム管理者のみ実行可能。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| offset | number | 任意 | 0以上の整数。デフォルト0 |
+| limit | number | 任意 | 1以上の整数。デフォルト100 |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| actions | Array<{ threadActionId: ThreadActionId; actionName: string; destinationAppId: AppId; fieldMappings: ThreadActionFieldMapping[]; modifierId: UserId; modifiedAt: Date; createdAt: Date }> |
+| totalCount | number |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`systemAdmin` 権限があること、または `userContext.isCybozuAdmin` が true であることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `ThreadActionRepository.list(offset, limit)` でスレッドアクション一覧を取得する
+5. スレッドアクション一覧と総件数を出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にシステム管理権限がない | SystemPermissionDeniedError |
+
+---
+
+## 32. スレッドアクション作成
+
+### 概要
+
+新しいスレッドアクションを作成する。コピー先アプリとフィールドマッピングを設定する。システム管理者のみ実行可能。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| actionName | string | 必須 | 1文字以上128文字以下 |
+| destinationAppId | AppId | 必須 | 有効な AppId 形式であること |
+| fieldMappings | ThreadActionFieldMapping[] | 必須 | 1件以上100件以下。各マッピングの destinationFieldCode が空文字でないこと |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| threadActionId | ThreadActionId |
+| actionName | string |
+| destinationAppId | AppId |
+| fieldMappings | ThreadActionFieldMapping[] |
+| modifierId | UserId |
+| modifiedAt | Date |
+| createdAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`systemAdmin` 権限があること、または `userContext.isCybozuAdmin` が true であることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. actionName が1文字以上128文字以下であることを検証する。空文字の場合は EmptyThreadActionNameError、128文字超過の場合は ThreadActionNameTooLongError を返す
+5. App ドメインのポートで destinationAppId のアプリが存在することを検証する。存在しない場合は InvalidDestinationAppError を返す
+6. fieldMappings が1件以上100件以下であることを検証する。0件の場合は EmptyFieldMappingsError、100件超過の場合は TooManyFieldMappingsError を返す
+7. 各フィールドマッピングの destinationFieldCode がコピー先アプリに存在するフィールドであることを検証する
+8. 新しい ThreadAction エンティティを生成する（threadActionId は新規生成、modifierId は operatorId、modifiedAt と createdAt は現在日時）
+9. `ThreadAction.setFieldMappings(fieldMappings)` でフィールドマッピングを設定する
+10. `ThreadActionRepository.save(action)` で永続化する
+11. 作成されたスレッドアクションを出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にシステム管理権限がない | SystemPermissionDeniedError |
+| アクション名が空文字 | EmptyThreadActionNameError |
+| アクション名が128文字超過 | ThreadActionNameTooLongError |
+| コピー先アプリが存在しない | InvalidDestinationAppError |
+| フィールドマッピングが0件 | EmptyFieldMappingsError |
+| フィールドマッピングが100件超過 | TooManyFieldMappingsError |
+
+---
+
+## 33. スレッドアクション更新
+
+### 概要
+
+既存のスレッドアクションのアクション名・コピー先アプリ・フィールドマッピングを変更する。システム管理者のみ実行可能。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| threadActionId | ThreadActionId | 必須 | 有効な ThreadActionId 形式であること |
+| actionName | string | 任意 | 指定時は1文字以上128文字以下 |
+| destinationAppId | AppId | 任意 | 指定時は有効な AppId 形式であること |
+| fieldMappings | ThreadActionFieldMapping[] | 任意 | 指定時は1件以上100件以下 |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| threadActionId | ThreadActionId |
+| actionName | string |
+| destinationAppId | AppId |
+| fieldMappings | ThreadActionFieldMapping[] |
+| modifierId | UserId |
+| modifiedAt | Date |
+| createdAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`systemAdmin` 権限があること、または `userContext.isCybozuAdmin` が true であることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `ThreadActionRepository.findById(threadActionId)` でスレッドアクションを取得する
+5. スレッドアクションが存在しない場合は ThreadActionNotFoundError を返す
+6. actionName が指定されている場合、`ThreadAction.rename(actionName)` を呼び出す（ドメインモデル内で1-128文字のバリデーションが実行される）
+7. destinationAppId が指定されている場合:
+   - App ドメインのポートでコピー先アプリが存在することを検証する。存在しない場合は InvalidDestinationAppError を返す
+   - `ThreadAction.setDestinationApp(destinationAppId)` を呼び出す（フィールドマッピングがクリアされる）
+8. fieldMappings が指定されている場合:
+   - 1件以上100件以下であることを検証する
+   - 各フィールドマッピングの destinationFieldCode がコピー先アプリに存在するフィールドであることを検証する
+   - `ThreadAction.setFieldMappings(fieldMappings)` を呼び出す
+9. `ThreadAction.updateModifier(operatorId)` で最終更新者と最終更新日時を更新する
+10. `ThreadActionRepository.save(action)` で永続化する
+11. 更新後のスレッドアクションを出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にシステム管理権限がない | SystemPermissionDeniedError |
+| スレッドアクションが存在しない | ThreadActionNotFoundError |
+| アクション名が空文字 | EmptyThreadActionNameError（ドメインモデルから発生） |
+| アクション名が128文字超過 | ThreadActionNameTooLongError（ドメインモデルから発生） |
+| コピー先アプリが存在しない | InvalidDestinationAppError |
+| フィールドマッピングが0件 | EmptyFieldMappingsError（ドメインモデルから発生） |
+| フィールドマッピングが100件超過 | TooManyFieldMappingsError（ドメインモデルから発生） |
+
+---
+
+## 34. スレッドアクション削除
+
+### 概要
+
+スレッドアクションを削除する。システム管理者のみ実行可能。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| threadActionId | ThreadActionId | 必須 | 有効な ThreadActionId 形式であること |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| (なし) | void |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`systemAdmin` 権限があること、または `userContext.isCybozuAdmin` が true であることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `ThreadActionRepository.findById(threadActionId)` でスレッドアクションを取得する
+5. スレッドアクションが存在しない場合は ThreadActionNotFoundError を返す
+6. `ThreadActionRepository.delete(threadActionId)` でスレッドアクションを削除する
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にシステム管理権限がない | SystemPermissionDeniedError |
+| スレッドアクションが存在しない | ThreadActionNotFoundError |
+
+---
+
+## 35. スペース復旧
+
+### 概要
+
+削除後14日以内のスペースをスペースIDを指定して復旧する。14日超過の場合はエラー。関連するスレッド・メンバー・お知らせ・関連リンク等も復旧される。システム管理者のみ実行可能。
+
+### 入力DTO
+
+| フィールド名 | 型 | 必須/任意 | バリデーションルール |
+|-------------|-----|----------|-------------------|
+| operatorId | UserId | 必須 | 有効な UserId 形式であること |
+| spaceId | SpaceId | 必須 | 有効な SpaceId 形式であること |
+
+### 出力DTO
+
+| フィールド名 | 型 |
+|-------------|-----|
+| spaceId | SpaceId |
+| name | string |
+| isPrivate | boolean |
+| useMultiThread | boolean |
+| fixedMember | boolean |
+| appCreationPermission | AppCreationPermission |
+| coverImage | CoverImage |
+| defaultThreadId | ThreadId |
+| createdAt | Date |
+
+### 処理フロー
+
+1. Identity ドメインのポートから operatorId のユーザーコンテキストを取得する
+2. AccessControl ドメインのポートで操作者のシステム権限を評価し、`systemAdmin` 権限があること、または `userContext.isCybozuAdmin` が true であることを検証する
+3. 権限がない場合は SystemPermissionDeniedError を返す
+4. `SpaceRepository.findById(spaceId)` で削除済みスペースを取得する（論理削除されたスペースも取得可能であること）
+5. スペースが存在しない場合は SpaceNotFoundError を返す
+6. スペースが削除済みでない場合は SpaceNotDeletedError を返す
+7. スペースの削除日時から14日が経過しているかを検証する。14日を超過している場合は SpaceRestoreExpiredError を返す（deletedAt と expiredAt を含む）
+8. スペースの削除フラグを解除し、復旧する
+9. `SpaceRepository.save(space)` で永続化する
+10. 復旧されたスペース情報を出力 DTO として返す
+
+### エラーケース
+
+| 条件 | エラー種別 |
+|------|-----------|
+| 操作者にシステム管理権限がない | SystemPermissionDeniedError |
+| スペースが存在しない | SpaceNotFoundError |
+| スペースが削除済みでない | SpaceNotDeletedError |
+| 削除後14日を超過している | SpaceRestoreExpiredError |

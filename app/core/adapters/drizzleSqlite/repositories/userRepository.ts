@@ -1,6 +1,9 @@
 import type { InferSelectModel } from "drizzle-orm";
-import { and, count, eq, like, or } from "drizzle-orm";
+import { and, count, eq, inArray, like, or } from "drizzle-orm";
 import {
+  spaceMembers,
+  spaces,
+  userAccessUsages,
   userGroups,
   userOrganizations,
   users,
@@ -8,6 +11,8 @@ import {
 import { SystemError, SystemErrorCode } from "@/core/application/error";
 import type { User } from "@/core/domain/identity/entity";
 import type {
+  GuestUserListParams,
+  GuestUserListResult,
   UserListParams,
   UserListResult,
   UserRepository,
@@ -42,6 +47,8 @@ export class DrizzleSqliteUserRepository implements UserRepository {
         data.timezone as import("@/core/domain/identity/valueObject").Timezone,
       language:
         data.language as import("@/core/domain/identity/valueObject").Language,
+      timeFormat:
+        data.timeFormat as import("@/core/domain/identity/valueObject").TimeFormat,
       isActive: data.isActive,
       avatarFileKey:
         data.avatarFileKey !== null
@@ -209,6 +216,7 @@ export class DrizzleSqliteUserRepository implements UserRepository {
           primaryOrganizationId: user.primaryOrganizationId,
           timezone: user.timezone,
           language: user.language,
+          timeFormat: user.timeFormat,
           isActive: user.isActive,
           avatarFileKey: user.avatarFileKey,
           createdAt: user.createdAt,
@@ -223,6 +231,7 @@ export class DrizzleSqliteUserRepository implements UserRepository {
             primaryOrganizationId: user.primaryOrganizationId,
             timezone: user.timezone,
             language: user.language,
+            timeFormat: user.timeFormat,
             isActive: user.isActive,
             avatarFileKey: user.avatarFileKey,
             updatedAt: user.updatedAt,
@@ -314,6 +323,99 @@ export class DrizzleSqliteUserRepository implements UserRepository {
       throw new SystemError(
         SystemErrorCode.DatabaseError,
         "Failed to list users",
+        error,
+      );
+    }
+  }
+
+  async listGuestUsers(
+    params: GuestUserListParams,
+  ): Promise<GuestUserListResult> {
+    try {
+      // Get all user IDs that belong to at least one guest space
+      const guestSpaceMemberRows = await this.executor
+        .select({
+          entityId: spaceMembers.entityId,
+          spaceId: spaceMembers.spaceId,
+          spaceName: spaces.name,
+        })
+        .from(spaceMembers)
+        .innerJoin(
+          spaces,
+          and(eq(spaceMembers.spaceId, spaces.id), eq(spaces.isGuest, true)),
+        )
+        .where(eq(spaceMembers.entityType, "user"));
+
+      // Collect unique user IDs
+      const userIdSet = new Set<string>(
+        guestSpaceMemberRows.map((r) => r.entityId),
+      );
+      const allGuestUserIds = Array.from(userIdSet);
+      const totalCount = allGuestUserIds.length;
+
+      if (totalCount === 0) {
+        return {
+          guestUsers: [],
+          totalCount: 0,
+          trialCount: 0,
+          paidCount: 0,
+          licensedCount: 0,
+        };
+      }
+
+      // Apply pagination on the unique user IDs
+      const paginatedUserIds = allGuestUserIds.slice(
+        params.offset,
+        params.offset + params.limit,
+      );
+
+      // Fetch user records for the paginated set
+      const userRows = await this.executor
+        .select()
+        .from(users)
+        .where(inArray(users.id, paginatedUserIds));
+
+      // Fetch last access dates for the paginated users
+      const accessUsageRows = await this.executor
+        .select({
+          userId: userAccessUsages.userId,
+          lastAccessDate: userAccessUsages.lastAccessDate,
+        })
+        .from(userAccessUsages)
+        .where(inArray(userAccessUsages.userId, paginatedUserIds));
+
+      const lastAccessMap = new Map<string, Date | null>(
+        accessUsageRows.map((r) => [r.userId, r.lastAccessDate ?? null]),
+      );
+
+      // Build a map of userId -> guestSpaceNames
+      const guestSpaceNamesMap = new Map<string, string[]>();
+      for (const row of guestSpaceMemberRows) {
+        if (!userIdSet.has(row.entityId)) continue;
+        const existing = guestSpaceNamesMap.get(row.entityId) ?? [];
+        existing.push(row.spaceName);
+        guestSpaceNamesMap.set(row.entityId, existing);
+      }
+
+      const guestUsers = userRows.map((userRow) => ({
+        user: this.into(userRow),
+        guestSpaceNames: guestSpaceNamesMap.get(userRow.id) ?? [],
+        licenseType: "standard",
+        trialExpiresAt: null,
+        lastLoginAt: lastAccessMap.get(userRow.id) ?? null,
+      }));
+
+      return {
+        guestUsers,
+        totalCount,
+        trialCount: 0,
+        paidCount: totalCount,
+        licensedCount: totalCount,
+      };
+    } catch (error) {
+      throw new SystemError(
+        SystemErrorCode.DatabaseError,
+        "Failed to list guest users",
         error,
       );
     }

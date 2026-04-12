@@ -43,6 +43,7 @@ export const NotificationFilterMatchingService = {
     // 2. Check location conditions
     if (
       !matchesLocationConditions(
+        notification.sourceId,
         notificationSource,
         filter.locationMode,
         filter.locationConditions,
@@ -108,6 +109,7 @@ function matchesNotificationType(
  * - EXCLUDE mode: matches only if none of the location conditions match (NOR)
  */
 function matchesLocationConditions(
+  sourceId: string,
   source: NotificationSourceType,
   mode: NotificationFilter["locationMode"],
   conditions: readonly LocationConditionType[],
@@ -117,7 +119,7 @@ function matchesLocationConditions(
   }
 
   const hasMatch = conditions.some((condition) =>
-    matchesSingleLocationCondition(source, condition),
+    matchesSingleLocationCondition(sourceId, source, condition),
   );
 
   if (mode === "INCLUDE") {
@@ -135,8 +137,12 @@ function matchesLocationConditions(
  * 1. The source's locationType matches the condition's locationType
  * 2. AND either the condition's locationId is null (meaning "all of this type")
  *    OR the condition's locationId matches the source's specific ID
+ *
+ * For PEOPLE and MESSAGE location types, the locationId is compared against
+ * the notification's sourceId (the ID of the originating entity).
  */
 function matchesSingleLocationCondition(
+  sourceId: string,
   source: NotificationSourceType,
   condition: LocationConditionType,
 ): boolean {
@@ -157,8 +163,7 @@ function matchesSingleLocationCondition(
       return source.spaceId === condition.locationId;
     case "PEOPLE":
     case "MESSAGE":
-      // For PEOPLE and MESSAGE, the locationId directly matches
-      return false;
+      return sourceId === condition.locationId;
   }
 }
 
@@ -187,9 +192,12 @@ function matchesSenderConditions(
     if (condition.senderType === "USER") {
       return notification.senderId === condition.senderId;
     }
-    // For ORGANIZATION and GROUP sender types,
-    // the actual membership resolution is handled at the infrastructure level.
-    // At the domain level we can only do direct ID comparison.
-    return false;
+    // For ORGANIZATION and GROUP sender types, membership resolution
+    // requires infrastructure-level access (e.g., querying organization/group
+    // membership). The domain layer cannot resolve whether a user belongs to
+    // a given organization or group, so we optimistically return true here.
+    // The actual membership-based filtering is performed at the infrastructure
+    // level (repository query) before notifications reach this service.
+    return true;
   });
 }

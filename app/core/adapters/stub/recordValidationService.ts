@@ -4,6 +4,7 @@ import type {
   FieldCode as FieldCodeType,
   FieldValue,
 } from "@/core/domain/record/valueObject";
+import { StubNotImplementedError } from "./error";
 
 export class StubRecordValidationService implements RecordValidationService {
   validateFieldValues(
@@ -11,6 +12,6 @@ export class StubRecordValidationService implements RecordValidationService {
     _fieldValues: ReadonlyMap<FieldCodeType, FieldValue>,
     _isUpdate: boolean,
   ): Promise<void> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("RecordValidationService");
   }
 }

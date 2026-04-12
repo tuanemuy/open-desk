@@ -311,6 +311,34 @@ export const Language = {
 };
 
 // ============================================
+// TimeFormat
+// ============================================
+
+const VALID_TIME_FORMATS = ["12h", "24h"] as const;
+
+type TimeFormatValue = (typeof VALID_TIME_FORMATS)[number];
+
+type _TimeFormat = TimeFormatValue & { readonly brand: "TimeFormat" };
+
+export type TimeFormat = _TimeFormat;
+
+export const TimeFormat = {
+  create: (value: string): _TimeFormat => {
+    if (!VALID_TIME_FORMATS.includes(value as TimeFormatValue)) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.InvalidTimeFormat,
+        `Invalid time format: ${value}`,
+      );
+    }
+    return value as _TimeFormat;
+  },
+  default: (): _TimeFormat => {
+    return "24h" as _TimeFormat;
+  },
+  validValues: VALID_TIME_FORMATS,
+};
+
+// ============================================
 // Password (plain-text, validated against a PasswordPolicy)
 // ============================================
 
@@ -564,6 +592,139 @@ export const PasswordPolicy = {
     allowUserChange: true,
     allowUserReset: true,
   }),
+};
+
+// ============================================
+// TitleId
+// ============================================
+
+type _TitleId = string & { readonly brand: "TitleId" };
+
+export type TitleId = _TitleId;
+
+export const TitleId = {
+  create: (id: string): _TitleId => {
+    return id as _TitleId;
+  },
+  generate: (): _TitleId => {
+    return uuidv7() as _TitleId;
+  },
+};
+
+// ============================================
+// ExternalId
+// ============================================
+
+type _ExternalId = string & { readonly brand: "ExternalId" };
+
+export type ExternalId = _ExternalId;
+
+export const ExternalId = {
+  create: (value: string): _ExternalId => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyExternalId,
+        "External ID cannot be empty",
+      );
+    }
+    return value as _ExternalId;
+  },
+};
+
+// ============================================
+// ScimResourceType
+// ============================================
+
+const VALID_SCIM_RESOURCE_TYPES = ["User", "Group"] as const;
+
+type ScimResourceTypeValue = (typeof VALID_SCIM_RESOURCE_TYPES)[number];
+
+type _ScimResourceType = ScimResourceTypeValue & {
+  readonly brand: "ScimResourceType";
+};
+
+export type ScimResourceType = _ScimResourceType;
+
+export const ScimResourceType = {
+  create: (value: string): _ScimResourceType => {
+    if (!VALID_SCIM_RESOURCE_TYPES.includes(value as ScimResourceTypeValue)) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.InvalidScimResourceType,
+        `Invalid SCIM resource type: ${value}`,
+      );
+    }
+    return value as _ScimResourceType;
+  },
+  validValues: VALID_SCIM_RESOURCE_TYPES,
+};
+
+// ============================================
+// ApiTokenRecordId
+// ============================================
+
+type _ApiTokenRecordId = string & { readonly brand: "ApiTokenRecordId" };
+
+export type ApiTokenRecordId = _ApiTokenRecordId;
+
+export const ApiTokenRecordId = {
+  create: (id: string): _ApiTokenRecordId => {
+    return id as _ApiTokenRecordId;
+  },
+  generate: (): _ApiTokenRecordId => {
+    return uuidv7() as _ApiTokenRecordId;
+  },
+};
+
+// ============================================
+// HashedBearerToken
+// ============================================
+
+type _HashedBearerToken = Readonly<{
+  value: string;
+  algorithm: string;
+}>;
+
+export type HashedBearerToken = _HashedBearerToken;
+
+export const HashedBearerToken = {
+  create: (value: string, algorithm: string): _HashedBearerToken => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyHashedBearerToken,
+        "Hashed bearer token value cannot be empty",
+      );
+    }
+    return { value, algorithm };
+  },
+};
+
+// ============================================
+// BearerToken
+// ============================================
+
+const BEARER_TOKEN_MIN_LENGTH = 32;
+
+type _BearerToken = string & { readonly brand: "BearerToken" };
+
+export type BearerToken = _BearerToken;
+
+export const BearerToken = {
+  create: (value: string): _BearerToken => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.EmptyBearerToken,
+        "Bearer token cannot be empty",
+      );
+    }
+    if (value.length < BEARER_TOKEN_MIN_LENGTH) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.BearerTokenTooShort,
+        `Bearer token must be at least ${BEARER_TOKEN_MIN_LENGTH} characters`,
+      );
+    }
+    return value as _BearerToken;
+  },
+  minLength: BEARER_TOKEN_MIN_LENGTH,
 };
 
 // ============================================

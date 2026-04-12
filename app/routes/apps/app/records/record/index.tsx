@@ -5,10 +5,11 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import { handlers } from "./action";
+import type { handlers } from "./action.server";
+import { addCommentSchema } from "./schemas";
 
-export { action } from "./action";
-export { loader } from "./loader";
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
 export function meta({ data }: Route.MetaArgs) {
   const appName = data?.app?.name ?? "App";
@@ -33,7 +34,7 @@ function MultiLineText({ value }: { value: string }) {
 }
 
 export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
-  const { app, rows, comments } = loaderData;
+  const { app, rows, comments, histories } = loaderData;
   const [activeTab, setActiveTab] = useState<"comments" | "history">(
     "comments",
   );
@@ -44,11 +45,11 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
     id: "comment-form",
     lastResult:
       fetcher.data?.intent === "addComment" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.addComment.schema),
+    constraint: getZodConstraint(addCommentSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: handlers.addComment.schema });
+      return parseWithZod(formData, { schema: addCommentSchema });
     },
   });
 
@@ -293,11 +294,53 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
             </>
           )}
 
-          {activeTab === "history" && (
-            <div className="py-lg text-center text-sm text-neutral-500">
-              No change history available.
-            </div>
-          )}
+          {activeTab === "history" &&
+            (histories.length === 0 ? (
+              <div className="py-lg text-center text-sm text-neutral-500">
+                変更履歴がありません
+              </div>
+            ) : (
+              <div className="flex flex-col gap-lg">
+                {histories.map((entry) => (
+                  <div
+                    key={entry.id}
+                    className="border-b border-neutral-100 pb-lg last:border-b-0 last:pb-0"
+                  >
+                    <div className="mb-sm flex items-center gap-sm">
+                      <span className="text-sm font-[var(--weight-medium)] text-neutral-800">
+                        {entry.modifier}
+                      </span>
+                      <span className="text-xs text-neutral-400">
+                        {entry.modifiedAt}
+                      </span>
+                      <span className="rounded-sm bg-neutral-100 px-xs py-[2px] text-xs text-neutral-500">
+                        v{entry.version}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-xs">
+                      {entry.changes.map((change) => (
+                        <div
+                          key={`${entry.id}-${change.fieldCode}`}
+                          className="text-sm text-neutral-700"
+                        >
+                          <span className="font-[var(--weight-medium)] text-neutral-600">
+                            {change.fieldCode}
+                          </span>
+                          :{" "}
+                          <span className="text-neutral-400 line-through">
+                            {change.oldValue || "(empty)"}
+                          </span>
+                          {" → "}
+                          <span className="text-neutral-800">
+                            {change.newValue || "(empty)"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
         </div>
       </div>
     </div>

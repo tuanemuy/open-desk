@@ -32,6 +32,7 @@ export const users = sqliteTable(
     ),
     timezone: text("timezone").notNull().default("Asia/Tokyo"),
     language: text("language").notNull().default("ja"),
+    timeFormat: text("time_format").notNull().default("24h"),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
     avatarFileKey: text("avatar_file_key"),
     failedLoginAttempts: integer("failed_login_attempts").notNull().default(0),
@@ -239,6 +240,135 @@ export const systemSettings = sqliteTable("system_settings", {
     .default(sql`(unixepoch())`)
     .$onUpdate(() => new Date()),
 });
+
+/**
+ * titles - 役職テーブル
+ */
+export const titles = sqliteTable(
+  "titles",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    name: text("name").notNull().unique(),
+    orderIndex: integer("order_index").notNull().default(0),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index("idx_titles_name").on(table.name),
+    index("idx_titles_order_index").on(table.orderIndex),
+  ],
+);
+
+/**
+ * userTitles - ユーザーと役職の多対多関係
+ */
+export const userTitles = sqliteTable(
+  "user_titles",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    titleId: text("title_id")
+      .notNull()
+      .references(() => titles.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex("uq_user_titles").on(table.userId, table.titleId),
+    index("idx_user_titles_user_id").on(table.userId),
+    index("idx_user_titles_title_id").on(table.titleId),
+  ],
+);
+
+/**
+ * provisioningConfigs - プロビジョニング設定テーブル（シングルトン）
+ */
+export const provisioningConfigs = sqliteTable("provisioning_configs", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  isEnabled: integer("is_enabled", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  bearerTokenHash: text("bearer_token_hash"),
+  bearerTokenAlgorithm: text("bearer_token_algorithm"),
+  tokenIssuedAt: integer("token_issued_at", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`)
+    .$onUpdate(() => new Date()),
+});
+
+/**
+ * apiTokenRecords - APIトークンレコードテーブル
+ */
+export const apiTokenRecords = sqliteTable(
+  "api_token_records",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull(),
+    summary: text("summary").notNull(),
+    scopes: text("scopes", { mode: "json" })
+      .notNull()
+      .$type<string[]>()
+      .default([]),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    revokedAt: integer("revoked_at", { mode: "timestamp" }),
+  },
+  (table) => [
+    index("idx_api_token_records_user_id").on(table.userId),
+    index("idx_api_token_records_token_hash").on(table.tokenHash),
+  ],
+);
+
+/**
+ * scimExternalMappings - SCIM外部マッピングテーブル
+ */
+export const scimExternalMappings = sqliteTable(
+  "scim_external_mappings",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    externalId: text("external_id").notNull(),
+    resourceType: text("resource_type").notNull(),
+    internalId: text("internal_id").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex("uq_scim_external_mappings").on(
+      table.externalId,
+      table.resourceType,
+    ),
+    index("idx_scim_external_mappings_internal_id").on(table.internalId),
+    index("idx_scim_external_mappings_resource_type").on(table.resourceType),
+  ],
+);
 
 // ============================================================
 // 2. App ドメイン
@@ -778,6 +908,138 @@ export const appI18nConfigs = sqliteTable("app_i18n_configs", {
     .$onUpdate(() => new Date()),
 });
 
+/**
+ * appGroups - アプリグループテーブル
+ */
+export const appGroups = sqliteTable(
+  "app_groups",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    name: text("name").notNull(),
+    isDefault: integer("is_default", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [index("idx_app_groups_is_default").on(table.isDefault)],
+);
+
+/**
+ * appGroupApps - アプリグループとアプリの多対多関係
+ */
+export const appGroupApps = sqliteTable(
+  "app_group_apps",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    appGroupId: text("app_group_id")
+      .notNull()
+      .references(() => appGroups.id, { onDelete: "cascade" }),
+    appId: text("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex("uq_app_group_apps").on(table.appGroupId, table.appId),
+    index("idx_app_group_apps_app_group_id").on(table.appGroupId),
+    index("idx_app_group_apps_app_id").on(table.appId),
+  ],
+);
+
+/**
+ * appTemplates - アプリテンプレートテーブル
+ */
+export const appTemplates = sqliteTable(
+  "app_templates",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    name: text("name").notNull(),
+    description: text("description"),
+    sourceAppId: text("source_app_id").references(() => apps.id, {
+      onDelete: "set null",
+    }),
+    creatorId: text("creator_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index("idx_app_templates_creator_id").on(table.creatorId),
+    index("idx_app_templates_source_app_id").on(table.sourceAppId),
+  ],
+);
+
+/**
+ * plugins - プラグインテーブル（システム管理）
+ */
+export const plugins = sqliteTable(
+  "plugins",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    name: text("name").notNull(),
+    description: text("description"),
+    isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+    isPreinstalled: integer("is_preinstalled", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index("idx_plugins_is_active").on(table.isActive),
+    index("idx_plugins_is_preinstalled").on(table.isPreinstalled),
+  ],
+);
+
+/**
+ * pluginApps - プラグインとアプリの多対多関係
+ */
+export const pluginApps = sqliteTable(
+  "plugin_apps",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    pluginId: text("plugin_id")
+      .notNull()
+      .references(() => plugins.id, { onDelete: "cascade" }),
+    appId: text("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex("uq_plugin_apps").on(table.pluginId, table.appId),
+    index("idx_plugin_apps_plugin_id").on(table.pluginId),
+    index("idx_plugin_apps_app_id").on(table.appId),
+  ],
+);
+
 // ============================================================
 // 3. Record ドメイン
 // ============================================================
@@ -1196,6 +1458,44 @@ export const systemPermissions = sqliteTable(
   ],
 );
 
+/**
+ * orgAccessRules - 組織間アクセス権テーブル
+ */
+export const orgAccessRules = sqliteTable(
+  "org_access_rules",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    sourceOrganizationId: text("source_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    targetOrganizationId: text("target_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    accessLevel: text("access_level").notNull().default("FULL"),
+    isEnabled: integer("is_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    uniqueIndex("uq_org_access_rules_pair").on(
+      table.sourceOrganizationId,
+      table.targetOrganizationId,
+    ),
+    index("idx_org_access_rules_source").on(table.sourceOrganizationId),
+    index("idx_org_access_rules_target").on(table.targetOrganizationId),
+    index("idx_org_access_rules_is_enabled").on(table.isEnabled),
+  ],
+);
+
 // ============================================================
 // 5. Space ドメイン
 // ============================================================
@@ -1486,6 +1786,38 @@ export const threadFollows = sqliteTable(
   ],
 );
 
+/**
+ * threadActions - スレッドアクションテーブル
+ */
+export const threadActions = sqliteTable(
+  "thread_actions",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    actionName: text("action_name").notNull(),
+    destinationAppId: text("destination_app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    fieldMappings: text("field_mappings", { mode: "json" })
+      .notNull()
+      .default([]),
+    modifierId: text("modifier_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    modifiedAt: integer("modified_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index("idx_thread_actions_destination_app_id").on(table.destinationAppId),
+    index("idx_thread_actions_modifier_id").on(table.modifierId),
+  ],
+);
+
 // ============================================================
 // 6. Notification ドメイン
 // ============================================================
@@ -1640,6 +1972,32 @@ export const notificationPreferences = sqliteTable("notification_preferences", {
     .default(sql`(unixepoch())`)
     .$onUpdate(() => new Date()),
 });
+
+/**
+ * pushSubscriptions - Web Push サブスクリプションテーブル
+ */
+export const pushSubscriptions = sqliteTable(
+  "push_subscriptions",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    endpoint: text("endpoint").notNull(),
+    keyP256dh: text("key_p256dh").notNull(),
+    keyAuth: text("key_auth").notNull(),
+    expirationTime: integer("expiration_time"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index("idx_push_subscriptions_user_id").on(table.userId),
+    uniqueIndex("uq_push_subscriptions_endpoint").on(table.endpoint),
+  ],
+);
 
 // ============================================================
 // 7. Portal ドメイン
@@ -1910,4 +2268,137 @@ export const bookmarks = sqliteTable(
     index("idx_bookmarks_user_id_created_at").on(table.userId, table.createdAt),
     index("idx_bookmarks_user_id_category").on(table.userId, table.category),
   ],
+);
+
+// ============================================================
+// 13. Audit ドメイン
+// ============================================================
+
+/**
+ * auditLogs - 監査ログテーブル
+ */
+export const auditLogs = sqliteTable(
+  "audit_logs",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    level: text("level").notNull(),
+    timestamp: integer("timestamp", { mode: "timestamp" }).notNull(),
+    sourceIp: text("source_ip"),
+    userId: text("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    service: text("service").notNull(),
+    module: text("module").notNull(),
+    action: text("action").notNull(),
+    result: text("result").notNull(),
+    errorCode: text("error_code"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index("idx_audit_logs_timestamp").on(table.timestamp),
+    index("idx_audit_logs_level").on(table.level),
+    index("idx_audit_logs_user_id").on(table.userId),
+    index("idx_audit_logs_service").on(table.service),
+    index("idx_audit_logs_result").on(table.result),
+    index("idx_audit_logs_timestamp_level").on(table.timestamp, table.level),
+  ],
+);
+
+/**
+ * auditLogSettings - 監査ログ設定テーブル（シングルトン）
+ */
+export const auditLogSettings = sqliteTable("audit_log_settings", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => uuidv7()),
+  settings: text("settings", { mode: "json" }).notNull().default({}),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`)
+    .$onUpdate(() => new Date()),
+});
+
+/**
+ * userAccessUsages - ユーザーアクセス状況テーブル
+ */
+export const userAccessUsages = sqliteTable(
+  "user_access_usages",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    userId: text("user_id")
+      .notNull()
+      .unique()
+      .references(() => users.id, { onDelete: "cascade" }),
+    lastAccessDate: integer("last_access_date", { mode: "timestamp" }),
+    accessDaysLast30: integer("access_days_last_30").notNull().default(0),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index("idx_user_access_usages_last_access_date").on(table.lastAccessDate),
+    index("idx_user_access_usages_access_days").on(table.accessDaysLast30),
+  ],
+);
+
+/**
+ * userAccessDates - ユーザーアクセス日付テーブル
+ */
+export const userAccessDates = sqliteTable(
+  "user_access_dates",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    accessDate: integer("access_date", { mode: "timestamp" }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex("uq_user_access_dates").on(table.userId, table.accessDate),
+    index("idx_user_access_dates_user_id_date").on(
+      table.userId,
+      table.accessDate,
+    ),
+    index("idx_user_access_dates_access_date").on(table.accessDate),
+  ],
+);
+
+// ============================================================
+// 12. Common ドメイン
+// ============================================================
+
+/**
+ * eventOutbox - イベントアウトボックステーブル（Outbox パターン）
+ */
+export const eventOutbox = sqliteTable(
+  "event_outbox",
+  {
+    id: text("id").primaryKey(),
+    eventType: text("event_type").notNull(),
+    eventPayload: text("event_payload").notNull(),
+    occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    processedAt: integer("processed_at", { mode: "timestamp" }),
+  },
+  (table) => [index("idx_event_outbox_pending").on(table.processedAt)],
 );

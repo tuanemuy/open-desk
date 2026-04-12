@@ -39,6 +39,8 @@ AccessControl ドメインは、OpenDesk プラットフォームにおけるア
 | ACL Evaluation | アクセス権評価 | 特定ユーザーの特定レコード・フィールドに対する実効権限を算出するプロセス |
 | Revision | リビジョン | ACL 設定のバージョン番号。楽観的ロックに使用する |
 | cybozu.com Admin | cybozu.com 共通管理者 | cybozu.com の共通管理者。OpenDesk のシステム管理権限が自動的に付与される |
+| Org Access Rule | 組織間アクセス権 | ソース組織からターゲット組織に対するアクセスレベルを制御する設定。cybozu.com 共通管理画面で管理される |
+| Org Access Level | 組織アクセスレベル | 組織間アクセス権における閲覧許可の度合い。FULL（全権限）、READ_ONLY（閲覧のみ）、NONE（アクセス不可）の3段階 |
 
 ---
 
@@ -935,3 +937,215 @@ interface FilterCondEvaluator {
 | ユースケース | 説明 |
 |------------|------|
 | レコードアクセス権の一括評価 | 指定ユーザーの複数レコード（最大100件）に対する実効権限を一括評価する。レコードレベルとフィールドレベルの権限を返す。パスワード認証・セッション認証のみ対応 |
+
+### 組織間アクセス権
+
+| ユースケース | 説明 |
+|------------|------|
+| 組織間アクセス権一覧の取得 | 全組織間アクセス権設定を取得する。cybozu.com 共通管理者権限が必要 |
+| 組織間アクセス権の追加 | ソース組織からターゲット組織に対するアクセス権を新規追加する。cybozu.com 共通管理者権限が必要 |
+| 組織間アクセス権の更新 | 既存の組織間アクセス権設定（アクセスレベル・有効フラグ）を更新する。cybozu.com 共通管理者権限が必要 |
+| 組織間アクセス権の削除 | 組織間アクセス権設定を削除する。cybozu.com 共通管理者権限が必要 |
+| 組織間アクセス権の評価 | 指定ユーザーの所属組織に基づいて、ターゲット組織のリソースに対するアクセス可否を評価する |
+
+---
+
+## OrgAccessRule（組織間アクセス権） — 追加エンティティ
+
+### 概要
+
+組織間のアクセス権を制御するエンティティ。cybozu.com 共通管理画面の「組織間のアクセス権」で管理される。ソース組織に所属するユーザーがターゲット組織のリソース（ユーザー情報・組織情報等）にアクセスできるレベルを制御する。
+
+### エンティティ定義
+
+```typescript
+type OrgAccessRule = {
+  readonly orgAccessRuleId: OrgAccessRuleId;
+  sourceOrganizationId: OrganizationId;   // ソース組織（アクセスする側）
+  targetOrganizationId: OrganizationId;   // ターゲット組織（アクセスされる側）
+  accessLevel: OrgAccessLevel;            // アクセスレベル
+  isEnabled: boolean;                     // 有効フラグ
+  createdAt: Date;                        // 作成日時
+  updatedAt: Date;                        // 最終更新日時
+};
+```
+
+### 振る舞い
+
+```typescript
+/**
+ * アクセスレベルを変更する。
+ *
+ * @param level 新しいアクセスレベル
+ */
+updateAccessLevel(level: OrgAccessLevel): void;
+
+/**
+ * ルールを有効化する。
+ */
+enable(): void;
+
+/**
+ * ルールを無効化する。
+ * 無効化されたルールは評価時にスキップされる。
+ */
+disable(): void;
+```
+
+### 不変条件
+
+- `sourceOrganizationId` と `targetOrganizationId` は異なる組織でなければならない（自己参照不可）
+- 同一の `sourceOrganizationId` と `targetOrganizationId` の組み合わせは重複不可
+- `createdAt <= updatedAt`
+
+### ライフサイクル
+
+1. **作成**: cybozu.com 共通管理者が組織間のアクセス権を新規作成する
+2. **更新**: アクセスレベルの変更、有効/無効の切り替え
+3. **削除**: cybozu.com 共通管理者がルールを削除する
+
+---
+
+## 追加の値オブジェクト
+
+### 識別子
+
+```typescript
+/** 組織間アクセス権の一意識別子 */
+type OrgAccessRuleId = {
+  readonly _brand: "OrgAccessRuleId";
+  readonly value: string;
+};
+
+// 他ドメインからの参照（既存）
+// OrganizationId は Identity ドメインで定義
+```
+
+### OrgAccessLevel
+
+組織間アクセスのレベル。
+
+```typescript
+type OrgAccessLevel =
+  | "FULL"        // フルアクセス（閲覧・編集等の全操作が可能）
+  | "READ_ONLY"   // 閲覧のみ（組織のユーザー情報の参照のみ）
+  | "NONE";        // アクセス不可（ターゲット組織のリソースへの一切のアクセスを拒否）
+```
+
+---
+
+## 追加のドメインサービス
+
+### OrgAccessEvaluationService
+
+組織間アクセス権の評価を担当するドメインサービス。
+
+```typescript
+interface OrgAccessEvaluationService {
+  /**
+   * 指定ユーザーの所属組織からターゲット組織へのアクセスレベルを評価する。
+   * ユーザーが複数組織に所属する場合、最も高いアクセスレベルが適用される（OR 結合）。
+   * 有効なルールのみ評価対象とする。
+   *
+   * @param userOrganizationIds ユーザーが所属する組織IDのリスト
+   * @param targetOrganizationId アクセス先のターゲット組織ID
+   * @param rules 全組織間アクセス権ルール
+   * @returns 評価結果のアクセスレベル。該当ルールが存在しない場合は FULL（制限なし）
+   */
+  evaluateAccess(
+    userOrganizationIds: OrganizationId[],
+    targetOrganizationId: OrganizationId,
+    rules: OrgAccessRule[]
+  ): OrgAccessLevel;
+}
+```
+
+---
+
+## 追加のポート
+
+### OrgAccessRuleRepository
+
+組織間アクセス権の永続化を担当するリポジトリ。
+
+```typescript
+interface OrgAccessRuleRepository {
+  /**
+   * IDで組織間アクセス権を取得する。
+   * @returns 組織間アクセス権。存在しない場合は null
+   */
+  findById(orgAccessRuleId: OrgAccessRuleId): Promise<OrgAccessRule | null>;
+
+  /**
+   * 組織間アクセス権を全件取得する。
+   * @returns 組織間アクセス権のリスト
+   */
+  findAll(): Promise<OrgAccessRule[]>;
+
+  /**
+   * ソース組織IDで組織間アクセス権を取得する。
+   * @returns 該当するルールのリスト
+   */
+  findBySourceOrganizationId(organizationId: OrganizationId): Promise<OrgAccessRule[]>;
+
+  /**
+   * ターゲット組織IDで組織間アクセス権を取得する。
+   * @returns 該当するルールのリスト
+   */
+  findByTargetOrganizationId(organizationId: OrganizationId): Promise<OrgAccessRule[]>;
+
+  /**
+   * ソース組織とターゲット組織の組み合わせで取得する。
+   * @returns 組織間アクセス権。存在しない場合は null
+   */
+  findByOrganizationPair(
+    sourceOrganizationId: OrganizationId,
+    targetOrganizationId: OrganizationId
+  ): Promise<OrgAccessRule | null>;
+
+  /**
+   * 組織間アクセス権を保存する（新規作成・更新の両方に対応）。
+   * @returns 保存された組織間アクセス権
+   */
+  save(rule: OrgAccessRule): Promise<OrgAccessRule>;
+
+  /**
+   * 組織間アクセス権を削除する。
+   */
+  delete(orgAccessRuleId: OrgAccessRuleId): Promise<void>;
+}
+```
+
+---
+
+## 追加のエラー型
+
+```typescript
+// 組織間アクセス権エラー
+type OrgAccessRuleNotFoundError = { kind: "OrgAccessRuleNotFound"; orgAccessRuleId: OrgAccessRuleId };
+type SelfReferenceOrgAccessError = { kind: "SelfReferenceOrgAccess"; organizationId: OrganizationId };
+type DuplicateOrgAccessRuleError = {
+  kind: "DuplicateOrgAccessRule";
+  sourceOrganizationId: OrganizationId;
+  targetOrganizationId: OrganizationId;
+};
+type OrgAccessOrganizationNotFoundError = {
+  kind: "OrgAccessOrganizationNotFound";
+  organizationId: OrganizationId;
+};
+```
+
+---
+
+## 追加のビジネスルール
+
+### 組織間アクセス権
+
+| ルール | 説明 |
+|--------|------|
+| デフォルトアクセス | ルールが設定されていない組織間の関係ではフルアクセス（FULL）がデフォルト |
+| OR 結合 | ユーザーが複数組織に所属する場合、各組織のアクセスレベルのうち最も高いものが適用される |
+| 無効ルールのスキップ | `isEnabled` が `false` のルールは評価時に無視される |
+| 自己参照の禁止 | ソース組織とターゲット組織が同一のルールは作成不可 |
+| 重複の禁止 | 同一のソース・ターゲット組み合わせに対して複数のルールは設定不可 |
+| cybozu.com 共通管理者の特権 | cybozu.com 共通管理者は組織間アクセス権に関わらず全組織にフルアクセス可能 |

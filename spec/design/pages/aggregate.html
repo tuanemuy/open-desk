@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>集計結果 - 顧客リスト - OpenDesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary-lighter: oklch(0.95 0.03 250);
+      --color-primary-light: oklch(0.82 0.07 250);
+      --color-primary: oklch(0.65 0.12 250);
+      --color-primary-dark: oklch(0.52 0.12 250);
+      --color-primary-darker: oklch(0.40 0.12 250);
+      --color-accent: oklch(0.65 0.15 270);
+      --color-accent-light: oklch(0.90 0.05 270);
+      --color-neutral-50: oklch(0.98 0.002 250);
+      --color-neutral-100: oklch(0.96 0.004 250);
+      --color-neutral-150: oklch(0.94 0.004 250);
+      --color-neutral-200: oklch(0.92 0.005 250);
+      --color-neutral-300: oklch(0.86 0.008 250);
+      --color-neutral-400: oklch(0.72 0.015 250);
+      --color-neutral-500: oklch(0.60 0.02 250);
+      --color-neutral-600: oklch(0.50 0.02 250);
+      --color-neutral-700: oklch(0.40 0.02 250);
+      --color-neutral-800: oklch(0.30 0.02 250);
+      --color-neutral-900: oklch(0.20 0.02 250);
+      --color-success: oklch(0.60 0.15 155);
+      --color-success-light: oklch(0.95 0.04 155);
+      --color-warning: oklch(0.75 0.15 80);
+      --color-warning-light: oklch(0.95 0.05 80);
+      --color-error: oklch(0.60 0.20 25);
+      --color-error-light: oklch(0.95 0.04 25);
+      --color-info: oklch(0.65 0.12 250);
+      --color-info-light: oklch(0.95 0.03 250);
+      --color-bg-page: oklch(0.98 0.002 250);
+      --color-bg-card: oklch(1.0 0 0);
+      --color-bg-section: oklch(0.96 0.004 250);
+      --color-bg-header: oklch(1.0 0 0);
+      --color-on-primary: oklch(1.0 0 0);
+      --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --text-xs: clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);
+      --text-sm: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
+      --text-base: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+      --text-lg: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --text-xl: clamp(1.125rem, 1.05rem + 0.2vw, 1.25rem);
+      --text-2xl: clamp(1.375rem, 1.25rem + 0.3vw, 1.5rem);
+      --text-3xl: clamp(1.75rem, 1.6rem + 0.4vw, 2rem);
+      --weight-normal: 400;
+      --weight-medium: 500;
+      --weight-semibold: 600;
+      --leading-tight: 1.3;
+      --leading-normal: 1.6;
+      --leading-relaxed: 1.8;
+      --tracking-tight: -0.02em;
+      --tracking-normal: 0;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-section: 48px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px oklch(0.20 0 0 / 0.04);
+      --shadow-md: 0 2px 8px oklch(0.20 0 0 / 0.06);
+      --shadow-lg: 0 4px 16px oklch(0.20 0 0 / 0.08);
+      --transition-fast: 0.1s ease;
+      --transition-default: 0.15s ease;
+      --transition-slow: 0.25s ease;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: var(--weight-normal);
+      line-height: var(--leading-normal);
+      color: var(--color-neutral-800);
+      background-color: var(--color-bg-page);
+      min-width: 1200px;
+    }
+
+    /* ========== Global Header ========== */
+    .global-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: var(--color-bg-header);
+      border-bottom: 1px solid var(--color-neutral-200);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-normal);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-neutral-800);
+      text-decoration: none;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .logo strong {
+      font-weight: var(--weight-semibold);
+      color: var(--color-primary);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .header-nav a {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      text-decoration: none;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      transition: color var(--transition-default), background-color var(--transition-default);
+    }
+
+    .header-nav a:hover {
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+    }
+
+    .header-nav a.active {
+      color: var(--color-primary);
+      background: var(--color-primary-lighter);
+    }
+
+    .header-nav a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .search-input {
+      height: 34px;
+      width: 240px;
+      padding: 0 var(--space-md);
+      padding-left: 36px;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      background: var(--color-neutral-100);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      outline: none;
+      transition: border-color var(--transition-default), background-color var(--transition-default), box-shadow var(--transition-default);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-neutral-400);
+    }
+
+    .search-input:hover {
+      background: var(--color-bg-card);
+      border-color: var(--color-neutral-300);
+    }
+
+    .search-input:focus {
+      background: var(--color-bg-card);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      color: var(--color-primary-darker);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+      transition: box-shadow var(--transition-default);
+      border: 1px solid var(--color-neutral-200);
+    }
+
+    .user-avatar:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ========== Main Content ========== */
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-lg) var(--space-xl);
+    }
+
+    /* ========== Breadcrumb ========== */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+      margin-bottom: var(--space-md);
+      list-style: none;
+    }
+
+    .breadcrumb a {
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: color var(--transition-default);
+    }
+
+    .breadcrumb a:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    .breadcrumb-separator {
+      color: var(--color-neutral-400);
+      font-size: var(--text-xs);
+    }
+
+    /* ========== App Title Area ========== */
+    .app-title-area {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .app-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .favorite-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: var(--text-lg);
+      color: var(--color-neutral-400);
+      padding: var(--space-xs);
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-default);
+      line-height: 1;
+    }
+
+    .favorite-btn:hover {
+      color: var(--color-warning);
+    }
+
+    .toggle-description {
+      font-size: var(--text-sm);
+      color: var(--color-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-weight: var(--weight-medium);
+      transition: color var(--transition-default);
+    }
+
+    .toggle-description:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    /* ========== Toolbar ========== */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .toolbar-select {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      padding: 6px var(--space-md) 6px var(--space-sm);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-bg-card);
+      color: var(--color-neutral-700);
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--transition-default);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 28px;
+    }
+
+    .toolbar-select:focus {
+      border-color: var(--color-primary);
+    }
+
+    .toolbar-select:hover {
+      border-color: var(--color-neutral-400);
+    }
+
+    .btn {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      padding: 6px var(--space-md);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-default);
+      outline: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      text-decoration: none;
+      line-height: var(--leading-tight);
+    }
+
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: var(--color-on-primary);
+      border: 1px solid var(--color-primary);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--color-primary-dark);
+      border-color: var(--color-primary-dark);
+    }
+
+    .btn-primary:focus {
+      box-shadow: 0 0 0 2px var(--color-primary-lighter);
+    }
+
+    .btn-primary:active {
+      background-color: var(--color-primary-darker);
+      border-color: var(--color-primary-darker);
+    }
+
+    .btn-secondary {
+      background-color: var(--color-bg-card);
+      color: var(--color-neutral-700);
+      border: 1px solid var(--color-neutral-300);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--color-neutral-100);
+      border-color: var(--color-neutral-400);
+    }
+
+    .btn-secondary:focus {
+      box-shadow: 0 0 0 2px var(--color-primary-lighter);
+    }
+
+    .btn-secondary:active {
+      background-color: var(--color-neutral-200);
+    }
+
+    .btn-secondary.active {
+      background-color: var(--color-primary-lighter);
+      border-color: var(--color-primary);
+      color: var(--color-primary-dark);
+    }
+
+    .toolbar-link {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-primary);
+      text-decoration: none;
+      padding: 6px var(--space-sm);
+      transition: color var(--transition-default);
+    }
+
+    .toolbar-link:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 20px;
+      background-color: var(--color-neutral-200);
+      flex-shrink: 0;
+    }
+
+    .toolbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .toolbar-dropdown-wrapper {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .toolbar-dropdown-btn {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      padding: 2px 4px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      background: none;
+      color: var(--color-neutral-500);
+      cursor: pointer;
+      transition: all var(--transition-default);
+      line-height: 1;
+    }
+
+    .toolbar-dropdown-btn:hover {
+      background-color: var(--color-neutral-100);
+      border-color: var(--color-neutral-200);
+      color: var(--color-neutral-700);
+    }
+
+    /* ========== Toolbar View Tabs ========== */
+    .toolbar-tab-group {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background-color: var(--color-neutral-100);
+      border-radius: var(--radius-sm);
+      padding: 2px;
+    }
+
+    .toolbar-tab {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      padding: 5px var(--space-md);
+      border: none;
+      border-radius: var(--radius-sm);
+      background: none;
+      color: var(--color-neutral-600);
+      cursor: pointer;
+      transition: all var(--transition-default);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .toolbar-tab:hover {
+      color: var(--color-neutral-800);
+      background-color: var(--color-neutral-200);
+    }
+
+    .toolbar-tab.active {
+      background-color: var(--color-bg-card);
+      color: var(--color-neutral-800);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .toolbar-tab .tab-dropdown {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-400);
+    }
+
+    /* ========== Graph Settings Bar ========== */
+    .graph-settings-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      background-color: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      border-bottom: none;
+    }
+
+    .graph-setting-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .graph-setting-label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+      white-space: nowrap;
+    }
+
+    .graph-setting-select {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-normal);
+      padding: 4px var(--space-sm);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-bg-card);
+      color: var(--color-neutral-700);
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--transition-default);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+      padding-right: 24px;
+    }
+
+    .graph-setting-select:focus {
+      border-color: var(--color-primary);
+    }
+
+    .graph-setting-select:hover {
+      border-color: var(--color-neutral-400);
+    }
+
+    /* ========== Chart Card ========== */
+    .chart-card {
+      background-color: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      padding: var(--space-xl) var(--space-lg);
+    }
+
+    /* ========== CSS Bar Chart ========== */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+      width: 100%;
+      height: 320px;
+      position: relative;
+      padding-left: 48px;
+      padding-bottom: 40px;
+    }
+
+    /* Y-axis */
+    .bar-chart-y-axis {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 40px;
+      width: 48px;
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: space-between;
+    }
+
+    .bar-chart-y-label {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+      text-align: right;
+      padding-right: var(--space-sm);
+      line-height: 1;
+    }
+
+    /* Grid lines */
+    .bar-chart-grid {
+      position: absolute;
+      left: 48px;
+      right: 0;
+      top: 0;
+      bottom: 40px;
+    }
+
+    .bar-chart-grid-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background-color: var(--color-neutral-200);
+    }
+
+    .bar-chart-grid-line:nth-child(1) { bottom: 0; }
+    .bar-chart-grid-line:nth-child(2) { bottom: 20%; }
+    .bar-chart-grid-line:nth-child(3) { bottom: 40%; }
+    .bar-chart-grid-line:nth-child(4) { bottom: 60%; }
+    .bar-chart-grid-line:nth-child(5) { bottom: 80%; }
+    .bar-chart-grid-line:nth-child(6) { bottom: 100%; }
+
+    /* Bar groups area */
+    .bar-chart-bars {
+      position: absolute;
+      left: 48px;
+      right: 0;
+      top: 0;
+      bottom: 40px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+    }
+
+    .bar-group {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      flex: 1;
+      justify-content: center;
+      position: relative;
+      padding-bottom: 0;
+    }
+
+    .bar {
+      width: 28px;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      transition: opacity var(--transition-default);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .bar:hover {
+      opacity: 0.8;
+    }
+
+    .bar-a { background-color: var(--color-primary); }
+    .bar-b { background-color: var(--color-success); }
+    .bar-c { background-color: var(--color-warning); }
+
+    /* X-axis labels */
+    .bar-chart-x-axis {
+      position: absolute;
+      left: 48px;
+      right: 0;
+      bottom: 0;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      border-top: 1px solid var(--color-neutral-300);
+    }
+
+    .bar-chart-x-label {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-600);
+      text-align: center;
+      flex: 1;
+    }
+
+    /* ========== Legend ========== */
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-lg);
+      padding-top: var(--space-lg);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-700);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: var(--radius-full);
+      flex-shrink: 0;
+    }
+
+    .legend-dot-a { background-color: var(--color-primary); }
+    .legend-dot-b { background-color: var(--color-success); }
+    .legend-dot-c { background-color: var(--color-warning); }
+
+    /* ========== Modal Overlay ========== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: oklch(0.20 0 0 / 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .modal {
+      background: var(--color-bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      width: 900px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-lg) var(--space-lg) var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .modal-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-900);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: none;
+      color: var(--color-neutral-500);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      font-size: var(--text-lg);
+      transition: all var(--transition-default);
+    }
+
+    .modal-close:hover {
+      background-color: var(--color-neutral-100);
+      color: var(--color-neutral-700);
+    }
+
+    .modal-body {
+      display: flex;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .modal-body-left {
+      flex: 1;
+      padding: var(--space-lg);
+      border-right: 1px solid var(--color-neutral-200);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .modal-body-right {
+      width: 360px;
+      padding: var(--space-lg);
+      background-color: var(--color-bg-section);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--color-neutral-200);
+    }
+
+    .modal-footer-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .modal-footer-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    /* ========== Form Fields in Modal ========== */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .form-group-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .form-label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+    }
+
+    .form-select {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-normal);
+      padding: 6px var(--space-sm);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-bg-card);
+      color: var(--color-neutral-700);
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--transition-default);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 28px;
+      min-width: 140px;
+    }
+
+    .form-select:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-lighter);
+    }
+
+    .form-select:hover {
+      border-color: var(--color-neutral-400);
+    }
+
+    .form-select-full {
+      width: 100%;
+    }
+
+    .form-static-value {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-800);
+      padding: 6px 0;
+    }
+
+    .form-section-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-neutral-700);
+      padding-bottom: var(--space-xs);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    .form-hint {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+    }
+
+    /* ========== Modal Preview Chart ========== */
+    .preview-label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-neutral-600);
+    }
+
+    .preview-chart-area {
+      background-color: var(--color-bg-card);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+      width: 100%;
+      height: 160px;
+      position: relative;
+      padding-left: 32px;
+      padding-bottom: 28px;
+    }
+
+    .preview-bar-chart .bar-chart-y-axis {
+      width: 32px;
+    }
+
+    .preview-bar-chart .bar-chart-grid {
+      left: 32px;
+    }
+
+    .preview-bar-chart .bar-chart-bars {
+      left: 32px;
+    }
+
+    .preview-bar-chart .bar-chart-x-axis {
+      left: 32px;
+    }
+
+    .preview-bar-chart .bar {
+      width: 14px;
+    }
+
+    .preview-bar-chart .bar-chart-x-label {
+      font-size: var(--text-xs);
+    }
+
+    .preview-bar-chart .bar-chart-y-label {
+      font-size: 10px;
+    }
+
+    .preview-notice {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background-color: var(--color-info-light);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      color: var(--color-neutral-600);
+      margin-top: var(--space-sm);
+    }
+
+    .preview-notice-icon {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      color: var(--color-info);
+    }
+
+    .preview-legend {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      padding-top: var(--space-sm);
+    }
+
+    .preview-legend .legend-item {
+      font-size: var(--text-xs);
+    }
+
+    .preview-legend .legend-dot {
+      width: 8px;
+      height: 8px;
+    }
+
+    /* ========== Link button style ========== */
+    .btn-link {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--color-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px var(--space-sm);
+      transition: color var(--transition-default);
+    }
+
+    .btn-link:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Header -->
+  <header class="global-header">
+    <div class="header-inner">
+      <a href="#" class="logo">Open<strong>Desk</strong></a>
+      <nav class="header-nav">
+        <a href="#">ポータル</a>
+        <a href="#">通知</a>
+        <a href="#">ブックマーク</a>
+      </nav>
+      <div class="header-right">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="search-input" placeholder="アプリ内検索">
+        </div>
+        <div class="user-avatar" title="山田 太郎">山</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Breadcrumb -->
+    <nav>
+      <ol class="breadcrumb">
+        <li><a href="#">ポータル</a></li>
+        <li class="breadcrumb-separator">&gt;</li>
+        <li>顧客リスト</li>
+      </ol>
+    </nav>
+
+    <!-- App Title Area -->
+    <div class="app-title-area">
+      <h1 class="app-title">顧客リスト</h1>
+      <button class="favorite-btn" title="お気に入りに追加">&#9734;</button>
+      <button class="toggle-description">説明を表示</button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <!-- View mode tabs -->
+      <div class="toolbar-tab-group">
+        <button class="toolbar-tab">
+          一覧
+          <span class="tab-dropdown">顧客一覧 &#9662;</span>
+        </button>
+        <button class="toolbar-tab active">
+          グラフ
+          <span class="tab-dropdown">月別売上推移 &#9662;</span>
+        </button>
+      </div>
+
+      <div class="toolbar-separator"></div>
+
+      <button class="btn btn-secondary">絞り込む</button>
+      <button class="btn btn-secondary active">集計する</button>
+
+      <div class="toolbar-separator"></div>
+
+      <button class="btn btn-primary">+</button>
+
+      <div class="toolbar-right">
+        <a href="#" class="toolbar-link">設定</a>
+        <button class="btn btn-secondary">オプション</button>
+      </div>
+    </div>
+
+    <!-- Graph Settings Bar -->
+    <div class="graph-settings-bar">
+      <div class="graph-setting-item">
+        <span class="graph-setting-label">グラフの種類:</span>
+        <select class="graph-setting-select">
+          <option selected>縦棒グラフ</option>
+          <option>横棒グラフ</option>
+          <option>円グラフ</option>
+          <option>折れ線グラフ</option>
+          <option>面グラフ</option>
+        </select>
+      </div>
+      <div class="graph-setting-item">
+        <span class="graph-setting-label">サブタイプ:</span>
+        <select class="graph-setting-select">
+          <option selected>集合</option>
+          <option>積み上げ</option>
+          <option>100%積み上げ</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Chart Card -->
+    <div class="chart-card">
+      <!-- Bar Chart -->
+      <div class="bar-chart">
+        <!-- Y-axis labels -->
+        <div class="bar-chart-y-axis">
+          <span class="bar-chart-y-label">0</span>
+          <span class="bar-chart-y-label">20</span>
+          <span class="bar-chart-y-label">40</span>
+          <span class="bar-chart-y-label">60</span>
+          <span class="bar-chart-y-label">80</span>
+          <span class="bar-chart-y-label">100</span>
+        </div>
+
+        <!-- Grid lines -->
+        <div class="bar-chart-grid">
+          <div class="bar-chart-grid-line"></div>
+          <div class="bar-chart-grid-line"></div>
+          <div class="bar-chart-grid-line"></div>
+          <div class="bar-chart-grid-line"></div>
+          <div class="bar-chart-grid-line"></div>
+          <div class="bar-chart-grid-line"></div>
+        </div>
+
+        <!-- Bar groups -->
+        <div class="bar-chart-bars">
+          <!-- April -->
+          <div class="bar-group">
+            <div class="bar bar-a" style="height: 65%;"></div>
+            <div class="bar bar-b" style="height: 45%;"></div>
+            <div class="bar bar-c" style="height: 30%;"></div>
+          </div>
+          <!-- May -->
+          <div class="bar-group">
+            <div class="bar bar-a" style="height: 80%;"></div>
+            <div class="bar bar-b" style="height: 55%;"></div>
+            <div class="bar bar-c" style="height: 40%;"></div>
+          </div>
+          <!-- June -->
+          <div class="bar-group">
+            <div class="bar bar-a" style="height: 50%;"></div>
+            <div class="bar bar-b" style="height: 70%;"></div>
+            <div class="bar bar-c" style="height: 35%;"></div>
+          </div>
+          <!-- July -->
+          <div class="bar-group">
+            <div class="bar bar-a" style="height: 90%;"></div>
+            <div class="bar bar-b" style="height: 60%;"></div>
+            <div class="bar bar-c" style="height: 50%;"></div>
+          </div>
+          <!-- August -->
+          <div class="bar-group">
+            <div class="bar bar-a" style="height: 72%;"></div>
+            <div class="bar bar-b" style="height: 48%;"></div>
+            <div class="bar bar-c" style="height: 55%;"></div>
+          </div>
+          <!-- September -->
+          <div class="bar-group">
+            <div class="bar bar-a" style="height: 85%;"></div>
+            <div class="bar bar-b" style="height: 62%;"></div>
+            <div class="bar bar-c" style="height: 42%;"></div>
+          </div>
+        </div>
+
+        <!-- X-axis labels -->
+        <div class="bar-chart-x-axis">
+          <span class="bar-chart-x-label">4月</span>
+          <span class="bar-chart-x-label">5月</span>
+          <span class="bar-chart-x-label">6月</span>
+          <span class="bar-chart-x-label">7月</span>
+          <span class="bar-chart-x-label">8月</span>
+          <span class="bar-chart-x-label">9月</span>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="chart-legend">
+        <div class="legend-item">
+          <span class="legend-dot legend-dot-a"></span>
+          <span>ランクA</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot legend-dot-b"></span>
+          <span>ランクB</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot legend-dot-c"></span>
+          <span>ランクC</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========== Aggregate Dialog (Modal Overlay) ========== -->
+  <div class="modal-overlay">
+    <div class="modal">
+      <!-- Header -->
+      <div class="modal-header">
+        <h2 class="modal-title">集計する</h2>
+        <button class="modal-close" aria-label="閉じる">&times;</button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <!-- Left: Settings -->
+        <div class="modal-body-left">
+          <!-- Graph type row -->
+          <div class="form-group">
+            <div class="form-group-row">
+              <div class="form-group" style="flex: 1;">
+                <label class="form-label">グラフの種類</label>
+                <select class="form-select form-select-full">
+                  <option selected>縦棒グラフ</option>
+                  <option>横棒グラフ</option>
+                  <option>円グラフ</option>
+                  <option>折れ線グラフ</option>
+                  <option>面グラフ</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label class="form-label">サブタイプ</label>
+                <select class="form-select form-select-full">
+                  <option selected>集合</option>
+                  <option>積み上げ</option>
+                  <option>100%積み上げ</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Separator -->
+          <div style="border-top: 1px solid var(--color-neutral-200);"></div>
+
+          <!-- Classification -->
+          <div class="form-group">
+            <span class="form-section-title">分類する項目</span>
+          </div>
+          <div class="form-group">
+            <div class="form-group-row">
+              <span class="form-label" style="min-width: 48px;">大項目</span>
+              <select class="form-select" style="flex: 1;">
+                <option selected>顧客ランク</option>
+                <option>部署名</option>
+                <option>担当者名</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Separator -->
+          <div style="border-top: 1px solid var(--color-neutral-200);"></div>
+
+          <!-- Aggregation method -->
+          <div class="form-group">
+            <label class="form-label">集計方法</label>
+            <select class="form-select">
+              <option selected>レコード数</option>
+              <option>合計</option>
+              <option>平均</option>
+              <option>最大値</option>
+              <option>最小値</option>
+            </select>
+          </div>
+
+          <!-- Separator -->
+          <div style="border-top: 1px solid var(--color-neutral-200);"></div>
+
+          <!-- Condition -->
+          <div class="form-group">
+            <label class="form-label">条件</label>
+            <span class="form-static-value">すべてのレコード</span>
+          </div>
+
+          <!-- Separator -->
+          <div style="border-top: 1px solid var(--color-neutral-200);"></div>
+
+          <!-- Sort -->
+          <div class="form-group">
+            <label class="form-label">ソート</label>
+            <div class="form-group-row">
+              <select class="form-select" style="flex: 1;">
+                <option selected>集計値</option>
+                <option>分類項目名</option>
+              </select>
+              <select class="form-select" style="flex: 1;">
+                <option selected>降順</option>
+                <option>昇順</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Preview -->
+        <div class="modal-body-right">
+          <span class="preview-label">プレビュー</span>
+          <div class="preview-chart-area">
+            <!-- Mini bar chart preview -->
+            <div class="preview-bar-chart">
+              <!-- Y-axis labels -->
+              <div class="bar-chart-y-axis">
+                <span class="bar-chart-y-label">0</span>
+                <span class="bar-chart-y-label">20</span>
+                <span class="bar-chart-y-label">40</span>
+                <span class="bar-chart-y-label">60</span>
+                <span class="bar-chart-y-label">80</span>
+                <span class="bar-chart-y-label">100</span>
+              </div>
+
+              <!-- Grid lines -->
+              <div class="bar-chart-grid">
+                <div class="bar-chart-grid-line"></div>
+                <div class="bar-chart-grid-line"></div>
+                <div class="bar-chart-grid-line"></div>
+                <div class="bar-chart-grid-line"></div>
+                <div class="bar-chart-grid-line"></div>
+                <div class="bar-chart-grid-line"></div>
+              </div>
+
+              <!-- Bar groups -->
+              <div class="bar-chart-bars">
+                <div class="bar-group">
+                  <div class="bar bar-a" style="height: 65%;"></div>
+                  <div class="bar bar-b" style="height: 45%;"></div>
+                  <div class="bar bar-c" style="height: 30%;"></div>
+                </div>
+                <div class="bar-group">
+                  <div class="bar bar-a" style="height: 80%;"></div>
+                  <div class="bar bar-b" style="height: 55%;"></div>
+                  <div class="bar bar-c" style="height: 40%;"></div>
+                </div>
+                <div class="bar-group">
+                  <div class="bar bar-a" style="height: 50%;"></div>
+                  <div class="bar bar-b" style="height: 70%;"></div>
+                  <div class="bar bar-c" style="height: 35%;"></div>
+                </div>
+                <div class="bar-group">
+                  <div class="bar bar-a" style="height: 90%;"></div>
+                  <div class="bar bar-b" style="height: 60%;"></div>
+                  <div class="bar bar-c" style="height: 50%;"></div>
+                </div>
+                <div class="bar-group">
+                  <div class="bar bar-a" style="height: 72%;"></div>
+                  <div class="bar bar-b" style="height: 48%;"></div>
+                  <div class="bar bar-c" style="height: 55%;"></div>
+                </div>
+                <div class="bar-group">
+                  <div class="bar bar-a" style="height: 85%;"></div>
+                  <div class="bar bar-b" style="height: 62%;"></div>
+                  <div class="bar bar-c" style="height: 42%;"></div>
+                </div>
+              </div>
+
+              <!-- X-axis labels -->
+              <div class="bar-chart-x-axis">
+                <span class="bar-chart-x-label">4月</span>
+                <span class="bar-chart-x-label">5月</span>
+                <span class="bar-chart-x-label">6月</span>
+                <span class="bar-chart-x-label">7月</span>
+                <span class="bar-chart-x-label">8月</span>
+                <span class="bar-chart-x-label">9月</span>
+              </div>
+            </div>
+
+            <!-- Preview legend -->
+            <div class="preview-legend">
+              <div class="legend-item">
+                <span class="legend-dot legend-dot-a"></span>
+                <span>ランクA</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot legend-dot-b"></span>
+                <span>ランクB</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot legend-dot-c"></span>
+                <span>ランクC</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notice -->
+          <div class="preview-notice">
+            <svg class="preview-notice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>一部のデータだけを基にしています</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <div class="modal-footer-left">
+          <button class="btn-link">グラフ選択に戻る</button>
+        </div>
+        <div class="modal-footer-right">
+          <button class="btn btn-secondary">適用</button>
+          <button class="btn btn-primary">保存する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -57,3 +57,23 @@ export type EvaluateSystemPermissionOutput = {
 export type EvaluateBatchOutput = {
   readonly results: readonly EffectiveRecordPermission[];
 };
+
+export type OrgAccessRuleDto = {
+  readonly orgAccessRuleId: string;
+  readonly sourceOrganizationId: string;
+  readonly targetOrganizationId: string;
+  readonly accessLevel: import("@/core/domain/access-control/valueObject").OrgAccessLevel;
+  readonly isEnabled: boolean;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+};
+
+export type OrgAccessRuleListOutput = {
+  readonly rules: readonly OrgAccessRuleDto[];
+};
+
+export type EvaluateOrgAccessOutput = {
+  readonly userId: string;
+  readonly targetOrganizationId: string;
+  readonly accessLevel: import("@/core/domain/access-control/valueObject").OrgAccessLevel;
+};

@@ -3,6 +3,7 @@ import type {
   NotificationSource as NotificationSourceType,
   SourceType as SourceTypeType,
 } from "@/core/domain/notification/valueObject";
+import { StubNotImplementedError } from "./error";
 
 export class StubNotificationSourceResolver
   implements NotificationSourceResolver
@@ -11,6 +12,6 @@ export class StubNotificationSourceResolver
     _sourceType: SourceTypeType,
     _sourceId: string,
   ): Promise<NotificationSourceType | null> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("NotificationSourceResolver");
   }
 }

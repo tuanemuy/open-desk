@@ -318,3 +318,81 @@ export const UserAclContext = {
     isCybozuAdmin: params.isCybozuAdmin,
   }),
 };
+
+// ============================================
+// OrgAccessRuleId
+// ============================================
+
+type _OrgAccessRuleId = string & { readonly brand: "OrgAccessRuleId" };
+
+export type OrgAccessRuleId = _OrgAccessRuleId;
+
+export const OrgAccessRuleId = {
+  create: (id: string): _OrgAccessRuleId => {
+    return id as _OrgAccessRuleId;
+  },
+  generate: (): _OrgAccessRuleId => {
+    return uuidv7() as _OrgAccessRuleId;
+  },
+};
+
+// ============================================
+// OrganizationId (AccessControl-local definition to avoid circular dependency)
+// ============================================
+
+type _OrganizationId = string & { readonly brand: "OrganizationId" };
+
+export type OrganizationId = _OrganizationId;
+
+export const OrganizationId = {
+  create: (id: string): _OrganizationId => {
+    return id as _OrganizationId;
+  },
+  generate: (): _OrganizationId => {
+    return uuidv7() as _OrganizationId;
+  },
+};
+
+// ============================================
+// OrgAccessLevel
+// ============================================
+
+const ORG_ACCESS_LEVELS = ["FULL", "READ_ONLY", "NONE"] as const;
+
+type _OrgAccessLevel = (typeof ORG_ACCESS_LEVELS)[number];
+
+export type OrgAccessLevel = _OrgAccessLevel;
+
+export const OrgAccessLevel = {
+  Full: "FULL" as _OrgAccessLevel,
+  ReadOnly: "READ_ONLY" as _OrgAccessLevel,
+  None: "NONE" as _OrgAccessLevel,
+  create: (value: string): _OrgAccessLevel => {
+    if (!ORG_ACCESS_LEVELS.includes(value as _OrgAccessLevel)) {
+      throw new BusinessRuleError(
+        AccessControlErrorCode.InvalidOrgAccessLevel,
+        `Invalid org access level: ${value}`,
+      );
+    }
+    return value as _OrgAccessLevel;
+  },
+  values: ORG_ACCESS_LEVELS,
+  /**
+   * Compare access levels. Returns a positive number if a > b, negative if a < b, 0 if equal.
+   * FULL > READ_ONLY > NONE
+   */
+  compare: (a: _OrgAccessLevel, b: _OrgAccessLevel): number => {
+    const order: Record<_OrgAccessLevel, number> = {
+      FULL: 2,
+      READ_ONLY: 1,
+      NONE: 0,
+    };
+    return order[a] - order[b];
+  },
+  /**
+   * Returns the higher of two access levels.
+   */
+  max: (a: _OrgAccessLevel, b: _OrgAccessLevel): _OrgAccessLevel => {
+    return OrgAccessLevel.compare(a, b) >= 0 ? a : b;
+  },
+};

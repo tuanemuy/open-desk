@@ -20,6 +20,7 @@ export const IdentityErrorCode = {
   InvalidLoginName: "IDENTITY_INVALID_LOGIN_NAME",
   InvalidTimezone: "IDENTITY_INVALID_TIMEZONE",
   InvalidLanguage: "IDENTITY_INVALID_LANGUAGE",
+  InvalidTimeFormat: "IDENTITY_INVALID_TIME_FORMAT",
   EmptyFileKey: "IDENTITY_EMPTY_FILE_KEY",
   InvalidPasswordMinLength: "IDENTITY_INVALID_PASSWORD_MIN_LENGTH",
   InvalidPasswordComplexity: "IDENTITY_INVALID_PASSWORD_COMPLEXITY",
@@ -45,6 +46,23 @@ export const IdentityErrorCode = {
   PasswordTooShort: "IDENTITY_PASSWORD_TOO_SHORT",
   PasswordComplexityNotMet: "IDENTITY_PASSWORD_COMPLEXITY_NOT_MET",
   PasswordSameAsLoginName: "IDENTITY_PASSWORD_SAME_AS_LOGIN_NAME",
+
+  // Title errors
+  EmptyTitleName: "IDENTITY_EMPTY_TITLE_NAME",
+
+  // Provisioning errors
+  TokenNotConfigured: "IDENTITY_TOKEN_NOT_CONFIGURED",
+  ProvisioningAlreadyEnabled: "IDENTITY_PROVISIONING_ALREADY_ENABLED",
+  ProvisioningAlreadyDisabled: "IDENTITY_PROVISIONING_ALREADY_DISABLED",
+  EmptyExternalId: "IDENTITY_EMPTY_EXTERNAL_ID",
+  InvalidScimResourceType: "IDENTITY_INVALID_SCIM_RESOURCE_TYPE",
+  EmptyHashedBearerToken: "IDENTITY_EMPTY_HASHED_BEARER_TOKEN",
+  EmptyBearerToken: "IDENTITY_EMPTY_BEARER_TOKEN",
+  BearerTokenTooShort: "IDENTITY_BEARER_TOKEN_TOO_SHORT",
+  EmptyInternalId: "IDENTITY_EMPTY_INTERNAL_ID",
+
+  // ApiTokenRecord errors
+  ApiTokenAlreadyRevoked: "IDENTITY_API_TOKEN_ALREADY_REVOKED",
 } as const;
 
 export type IdentityErrorCode =

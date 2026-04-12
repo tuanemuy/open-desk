@@ -46,4 +46,10 @@ export interface FileRepository {
    * @returns The number of deleted records
    */
   deleteExpired(now: Date): Promise<number>;
+
+  /**
+   * Get the total size of all stored files in bytes.
+   * @returns The sum of all file sizes in bytes
+   */
+  getTotalSize(): Promise<number>;
 }

@@ -1,5 +1,5 @@
 import type { InferSelectModel } from "drizzle-orm";
-import { and, eq, lt } from "drizzle-orm";
+import { and, eq, lt, sql } from "drizzle-orm";
 import { storedFiles } from "@/core/adapters/drizzleSqlite/schema";
 import { SystemError, SystemErrorCode } from "@/core/application/error";
 import type { StoredFile } from "@/core/domain/file/entity";
@@ -163,6 +163,24 @@ export class DrizzleSqliteFileRepository implements FileRepository {
       throw new SystemError(
         SystemErrorCode.DatabaseError,
         "Failed to delete expired files",
+        error,
+      );
+    }
+  }
+
+  async getTotalSize(): Promise<number> {
+    try {
+      const result = await this.executor
+        .select({
+          total: sql<number>`coalesce(sum(${storedFiles.size}), 0)`,
+        })
+        .from(storedFiles);
+
+      return result[0].total;
+    } catch (error) {
+      throw new SystemError(
+        SystemErrorCode.DatabaseError,
+        "Failed to get total file size",
         error,
       );
     }

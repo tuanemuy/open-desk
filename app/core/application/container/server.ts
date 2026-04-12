@@ -3,6 +3,7 @@ import type { AppCreationService } from "@/core/domain/app/services/appCreationS
 import type { AppDeploymentService } from "@/core/domain/app/services/appDeploymentService";
 import type { FileStorageProvider } from "@/core/domain/file/ports/fileStorageProvider";
 import type { AuthenticationProvider } from "@/core/domain/identity/ports/authenticationProvider";
+import type { BearerTokenHasher } from "@/core/domain/identity/ports/bearerTokenHasher";
 import type { PasswordHasher } from "@/core/domain/identity/ports/passwordHasher";
 import type { DesktopNotificationPublisher } from "@/core/domain/notification/ports/desktopNotificationPublisher";
 import type { EmailNotificationSender } from "@/core/domain/notification/ports/emailNotificationSender";
@@ -39,6 +40,7 @@ export type Container = {
   config: AppConfig;
   unitOfWorkProvider: UnitOfWorkProvider;
   passwordHasher: PasswordHasher;
+  bearerTokenHasher: BearerTokenHasher;
   authenticationProvider: AuthenticationProvider;
   fileStorageProvider: FileStorageProvider;
   searchIndexProvider: SearchIndexProvider;

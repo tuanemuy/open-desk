@@ -28,6 +28,11 @@ Identity ドメインは、OpenDesk プラットフォームにおけるユー�
 | Login History | ログイン履歴 | ユーザーの過去のログイン記録（日時・IP・国・ブラウザ/OS）。過去2週間・同端末最新10件を保持 |
 | Organization Tree | 組織ツリー | 組織の親子関係によって形成される階層構造。ルート組織を頂点とする木構造 |
 | Member | メンバー | 組織またはグループに所属するユーザーのこと |
+| Title | 役職 | ユーザーに割り当てるフラットな役職。役職名はシステム全体で一意 |
+| Provisioning Config | プロビジョニング設定 | SCIM 2.0 プロトコルによる外部 IdP との自動連携の設定。有効/無効とベアラートークンを管理する |
+| SCIM | SCIM | System for Cross-domain Identity Management。外部 IdP からユーザー・グループを自動プロビジョニングするための標準プロトコル（RFC 7643/7644） |
+| External Id | 外部 ID | 外部 IdP が管理するリソースの一意識別子。SCIM 連携時に OpenDesk 内部の ID とマッピングされる |
+| Guest User | ゲストユーザー | ゲストスペースに招待された外部ユーザー。通常ユーザーとは異なるライセンス・認証・権限体系を持つ |
 
 ---
 
@@ -967,3 +972,382 @@ type InvalidOrderIndexError = { kind: "InvalidOrderIndex"; index: number };
 | 22 | セッション一覧取得 | 現在有効なセッションの一覧を取得する（5件/ページ） | 認証済みユーザー |
 | 23 | セッション強制終了 | 指定したセッションを強制終了する（他端末のログアウト） | 認証済みユーザー |
 | 24 | ログイン履歴取得 | 過去のログイン記録を取得する（過去2週間、同端末最新10件） | 認証済みユーザー |
+
+### 役職管理
+
+| # | ユースケース名 | 概要 | 主要アクター |
+|---|--------------|------|-------------|
+| 25 | 役職の作成 | 新規役職を作成する。役職名はシステム全体で一意 | システム管理者 |
+| 26 | 役職の更新 | 役職名を変更する | システム管理者 |
+| 27 | 役職の削除 | 役職を削除する。割り当て済みユーザーからの解除が前提 | システム管理者 |
+| 28 | 役職一覧取得 | 役職の一覧を取得する | システム管理者 |
+| 29 | ユーザーへの役職割り当て | ユーザーに役職を割り当てる | システム管理者 |
+| 30 | ユーザーからの役職解除 | ユーザーから役職を解除する | システム管理者 |
+
+### ゲストユーザー管理
+
+| # | ユースケース名 | 概要 | 主要アクター |
+|---|--------------|------|-------------|
+| 31 | ゲストユーザー一覧取得 | ゲストユーザーの一覧をライセンス使用状況とともに取得する | システム管理者 |
+
+### プロビジョニング管理
+
+| # | ユースケース名 | 概要 | 主要アクター |
+|---|--------------|------|-------------|
+| 32 | プロビジョニング設定の取得 | 現在のプロビジョニング設定（有効/無効・トークン）を取得する | システム管理者 |
+| 33 | プロビジョニング設定の更新 | プロビジョニングの有効/無効切替、ベアラートークンの再生成を行う | システム管理者 |
+| 34 | SCIM ユーザーの作成 | 外部 IdP からの SCIM リクエストでユーザーを作成する | 外部 IdP（SCIM クライアント） |
+| 35 | SCIM ユーザーの更新 | 外部 IdP からの SCIM リクエストでユーザー属性を更新する | 外部 IdP（SCIM クライアント） |
+| 36 | SCIM ユーザーの無効化 | 外部 IdP からの SCIM リクエストでユーザーを無効化する（active=false） | 外部 IdP（SCIM クライアント） |
+| 37 | SCIM ユーザーの削除 | 外部 IdP からの SCIM リクエストでユーザーを削除する | 外部 IdP（SCIM クライアント） |
+| 38 | SCIM グループの作成 | 外部 IdP からの SCIM リクエストでグループを作成する | 外部 IdP（SCIM クライアント） |
+| 39 | SCIM グループの更新 | 外部 IdP からの SCIM リクエストでグループ名・メンバーを更新する | 外部 IdP（SCIM クライアント） |
+| 40 | SCIM グループの削除 | 外部 IdP からの SCIM リクエストでグループを削除する | 外部 IdP（SCIM クライアント） |
+
+---
+
+## Title（役職）エンティティ
+
+### Title（役職）
+
+ユーザーに割り当てるフラットな役職。組織とは独立しており、階層を持たない。
+
+#### フィールド
+
+| フィールド名 | 型 | 必須 | 説明 |
+|-------------|-----|------|------|
+| titleId | TitleId | 必須 | 役職の一意識別子 |
+| name | string | 必須 | 役職名（システム全体で一意） |
+| orderIndex | number | 必須 | 表示順序 |
+| createdAt | Date | 必須 | 作成日時 |
+| updatedAt | Date | 必須 | 最終更新日時 |
+
+#### ビヘイビア
+
+```typescript
+// 役職名を変更する
+rename(name: string): void
+// 前提条件: name が空文字でないこと
+// 事後条件: name が更新され、updatedAt が現在時刻に更新される
+// エラー: name が空の場合は EmptyTitleNameError
+
+// 表示順序を変更する
+reorder(index: number): void
+// 前提条件: index >= 0
+// 事後条件: orderIndex が更新され、updatedAt が現在時刻に更新される
+// エラー: index が負数の場合は InvalidOrderIndexError
+```
+
+#### 不変条件
+
+- `name` は空文字であってはならない
+- `name` はシステム全体で一意でなければならない（リポジトリ層で保証）
+- `orderIndex >= 0` でなければならない
+- `createdAt <= updatedAt` でなければならない
+
+#### ライフサイクル
+
+1. **作成**: 管理者が役職を新規追加する
+2. **更新**: 役職名変更、表示順序変更
+3. **削除**: 管理者が役職を削除する。割り当て済みユーザーからの解除が前提
+
+---
+
+## Provisioning 関連エンティティ
+
+### ProvisioningConfig（プロビジョニング設定）
+
+SCIM 2.0 プロトコルによる外部 IdP との自動連携の設定を表す。テナントに1つだけ存在するシングルトンエンティティ。
+
+#### フィールド
+
+| フィールド名 | 型 | 必須 | 説明 |
+|-------------|-----|------|------|
+| isEnabled | boolean | 必須 | プロビジョニングの有効/無効（デフォルト: false） |
+| bearerTokenHash | HashedBearerToken | 任意 | SCIM リクエスト認証用のベアラートークン（ハッシュ化済み）。null の場合は未設定 |
+| tokenIssuedAt | Date | 任意 | ベアラートークンの発行日時。null の場合は未発行 |
+| updatedAt | Date | 必須 | 最終更新日時 |
+
+#### ビヘイビア
+
+```typescript
+// プロビジョニングを有効化する
+enable(): void
+// 前提条件: bearerTokenHash が null でないこと（トークン未設定では有効化できない）
+// 事後条件: isEnabled === true, updatedAt が現在時刻に更新される
+// エラー: トークンが未設定の場合は TokenNotConfiguredError
+// エラー: すでに有効の場合は ProvisioningAlreadyEnabledError
+
+// プロビジョニングを無効化する
+disable(): void
+// 事後条件: isEnabled === false, updatedAt が現在時刻に更新される
+// エラー: すでに無効の場合は ProvisioningAlreadyDisabledError
+
+// ベアラートークンを設定する（新規発行または再生成）
+setToken(hashedToken: HashedBearerToken, issuedAt: Date): void
+// 事後条件: bearerTokenHash が更新され、tokenIssuedAt と updatedAt が現在時刻に更新される
+```
+
+#### 不変条件
+
+- `isEnabled === true` の場合、`bearerTokenHash` は null であってはならない
+- `bearerTokenHash` が null でない場合、`tokenIssuedAt` も null であってはならない
+
+#### ライフサイクル
+
+1. **初期状態**: `isEnabled = false`, `bearerTokenHash = null` で存在する
+2. **トークン発行**: 管理者がベアラートークンを生成する。平文は管理者に一度だけ表示され、ハッシュ値が保存される
+3. **有効化**: 管理者がプロビジョニングを有効にする（トークン設定済みが前提）
+4. **無効化**: 管理者がプロビジョニングを無効にする。トークンは保持されたまま停止される
+5. **トークン再生成**: 管理者がトークンを再生成する。旧トークンは無効化される
+
+---
+
+### ScimExternalMapping（SCIM 外部マッピング）
+
+外部 IdP が管理するリソース ID と OpenDesk 内部の ID のマッピングを保持する。SCIM 連携時の冪等性を保証するために使用される。
+
+#### フィールド
+
+| フィールド名 | 型 | 必須 | 説明 |
+|-------------|-----|------|------|
+| externalId | ExternalId | 必須 | 外部 IdP 側のリソース識別子 |
+| resourceType | ScimResourceType | 必須 | リソース種別（"User" or "Group"） |
+| internalId | string | 必須 | OpenDesk 内部の ID（UserId または GroupId の value） |
+| createdAt | Date | 必須 | マッピング作成日時 |
+
+#### ビヘイビア
+
+```typescript
+// マッピング先の内部 ID を変更する（通常は不変だが、再マッピング時に使用）
+remapTo(internalId: string): void
+// 事後条件: internalId が更新される
+```
+
+#### 不変条件
+
+- `externalId` と `resourceType` の組み合わせはシステム全体で一意でなければならない（リポジトリ層で保証）
+- `internalId` は空文字であってはならない
+
+#### ライフサイクル
+
+1. **作成**: SCIM リクエストでユーザーまたはグループが作成された際に、外部 ID と内部 ID のマッピングを記録する
+2. **削除**: SCIM リクエストでリソースが削除された際にマッピングも削除する
+
+---
+
+## 追加の値オブジェクト
+
+### TitleId
+
+役職の一意識別子。
+
+```typescript
+type TitleId = {
+  readonly value: string; // UUID v4 形式
+};
+
+// 等価性: value が一致すれば等しい
+// バリデーション: 空文字でないこと、有効な UUID 形式であること
+```
+
+### ExternalId
+
+外部 IdP が管理するリソースの識別子。
+
+```typescript
+type ExternalId = {
+  readonly value: string;
+};
+
+// 等価性: value が一致すれば等しい
+// バリデーション: 空文字でないこと
+```
+
+### ScimResourceType
+
+SCIM で管理されるリソースの種別。
+
+```typescript
+type ScimResourceType = "User" | "Group";
+
+// バリデーション: "User" または "Group" のいずれかであること
+```
+
+### HashedBearerToken
+
+ハッシュ化されたベアラートークン。プロビジョニング設定に保存される。
+
+```typescript
+type HashedBearerToken = {
+  readonly value: string;    // ハッシュ値
+  readonly algorithm: string; // 使用したハッシュアルゴリズム（例: "sha256"）
+};
+
+// 等価性: 比較しない（ハッシュ値同士の直接比較は行わない）
+// バリデーション: value が空文字でないこと
+```
+
+### BearerToken
+
+プロビジョニング用のベアラートークン（平文）。生成時に管理者へ一度だけ表示される一時的なオブジェクト。
+
+```typescript
+type BearerToken = {
+  readonly value: string; // トークン文字列（十分なエントロピーを持つランダム文字列）
+};
+
+// 等価性: value が一致すれば等しい
+// バリデーション: 空文字でないこと、最低32文字以上であること
+```
+
+---
+
+## 追加のポート
+
+### TitleRepository
+
+役職の永続化を担うリポジトリインターフェース。
+
+```typescript
+interface TitleRepository {
+  // ID で役職を取得する
+  findById(titleId: TitleId): Promise<Title | null>;
+
+  // 役職名で役職を取得する
+  findByName(name: string): Promise<Title | null>;
+
+  // 役職を保存する（新規作成または更新）
+  save(title: Title): Promise<void>;
+  // エラー: name が重複する場合は DuplicateTitleNameError
+
+  // 役職を削除する
+  delete(titleId: TitleId): Promise<void>;
+  // エラー: 役職が存在しない場合は TitleNotFoundError
+  // エラー: 役職が割り当て済みユーザーを持つ場合は TitleHasAssigneesError
+
+  // 役職一覧を取得する（ページネーション付き）
+  list(params: {
+    offset: number;
+    limit: number;
+    keyword?: string; // 役職名で部分一致検索
+  }): Promise<{ titles: Title[]; totalCount: number }>;
+}
+```
+
+### TitleAssignmentRepository
+
+ユーザーと役職の割り当て関係を管理するリポジトリインターフェース。
+
+```typescript
+interface TitleAssignmentRepository {
+  // ユーザーに役職を割り当てる
+  assign(params: {
+    userId: UserId;
+    titleId: TitleId;
+  }): Promise<void>;
+  // エラー: すでに同じ役職が割り当て済みの場合は TitleAlreadyAssignedError
+
+  // ユーザーから役職を解除する
+  unassign(params: {
+    userId: UserId;
+    titleId: TitleId;
+  }): Promise<void>;
+  // エラー: 割り当てが存在しない場合は TitleNotAssignedError
+
+  // ユーザーに割り当てられた役職 ID の一覧を取得する
+  getTitleIdsByUserId(userId: UserId): Promise<TitleId[]>;
+
+  // 指定役職が割り当てられたユーザー ID の一覧を取得する
+  getUserIdsByTitleId(titleId: TitleId): Promise<UserId[]>;
+}
+```
+
+### ProvisioningConfigRepository
+
+プロビジョニング設定の永続化を担うリポジトリインターフェース。
+
+```typescript
+interface ProvisioningConfigRepository {
+  // プロビジョニング設定を取得する（シングルトン）
+  find(): Promise<ProvisioningConfig>;
+
+  // プロビジョニング設定を保存する
+  save(config: ProvisioningConfig): Promise<void>;
+}
+```
+
+### ScimExternalMappingRepository
+
+SCIM 外部マッピングの永続化を担うリポジトリインターフェース。
+
+```typescript
+interface ScimExternalMappingRepository {
+  // 外部 ID とリソース種別でマッピングを取得する
+  findByExternalId(params: {
+    externalId: ExternalId;
+    resourceType: ScimResourceType;
+  }): Promise<ScimExternalMapping | null>;
+
+  // 内部 ID とリソース種別でマッピングを取得する
+  findByInternalId(params: {
+    internalId: string;
+    resourceType: ScimResourceType;
+  }): Promise<ScimExternalMapping | null>;
+
+  // マッピングを保存する（新規作成または更新）
+  save(mapping: ScimExternalMapping): Promise<void>;
+  // エラー: externalId + resourceType の組み合わせが重複する場合は DuplicateExternalMappingError
+
+  // マッピングを削除する
+  delete(params: {
+    externalId: ExternalId;
+    resourceType: ScimResourceType;
+  }): Promise<void>;
+}
+```
+
+### BearerTokenHasher
+
+ベアラートークンのハッシュ化と検証を担うポートインターフェース。
+
+```typescript
+interface BearerTokenHasher {
+  // ベアラートークンを生成する
+  generate(): BearerToken;
+
+  // 平文トークンをハッシュ化する
+  hash(token: BearerToken): HashedBearerToken;
+
+  // 平文トークンがハッシュと一致するかを検証する
+  verify(token: BearerToken, hashedToken: HashedBearerToken): boolean;
+}
+```
+
+---
+
+## 追加のエラー型
+
+```typescript
+// Title 関連エラー
+type TitleNotFoundError = { kind: "TitleNotFound"; titleId: TitleId };
+type DuplicateTitleNameError = { kind: "DuplicateTitleName"; name: string };
+type EmptyTitleNameError = { kind: "EmptyTitleName" };
+type TitleHasAssigneesError = { kind: "TitleHasAssignees"; titleId: TitleId };
+type TitleAlreadyAssignedError = { kind: "TitleAlreadyAssigned"; userId: UserId; titleId: TitleId };
+type TitleNotAssignedError = { kind: "TitleNotAssigned"; userId: UserId; titleId: TitleId };
+
+// Provisioning 関連エラー
+type TokenNotConfiguredError = { kind: "TokenNotConfigured" };
+type ProvisioningAlreadyEnabledError = { kind: "ProvisioningAlreadyEnabled" };
+type ProvisioningAlreadyDisabledError = { kind: "ProvisioningAlreadyDisabled" };
+type ProvisioningDisabledError = { kind: "ProvisioningDisabled" };
+type InvalidBearerTokenError = { kind: "InvalidBearerToken" };
+type DuplicateExternalMappingError = { kind: "DuplicateExternalMapping"; externalId: ExternalId; resourceType: ScimResourceType };
+type ExternalMappingNotFoundError = { kind: "ExternalMappingNotFound"; externalId: ExternalId; resourceType: ScimResourceType };
+
+// SCIM 操作エラー
+type ScimResourceNotFoundError = { kind: "ScimResourceNotFound"; resourceType: ScimResourceType; id: string };
+type ScimConflictError = { kind: "ScimConflict"; resourceType: ScimResourceType; detail: string };
+type ScimValidationError = { kind: "ScimValidation"; detail: string };
+```

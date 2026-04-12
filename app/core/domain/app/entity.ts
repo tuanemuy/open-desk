@@ -12,11 +12,15 @@ import type {
   AppActionId as AppActionIdType,
   AppCode as AppCodeType,
   AppFeatureFlags as AppFeatureFlagsType,
+  AppGroupId as AppGroupIdType,
+  AppGroupName as AppGroupNameType,
   AppIcon as AppIconType,
   AppId as AppIdType,
   AppLanguage as AppLanguageType,
   AppName as AppNameType,
   AppStatus as AppStatusType,
+  AppTemplateId as AppTemplateIdType,
+  AppTemplateName as AppTemplateNameType,
   AppTheme as AppThemeType,
   BuiltinViewType as BuiltinViewTypeType,
   CategoryId as CategoryIdType,
@@ -44,6 +48,7 @@ import type {
   PerRecordNotification as PerRecordNotificationType,
   PlatformCustomization as PlatformCustomizationType,
   PluginId as PluginIdType,
+  PluginName as PluginNameType,
   ProcessStatusId as ProcessStatusIdType,
   ProcessStatus as ProcessStatusType,
   ProcessTransitionId as ProcessTransitionIdType,
@@ -68,10 +73,14 @@ import type {
 import {
   ApiTokenId,
   AppActionId,
+  AppGroupId,
+  AppGroupName,
   AppIcon,
   AppId,
   AppName,
   AppStatus,
+  AppTemplateId,
+  AppTemplateName,
   AppTheme,
   CategoryId,
   CategoryNode,
@@ -81,6 +90,8 @@ import {
   LocalizedName,
   NumberPrecision,
   PlatformCustomization,
+  PluginId,
+  PluginName,
   ProcessStatus,
   ProcessStatusId,
   ProcessTransition,
@@ -2349,5 +2360,200 @@ export const AppI18nConfig = {
       (n) => n.language === language,
     );
     return localized?.value ?? null;
+  },
+};
+
+// ============================================
+// AppGroup Entity
+// ============================================
+
+type _AppGroup = Readonly<{
+  appGroupId: AppGroupIdType;
+  name: AppGroupNameType;
+  isDefault: boolean;
+  appIds: readonly AppIdType[];
+  createdAt: Date;
+  updatedAt: Date;
+}>;
+
+export type AppGroup = _AppGroup;
+
+export const AppGroup = {
+  create: (params: { name: string; isDefault?: boolean }): _AppGroup => {
+    const now = new Date();
+    return {
+      appGroupId: AppGroupId.generate(),
+      name: AppGroupName.create(params.name),
+      isDefault: params.isDefault ?? false,
+      appIds: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+  },
+
+  reconstruct: (data: _AppGroup): _AppGroup => data,
+
+  rename: (group: _AppGroup, name: string): _AppGroup => {
+    return {
+      ...group,
+      name: AppGroupName.create(name),
+      updatedAt: new Date(),
+    };
+  },
+
+  setDefault: (group: _AppGroup, isDefault: boolean): _AppGroup => {
+    return {
+      ...group,
+      isDefault,
+      updatedAt: new Date(),
+    };
+  },
+
+  addApp: (group: _AppGroup, appId: AppIdType): _AppGroup => {
+    if (group.appIds.includes(appId)) {
+      return group;
+    }
+    return {
+      ...group,
+      appIds: [...group.appIds, appId],
+      updatedAt: new Date(),
+    };
+  },
+
+  removeApp: (group: _AppGroup, appId: AppIdType): _AppGroup => {
+    return {
+      ...group,
+      appIds: group.appIds.filter((id) => id !== appId),
+      updatedAt: new Date(),
+    };
+  },
+
+  replaceApps: (group: _AppGroup, appIds: readonly AppIdType[]): _AppGroup => {
+    return {
+      ...group,
+      appIds,
+      updatedAt: new Date(),
+    };
+  },
+};
+
+// ============================================
+// AppTemplate Entity
+// ============================================
+
+type _AppTemplate = Readonly<{
+  templateId: AppTemplateIdType;
+  name: AppTemplateNameType;
+  description: string | null;
+  sourceAppId: AppIdType | null;
+  creatorId: UserId;
+  createdAt: Date;
+}>;
+
+export type AppTemplate = _AppTemplate;
+
+export const AppTemplate = {
+  create: (params: {
+    name: string;
+    description?: string | null;
+    sourceAppId?: AppIdType | null;
+    creatorId: UserId;
+  }): _AppTemplate => {
+    return {
+      templateId: AppTemplateId.generate(),
+      name: AppTemplateName.create(params.name),
+      description: params.description ?? null,
+      sourceAppId: params.sourceAppId ?? null,
+      creatorId: params.creatorId,
+      createdAt: new Date(),
+    };
+  },
+
+  reconstruct: (data: _AppTemplate): _AppTemplate => data,
+
+  rename: (template: _AppTemplate, name: string): _AppTemplate => {
+    return {
+      ...template,
+      name: AppTemplateName.create(name),
+    };
+  },
+
+  setDescription: (
+    template: _AppTemplate,
+    description: string | null,
+  ): _AppTemplate => {
+    return {
+      ...template,
+      description,
+    };
+  },
+};
+
+// ============================================
+// Plugin Entity
+// ============================================
+
+type _Plugin = Readonly<{
+  pluginId: PluginIdType;
+  name: PluginNameType;
+  description: string | null;
+  isActive: boolean;
+  isPreinstalled: boolean;
+  installedAppIds: readonly AppIdType[];
+  createdAt: Date;
+  updatedAt: Date;
+}>;
+
+export type Plugin = _Plugin;
+
+export const Plugin = {
+  create: (params: {
+    name: string;
+    description?: string | null;
+    isPreinstalled?: boolean;
+  }): _Plugin => {
+    const now = new Date();
+    return {
+      pluginId: PluginId.generate(),
+      name: PluginName.create(params.name),
+      description: params.description ?? null,
+      isActive: true,
+      isPreinstalled: params.isPreinstalled ?? false,
+      installedAppIds: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+  },
+
+  reconstruct: (data: _Plugin): _Plugin => data,
+
+  activate: (plugin: _Plugin): _Plugin => {
+    return {
+      ...plugin,
+      isActive: true,
+      updatedAt: new Date(),
+    };
+  },
+
+  deactivate: (plugin: _Plugin): _Plugin => {
+    if (plugin.isPreinstalled) {
+      throw new BusinessRuleError(
+        AppErrorCode.PreinstalledPluginModification,
+        "Preinstalled plugin cannot be deactivated",
+      );
+    }
+    return {
+      ...plugin,
+      isActive: false,
+      updatedAt: new Date(),
+    };
+  },
+
+  updateDescription: (plugin: _Plugin, description: string | null): _Plugin => {
+    return {
+      ...plugin,
+      description,
+      updatedAt: new Date(),
+    };
   },
 };

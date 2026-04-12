@@ -1,7 +1,8 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import type { Route } from "./+types/index";
 
-export { loader } from "./loader";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "Portal - OpenDesk" }];
@@ -140,6 +141,120 @@ function OptionsIcon() {
   );
 }
 
+function SpaceCreateIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      role="img"
+      className="shrink-0 text-primary"
+    >
+      <title>Create Space</title>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M12 8v8" />
+      <path d="M8 12h8" />
+    </svg>
+  );
+}
+
+function GuestSpaceIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      role="img"
+      className="shrink-0 text-primary"
+    >
+      <title>Create Guest Space</title>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="19" y1="8" x2="19" y2="14" />
+      <line x1="22" y1="11" x2="16" y2="11" />
+    </svg>
+  );
+}
+
+function AppCreateIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      role="img"
+      className="shrink-0 text-primary"
+    >
+      <title>Create App</title>
+      <rect x="3" y="3" width="7" height="7" />
+      <rect x="14" y="3" width="7" height="7" />
+      <rect x="14" y="14" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" />
+    </svg>
+  );
+}
+
+function PortalSettingsIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      role="img"
+      className="shrink-0 text-primary"
+    >
+      <title>Portal Settings</title>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
+}
+
+function AdminIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      role="img"
+      className="shrink-0 text-primary"
+    >
+      <title>Admin</title>
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
+
 const appIcons = {
   file: FileIcon,
   people: PeopleIcon,
@@ -150,6 +265,38 @@ const appIcons = {
 
 export default function PortalPage({ loaderData }: Route.ComponentProps) {
   const { announcement, notifications, spaces, apps } = loaderData;
+  const [optionsMenuOpen, setOptionsMenuOpen] = useState(false);
+  const optionsMenuRef = useRef<HTMLDivElement>(null);
+
+  const closeMenu = useCallback(() => {
+    setOptionsMenuOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (!optionsMenuOpen) return;
+
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        optionsMenuRef.current &&
+        !optionsMenuRef.current.contains(event.target as Node)
+      ) {
+        closeMenu();
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [optionsMenuOpen, closeMenu]);
 
   return (
     <div className="mx-auto max-w-[1400px] px-xl">
@@ -158,13 +305,76 @@ export default function PortalPage({ loaderData }: Route.ComponentProps) {
         <h2 className="font-heading text-xl font-[var(--weight-semibold)] tracking-tight text-neutral-900">
           Portal
         </h2>
-        <button
-          type="button"
-          className="inline-flex h-[34px] items-center gap-sm rounded-md border border-neutral-200 bg-bg-card px-md font-body text-sm font-[var(--weight-medium)] text-neutral-700 transition-[border-color,background-color] duration-[var(--transition-default)] hover:border-neutral-300 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          <OptionsIcon />
-          Options
-        </button>
+        <div className="relative" ref={optionsMenuRef}>
+          <button
+            type="button"
+            className={`inline-flex h-[34px] items-center gap-sm rounded-md border bg-bg-card px-md font-body text-sm font-[var(--weight-medium)] transition-[border-color,background-color] duration-[var(--transition-default)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+              optionsMenuOpen
+                ? "border-neutral-400 bg-neutral-200 text-neutral-800"
+                : "border-neutral-200 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50"
+            }`}
+            aria-expanded={optionsMenuOpen}
+            aria-haspopup="menu"
+            onClick={() => setOptionsMenuOpen((prev) => !prev)}
+          >
+            <OptionsIcon />
+            Options
+          </button>
+          {optionsMenuOpen && (
+            <div
+              className="absolute top-[calc(100%+var(--space-xs))] right-0 z-50 min-w-[220px] rounded-md border border-neutral-200 bg-bg-card py-xs shadow-md"
+              role="menu"
+              aria-label="ポータルオプションメニュー"
+            >
+              <Link
+                to="/spaces/new"
+                className="flex w-full items-center gap-sm px-md py-sm text-sm text-neutral-800 no-underline transition-[background-color] duration-[var(--transition-fast)] hover:bg-neutral-100"
+                role="menuitem"
+                onClick={closeMenu}
+              >
+                <SpaceCreateIcon />
+                スペースを作成
+              </Link>
+              <Link
+                to="/spaces/new?guest=true"
+                className="flex w-full items-center gap-sm px-md py-sm text-sm text-neutral-800 no-underline transition-[background-color] duration-[var(--transition-fast)] hover:bg-neutral-100"
+                role="menuitem"
+                onClick={closeMenu}
+              >
+                <GuestSpaceIcon />
+                ゲストスペースを作成
+              </Link>
+              <Link
+                to="/apps/store"
+                className="flex w-full items-center gap-sm px-md py-sm text-sm text-neutral-800 no-underline transition-[background-color] duration-[var(--transition-fast)] hover:bg-neutral-100"
+                role="menuitem"
+                onClick={closeMenu}
+              >
+                <AppCreateIcon />
+                アプリを作成
+              </Link>
+              <div className="mx-0 my-xs h-px bg-neutral-200" />
+              <Link
+                to="/portal/settings"
+                className="flex w-full items-center gap-sm px-md py-sm text-sm text-neutral-800 no-underline transition-[background-color] duration-[var(--transition-fast)] hover:bg-neutral-100"
+                role="menuitem"
+                onClick={closeMenu}
+              >
+                <PortalSettingsIcon />
+                表示中のポータルの設定
+              </Link>
+              <Link
+                to="/admin"
+                className="flex w-full items-center gap-sm px-md py-sm text-sm text-neutral-800 no-underline transition-[background-color] duration-[var(--transition-fast)] hover:bg-neutral-100"
+                role="menuitem"
+                onClick={closeMenu}
+              >
+                <AdminIcon />
+                ポータル管理
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 2-Column Grid */}

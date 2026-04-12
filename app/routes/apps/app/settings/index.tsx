@@ -2,7 +2,7 @@ import { Settings } from "lucide-react";
 import { Link } from "react-router";
 import type { Route } from "./+types/index";
 
-export { loader } from "./loader";
+export { loader } from "./loader.server";
 
 export function meta({ data }: Route.MetaArgs) {
   const appName = data?.app?.name ?? "App";

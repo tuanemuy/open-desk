@@ -186,7 +186,9 @@ OpenDesk プラットフォームの PostgreSQL データベーススキーマ�
 
 ### 1.9 system_settings
 
-システム全体の設定（パスワードポリシー、ロックアウトポリシー、セッションポリシーなど）。
+> **注**: このテーブルは SystemSettings ドメインのエンティティ（SystemSetting）を永続化する。Identity ドメインセクションに配置しているのは、他の認証・セキュリティ関連テーブルとの物理的な近接性のためであり、論理的には SystemSettings ドメインに属する。
+
+システム全体の設定を key-value ストアとして管理する。各設定セクションに対して1レコードが対応し、設定値は JSONB 形式で保存される。OpenDeskシステム管理側の設定と cybozu.com 共通管理側の設定の両方を包含する。
 
 | カラム名 | 型 | 制約 | 説明 |
 |---------|-----|------|------|
@@ -194,6 +196,108 @@ OpenDesk プラットフォームの PostgreSQL データベーススキーマ�
 | key | TEXT | NOT NULL UNIQUE | 設定キー |
 | value | JSONB | NOT NULL | 設定値（JSON形式） |
 | updated_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 最終更新日時 |
+
+**設定キー一覧**:
+
+| key | 設定セクション | 管理画面 |
+|-----|--------------|---------|
+| `header_color` | ヘッダーの色 | OpenDeskシステム管理 |
+| `feature_flags` | 利用する機能の選択 | OpenDeskシステム管理 |
+| `guest_auth` | ゲストユーザーの認証 | OpenDeskシステム管理 |
+| `mobile_display` | スマートフォンでの表示 | OpenDeskシステム管理 |
+| `js_css_customization` | JavaScript/CSSカスタマイズ | OpenDeskシステム管理 |
+| `update_option` | アップデートオプション | OpenDeskシステム管理 |
+| `shared_app_settings` | アプリの共通設定 | OpenDeskシステム管理 |
+| `password_policy` | パスワードポリシー | cybozu.com共通管理 |
+| `lockout_policy` | ロックアウトポリシー | cybozu.com共通管理 |
+| `session_policy` | セッションポリシー | cybozu.com共通管理 |
+| `saml_auth` | SAML認証 | cybozu.com共通管理 |
+| `two_factor_auth` | 2要素認証 | cybozu.com共通管理 |
+| `access_restriction` | アクセス制限 | cybozu.com共通管理 |
+| `external_integration` | その他の設定（外部連携） | cybozu.com共通管理 |
+| `system_mail` | システムメール | cybozu.com共通管理 |
+| `locale` | ロケール | cybozu.com共通管理 |
+| `logo` | ロゴ | cybozu.com共通管理 |
+| `login_page` | ログインページ | cybozu.com共通管理 |
+
+---
+
+### 1.10 titles
+
+役職エンティティ。ユーザーに割り当てるフラットな役職。組織とは独立しており、階層を持たない。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | 役職ID |
+| name | TEXT | NOT NULL UNIQUE | 役職名（システム全体で一意） |
+| order_index | INTEGER | NOT NULL DEFAULT 0 CHECK (order_index >= 0) | 表示順序 |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+| updated_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 最終更新日時 |
+
+**インデックス**:
+- `idx_titles_name` ON titles(name) -- 役職名検索
+- `idx_titles_order_index` ON titles(order_index) -- 表示順序ソート
+
+---
+
+### 1.11 user_titles
+
+ユーザーと役職の多対多関係。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | 関連ID |
+| user_id | UUID | NOT NULL REFERENCES users(id) ON DELETE CASCADE | ユーザーID |
+| title_id | UUID | NOT NULL REFERENCES titles(id) ON DELETE CASCADE | 役職ID |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+
+**UNIQUE**:
+- `uq_user_titles` UNIQUE (user_id, title_id)
+
+**インデックス**:
+- `idx_user_titles_user_id` ON user_titles(user_id)
+- `idx_user_titles_title_id` ON user_titles(title_id)
+
+---
+
+### 1.12 provisioning_configs
+
+プロビジョニング設定エンティティ。SCIM 2.0 プロトコルによる外部 IdP との自動連携の設定。テナントに1つだけ存在するシングルトン。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | 設定ID |
+| is_enabled | BOOLEAN | NOT NULL DEFAULT false | プロビジョニングの有効/無効 |
+| bearer_token_hash | TEXT | | SCIM リクエスト認証用ベアラートークン（ハッシュ化済み） |
+| bearer_token_algorithm | TEXT | | ハッシュアルゴリズム（例: sha256） |
+| token_issued_at | TIMESTAMP WITH TIME ZONE | | ベアラートークンの発行日時 |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+| updated_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 最終更新日時 |
+
+**CHECK**:
+- `CHECK (is_enabled = false OR bearer_token_hash IS NOT NULL)` -- 有効時はトークン必須
+- `CHECK ((bearer_token_hash IS NULL AND token_issued_at IS NULL) OR (bearer_token_hash IS NOT NULL AND token_issued_at IS NOT NULL))` -- トークンと発行日時は同時に設定
+
+---
+
+### 1.13 scim_external_mappings
+
+SCIM 外部マッピングエンティティ。外部 IdP のリソース ID と OpenDesk 内部 ID のマッピング。SCIM 連携時の冪等性を保証する。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | マッピングID |
+| external_id | TEXT | NOT NULL | 外部 IdP 側のリソース識別子 |
+| resource_type | TEXT | NOT NULL CHECK (resource_type IN ('User', 'Group')) | リソース種別 |
+| internal_id | UUID | NOT NULL | OpenDesk 内部の ID（UserId または GroupId） |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+
+**UNIQUE**:
+- `uq_scim_external_mappings` UNIQUE (external_id, resource_type)
+
+**インデックス**:
+- `idx_scim_external_mappings_internal_id` ON scim_external_mappings(internal_id) -- 内部IDからの逆引き
+- `idx_scim_external_mappings_resource_type` ON scim_external_mappings(resource_type) -- リソース種別検索
 
 ---
 
@@ -553,6 +657,105 @@ APIトークン設定エンティティ。REST APIアクセス用のトークン
 
 ---
 
+### 2.18 app_groups
+
+アプリグループエンティティ。複数アプリに一括でアクセス権を設定するためのグループ。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | アプリグループID |
+| name | TEXT | NOT NULL CHECK (char_length(name) BETWEEN 1 AND 128) | アプリグループ名 |
+| is_default | BOOLEAN | NOT NULL DEFAULT false | デフォルトグループフラグ（システム全体で1つのみ true） |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+| updated_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 最終更新日時 |
+
+**インデックス**:
+- `idx_app_groups_is_default` ON app_groups(is_default) WHERE is_default = true -- デフォルトグループ検索
+
+---
+
+### 2.19 app_group_apps
+
+アプリグループとアプリの多対多関係。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | 関連ID |
+| app_group_id | UUID | NOT NULL REFERENCES app_groups(id) ON DELETE CASCADE | アプリグループID |
+| app_id | UUID | NOT NULL REFERENCES apps(id) ON DELETE CASCADE | アプリID |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+
+**UNIQUE**:
+- `uq_app_group_apps` UNIQUE (app_group_id, app_id)
+
+**インデックス**:
+- `idx_app_group_apps_app_group_id` ON app_group_apps(app_group_id)
+- `idx_app_group_apps_app_id` ON app_group_apps(app_id)
+
+---
+
+### 2.20 app_templates
+
+アプリテンプレートエンティティ。アプリの設定を再利用可能なテンプレートとして保存。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | テンプレートID |
+| name | TEXT | NOT NULL CHECK (char_length(name) BETWEEN 1 AND 128) | テンプレート名 |
+| description | TEXT | | テンプレートの説明 |
+| source_app_id | UUID | REFERENCES apps(id) ON DELETE SET NULL | 元となったアプリID（ファイル読み込みの場合は null） |
+| creator_id | UUID | NOT NULL REFERENCES users(id) ON DELETE RESTRICT | 作成者 |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+
+**インデックス**:
+- `idx_app_templates_creator_id` ON app_templates(creator_id)
+- `idx_app_templates_source_app_id` ON app_templates(source_app_id) WHERE source_app_id IS NOT NULL
+
+---
+
+### 2.21 plugins
+
+プラグインエンティティ（システム管理）。システム全体で管理されるプラグイン。各アプリへの追加はアプリ設定画面で行う。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | プラグインID |
+| name | TEXT | NOT NULL CHECK (char_length(name) BETWEEN 1 AND 256) | プラグイン名 |
+| description | TEXT | | プラグインの説明 |
+| is_active | BOOLEAN | NOT NULL DEFAULT true | 有効/無効 |
+| is_preinstalled | BOOLEAN | NOT NULL DEFAULT false | プリインストール済みフラグ |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 登録日時 |
+| updated_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 最終更新日時 |
+
+**CHECK**:
+- `CHECK (is_preinstalled = false OR is_active = true)` -- プリインストール済みは常に有効
+
+**インデックス**:
+- `idx_plugins_is_active` ON plugins(is_active)
+- `idx_plugins_is_preinstalled` ON plugins(is_preinstalled) WHERE is_preinstalled = true
+
+---
+
+### 2.22 plugin_apps
+
+プラグインとアプリの多対多関係。プラグインがどのアプリに追加されているかを管理する。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | 関連ID |
+| plugin_id | UUID | NOT NULL REFERENCES plugins(id) ON DELETE CASCADE | プラグインID |
+| app_id | UUID | NOT NULL REFERENCES apps(id) ON DELETE CASCADE | アプリID |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+
+**UNIQUE**:
+- `uq_plugin_apps` UNIQUE (plugin_id, app_id)
+
+**インデックス**:
+- `idx_plugin_apps_plugin_id` ON plugin_apps(plugin_id)
+- `idx_plugin_apps_app_id` ON plugin_apps(app_id)
+
+---
+
 ## 3. Record ドメイン
 
 ### 3.1 records
@@ -821,6 +1024,33 @@ CSVエクスポートジョブエンティティ。
 
 ---
 
+### 4.5 org_access_rules
+
+組織間アクセス権エンティティ。ソース組織からターゲット組織に対するアクセスレベルを制御する。cybozu.com 共通管理画面で管理される。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | ルールID |
+| source_organization_id | UUID | NOT NULL REFERENCES organizations(id) ON DELETE CASCADE | ソース組織（アクセスする側） |
+| target_organization_id | UUID | NOT NULL REFERENCES organizations(id) ON DELETE CASCADE | ターゲット組織（アクセスされる側） |
+| access_level | TEXT | NOT NULL DEFAULT 'FULL' CHECK (access_level IN ('FULL', 'READ_ONLY', 'NONE')) | アクセスレベル |
+| is_enabled | BOOLEAN | NOT NULL DEFAULT true | 有効フラグ |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+| updated_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 最終更新日時 |
+
+**UNIQUE**:
+- `uq_org_access_rules_pair` UNIQUE (source_organization_id, target_organization_id)
+
+**CHECK**:
+- `CHECK (source_organization_id != target_organization_id)` -- 自己参照不可
+
+**インデックス**:
+- `idx_org_access_rules_source` ON org_access_rules(source_organization_id)
+- `idx_org_access_rules_target` ON org_access_rules(target_organization_id)
+- `idx_org_access_rules_is_enabled` ON org_access_rules(is_enabled) WHERE is_enabled = true
+
+---
+
 ## 5. Space ドメイン
 
 ### 5.1 spaces
@@ -1013,6 +1243,30 @@ CSVエクスポートジョブエンティティ。
 **インデックス**:
 - `idx_thread_follows_thread_id` ON thread_follows(thread_id)
 - `idx_thread_follows_user_id` ON thread_follows(user_id)
+
+---
+
+### 5.10 thread_actions
+
+スレッドアクションエンティティ。スレッドコメントの内容を指定アプリのレコードに転記するための設定。システム管理画面で管理され、スペース横断で適用される。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | スレッドアクションID |
+| action_name | TEXT | NOT NULL CHECK (char_length(action_name) BETWEEN 1 AND 128) | アクション名 |
+| destination_app_id | UUID | NOT NULL REFERENCES apps(id) ON DELETE CASCADE | コピー先アプリ |
+| field_mappings | JSONB | NOT NULL DEFAULT '[]' | フィールドマッピング（sourceField → destinationFieldCode の配列） |
+| modifier_id | UUID | NOT NULL REFERENCES users(id) ON DELETE RESTRICT | 最終更新者 |
+| modified_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 最終更新日時 |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+
+**CHECK**:
+- `CHECK (jsonb_array_length(field_mappings) >= 1)` -- フィールドマッピングは1件以上必須
+- `CHECK (jsonb_array_length(field_mappings) <= 100)` -- フィールドマッピングは最大100件
+
+**インデックス**:
+- `idx_thread_actions_destination_app_id` ON thread_actions(destination_app_id)
+- `idx_thread_actions_modifier_id` ON thread_actions(modifier_id)
 
 ---
 
@@ -1318,15 +1572,103 @@ Search ドメインは全文検索インデックス（Elasticsearch 等）を�
 
 ---
 
+## 13. Audit ドメイン
+
+### 13.1 audit_logs
+
+監査ログエンティティ。システム上の操作を記録したログエントリ。各ドメインのユースケース実行時に Outbox パターンのイベント経由で生成される。イミュータブル（作成後は変更不可）。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | 監査ログID |
+| level | TEXT | NOT NULL CHECK (level IN ('CRITICAL', 'INFO')) | ログの重要度レベル |
+| timestamp | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 操作が発生した日時 |
+| source_ip | TEXT | | 接続元 IP アドレス（システム内部処理の場合は null） |
+| user_id | UUID | REFERENCES users(id) ON DELETE SET NULL | 操作を実行したユーザー（システム処理の場合は null） |
+| service | TEXT | NOT NULL CHECK (service IN ('COMMON', 'OPEN_DESK', 'GAROON', 'CYBOZU_OFFICE')) | 対象サービス |
+| module | TEXT | NOT NULL CHECK (char_length(module) > 0) | 操作のモジュール名 |
+| action | TEXT | NOT NULL CHECK (char_length(action) > 0) | 操作のアクション名 |
+| result | TEXT | NOT NULL CHECK (result IN ('SUCCESS', 'FAILURE')) | 操作の結果 |
+| error_code | TEXT | | エラー番号（成功時は null） |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+
+**CHECK**:
+- `CHECK (result = 'FAILURE' OR error_code IS NULL)` -- 成功時は error_code が null
+
+**インデックス**:
+- `idx_audit_logs_timestamp` ON audit_logs(timestamp DESC) -- 日時降順検索
+- `idx_audit_logs_level` ON audit_logs(level) -- レベル絞り込み
+- `idx_audit_logs_user_id` ON audit_logs(user_id) WHERE user_id IS NOT NULL -- ユーザー検索
+- `idx_audit_logs_service` ON audit_logs(service) -- サービス絞り込み
+- `idx_audit_logs_result` ON audit_logs(result) -- 結果絞り込み
+- `idx_audit_logs_timestamp_level` ON audit_logs(timestamp DESC, level) -- 日時 + レベルの複合検索
+
+---
+
+### 13.2 audit_log_settings
+
+監査ログ設定エンティティ。監査ログの保存対象やレベルに関する設定。シングルトン。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | 設定ID |
+| settings | JSONB | NOT NULL DEFAULT '{}' | 監査ログ設定（保存対象の設定等、JSON形式） |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+| updated_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 最終更新日時 |
+
+---
+
+### 13.3 user_access_usages
+
+ユーザーアクセス状況エンティティ。ユーザーごとの最終アクセス日と過去30日間のアクセス日数を管理する。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | アクセス状況ID |
+| user_id | UUID | NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE | 対象ユーザー（1ユーザー1レコード） |
+| last_access_date | TIMESTAMP WITH TIME ZONE | | 最終アクセス日（未アクセスの場合は null） |
+| access_days_last_30 | INTEGER | NOT NULL DEFAULT 0 CHECK (access_days_last_30 BETWEEN 0 AND 30) | 過去30日間のアクセス日数 |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+| updated_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 最終更新日時 |
+
+**インデックス**:
+- `idx_user_access_usages_last_access_date` ON user_access_usages(last_access_date DESC NULLS LAST) -- 最終アクセス日ソート
+- `idx_user_access_usages_access_days` ON user_access_usages(access_days_last_30) -- アクセス日数検索
+
+---
+
+### 13.4 user_access_dates
+
+ユーザーアクセス日付エンティティ。ユーザーごとの個別アクセス日付を記録する。`UserAccessUsageRepository.findAccessDatesLast30Days()` の実装に使用し、`accessDaysLast30` の再計算を可能にする。
+
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | UUID | PRIMARY KEY DEFAULT gen_random_uuid() | レコードID |
+| user_id | UUID | NOT NULL REFERENCES users(id) ON DELETE CASCADE | 対象ユーザー |
+| access_date | DATE | NOT NULL | アクセスした日付 |
+| created_at | TIMESTAMP WITH TIME ZONE | NOT NULL DEFAULT now() | 作成日時 |
+
+**UNIQUE**:
+- `uq_user_access_dates` UNIQUE (user_id, access_date)
+
+**インデックス**:
+- `idx_user_access_dates_user_id_date` ON user_access_dates(user_id, access_date DESC) -- 直近アクセス日検索
+- `idx_user_access_dates_access_date` ON user_access_dates(access_date) -- 古い日付の一括削除用
+
+---
+
 ## リレーション図（概要）
 
 ```
 Identity ドメイン
   users ──< user_organizations >── organizations (自己参照: parent)
   users ──< user_groups >── groups
+  users ──< user_titles >── titles
   users ──< sessions
   users ──< password_histories
   users ──< login_histories
+  provisioning_configs (シングルトン)
+  scim_external_mappings (独立)
 
 App ドメイン
   apps ──< fields
@@ -1343,6 +1685,9 @@ App ドメイン
   apps ──< plugin_configs
   apps ──1 app_categories
   apps ──1 app_i18n_configs
+  app_groups ──< app_group_apps >── apps
+  app_templates (独立)
+  plugins ──< plugin_apps >── apps
 
 Record ドメイン
   records ──< record_comments ──< record_comment_likes
@@ -1355,6 +1700,7 @@ AccessControl ドメイン
   apps ──< record_acl_rules
   apps ──< field_acl_rules
   system_permissions (独立)
+  org_access_rules (organizations 間)
 
 Space ドメイン
   spaces ──< threads ──< thread_comments ──< thread_comment_likes
@@ -1363,6 +1709,7 @@ Space ドメイン
   spaces ──< space_related_links
   spaces ──< space_templates
   threads ──< thread_follows
+  thread_actions ──> apps (destination)
 
 Notification ドメイン
   users ──< notifications
@@ -1387,11 +1734,17 @@ File ドメイン
 
 Bookmark ドメイン
   users ──< bookmarks
+
+Audit ドメイン
+  audit_logs (独立、users 参照)
+  audit_log_settings (シングルトン)
+  users ──1 user_access_usages
+  users ──< user_access_dates
 ```
 
 ---
 
-## 補足: テーブル一覧（全48テーブル）
+## 補足: テーブル一覧（全74テーブル）
 
 | # | ドメイン | テーブル名 | 概要 |
 |---|---------|-----------|------|
@@ -1404,53 +1757,68 @@ Bookmark ドメイン
 | 7 | Identity | password_histories | パスワード履歴 |
 | 8 | Identity | login_histories | ログイン履歴 |
 | 9 | Identity | system_settings | システム設定 |
-| 10 | App | apps | アプリ |
-| 11 | App | fields | フィールド |
-| 12 | App | form_layouts | フォームレイアウト |
-| 13 | App | views | ビュー |
-| 14 | App | reports | レポート |
-| 15 | App | periodic_report_snapshots | 定期レポートスナップショット |
-| 16 | App | process_definitions | プロセス定義 |
-| 17 | App | process_statuses | プロセスステータス |
-| 18 | App | process_transitions | プロセス遷移 |
-| 19 | App | webhook_configs | Webhook設定 |
-| 20 | App | api_token_configs | APIトークン設定 |
-| 21 | App | app_notification_configs | 通知条件設定 |
-| 22 | App | app_actions | アクション |
-| 23 | App | app_customizations | カスタマイズ設定 |
-| 24 | App | plugin_configs | プラグイン設定 |
-| 25 | App | app_categories | カテゴリー設定 |
-| 26 | App | app_i18n_configs | 多言語名設定 |
-| 27 | Record | records | レコード |
-| 28 | Record | record_comments | レコードコメント |
-| 29 | Record | record_comment_likes | コメントいいね |
-| 30 | Record | record_histories | 変更履歴 |
-| 31 | Record | csv_import_jobs | CSVインポートジョブ |
-| 32 | Record | csv_export_jobs | CSVエクスポートジョブ |
-| 33 | AccessControl | app_acl_rules | アプリACL |
-| 34 | AccessControl | record_acl_rules | レコードACL |
-| 35 | AccessControl | field_acl_rules | フィールドACL |
-| 36 | AccessControl | system_permissions | システム権限 |
-| 37 | Space | spaces | スペース |
-| 38 | Space | threads | スレッド |
-| 39 | Space | thread_comments | スレッドコメント |
-| 40 | Space | thread_comment_likes | コメントいいね |
-| 41 | Space | space_announcements | お知らせ |
-| 42 | Space | space_members | メンバー |
-| 43 | Space | space_related_links | 関連リンク |
-| 44 | Space | space_templates | テンプレート |
-| 45 | Space | thread_follows | スレッドフォロー |
-| 46 | Notification | notifications | 通知 |
-| 47 | Notification | notification_filters | 通知フィルタ |
-| 48 | Notification | notification_filter_location_conditions | フィルタ場所条件 |
-| 49 | Notification | notification_filter_sender_conditions | フィルタ送信者条件 |
-| 50 | Notification | notification_preferences | 通知設定 |
-| 51 | Portal | portal_announcements | ポータルお知らせ |
-| 52 | People | profiles | プロフィール |
-| 53 | People | posts | 投稿 |
-| 54 | People | post_mentions | 投稿メンション |
-| 55 | People | follows | フォロー関係 |
-| 56 | Message | message_threads | メッセージスレッド |
-| 57 | Message | direct_messages | ダイレクトメッセージ |
-| 58 | File | stored_files | 保管ファイル |
-| 59 | Bookmark | bookmarks | ブックマーク |
+| 10 | Identity | titles | 役職 |
+| 11 | Identity | user_titles | ユーザー↔役職 |
+| 12 | Identity | provisioning_configs | プロビジョニング設定 |
+| 13 | Identity | scim_external_mappings | SCIM外部マッピング |
+| 14 | App | apps | アプリ |
+| 15 | App | fields | フィールド |
+| 16 | App | form_layouts | フォームレイアウト |
+| 17 | App | views | ビュー |
+| 18 | App | reports | レポート |
+| 19 | App | periodic_report_snapshots | 定期レポートスナップショット |
+| 20 | App | process_definitions | プロセス定義 |
+| 21 | App | process_statuses | プロセスステータス |
+| 22 | App | process_transitions | プロセス遷移 |
+| 23 | App | webhook_configs | Webhook設定 |
+| 24 | App | api_token_configs | APIトークン設定 |
+| 25 | App | app_notification_configs | 通知条件設定 |
+| 26 | App | app_actions | アクション |
+| 27 | App | app_customizations | カスタマイズ設定 |
+| 28 | App | plugin_configs | プラグイン設定 |
+| 29 | App | app_categories | カテゴリー設定 |
+| 30 | App | app_i18n_configs | 多言語名設定 |
+| 31 | App | app_groups | アプリグループ |
+| 32 | App | app_group_apps | アプリグループ↔アプリ |
+| 33 | App | app_templates | アプリテンプレート |
+| 34 | App | plugins | プラグイン（システム管理） |
+| 35 | App | plugin_apps | プラグイン↔アプリ |
+| 36 | Record | records | レコード |
+| 37 | Record | record_comments | レコードコメント |
+| 38 | Record | record_comment_likes | コメントいいね |
+| 39 | Record | record_histories | 変更履歴 |
+| 40 | Record | csv_import_jobs | CSVインポートジョブ |
+| 41 | Record | csv_export_jobs | CSVエクスポートジョブ |
+| 42 | AccessControl | app_acl_rules | アプリACL |
+| 43 | AccessControl | record_acl_rules | レコードACL |
+| 44 | AccessControl | field_acl_rules | フィールドACL |
+| 45 | AccessControl | system_permissions | システム権限 |
+| 46 | AccessControl | org_access_rules | 組織間アクセス権 |
+| 47 | Space | spaces | スペース |
+| 48 | Space | threads | スレッド |
+| 49 | Space | thread_comments | スレッドコメント |
+| 50 | Space | thread_comment_likes | コメントいいね |
+| 51 | Space | space_announcements | お知らせ |
+| 52 | Space | space_members | メンバー |
+| 53 | Space | space_related_links | 関連リンク |
+| 54 | Space | space_templates | テンプレート |
+| 55 | Space | thread_follows | スレッドフォロー |
+| 56 | Space | thread_actions | スレッドアクション |
+| 57 | Notification | notifications | 通知 |
+| 58 | Notification | notification_filters | 通知フィルタ |
+| 59 | Notification | notification_filter_location_conditions | フィルタ場所条件 |
+| 60 | Notification | notification_filter_sender_conditions | フィルタ送信者条件 |
+| 61 | Notification | notification_preferences | 通知設定 |
+| 62 | Portal | portal_announcements | ポータルお知らせ |
+| 63 | People | profiles | プロフィール |
+| 64 | People | posts | 投稿 |
+| 65 | People | post_mentions | 投稿メンション |
+| 66 | People | follows | フォロー関係 |
+| 67 | Message | message_threads | メッセージスレッド |
+| 68 | Message | direct_messages | ダイレクトメッセージ |
+| 69 | File | stored_files | 保管ファイル |
+| 70 | Bookmark | bookmarks | ブックマーク |
+| 71 | Audit | audit_logs | 監査ログ |
+| 72 | Audit | audit_log_settings | 監査ログ設定 |
+| 73 | Audit | user_access_usages | ユーザーアクセス状況 |
+| 74 | Audit | user_access_dates | ユーザーアクセス日付 |

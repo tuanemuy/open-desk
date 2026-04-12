@@ -41,6 +41,9 @@ Space ドメインは、OpenDesk におけるチームコラボレーション�
 | ポータル表示設定 | PortalDisplayConfig | スペースポータルに表示するセクション（お知らせ・スレッド・アプリ・ピープル・関連リンク）の表示/非表示設定 |
 | いいね | Like | スレッドコメントに対する簡易リアクション |
 | メンション | Mention | コメント内の宛先指定。対象ユーザー・組織・グループに通知が送信される |
+| スレッドアクション | ThreadAction | スレッドコメントの内容を指定アプリのレコードに転記するための設定。システム管理者がスペース横断で管理する |
+| スレッドアクションフィールドマッピング | ThreadActionFieldMapping | スレッドコメントのフィールド（本文・投稿者等）からコピー先アプリのフィールドへの対応付け |
+| スペース復旧 | SpaceRestore | 削除後14日以内のスペースをIDを指定して復旧する操作 |
 
 ---
 
@@ -1064,3 +1067,164 @@ type MultiThreadRequiredError = { kind: "MultiThreadRequired"; spaceId: SpaceId 
 | カスタムカバー画像最大サイズ | 5MB |
 | 画像表示幅の範囲 | 100-750px |
 | スペース使用状況取得の最大件数 | 100件/リクエスト |
+| スレッドアクション名最大文字数 | 128 |
+| スレッドアクションあたりの最大フィールドマッピング数 | 100 |
+| 削除済みスペースの復旧可能期間 | 14日 |
+
+---
+
+## ThreadAction（スレッドアクション） — 追加エンティティ
+
+### 概要
+
+スレッドコメントの内容を指定アプリのレコードに転記するための設定を管理するエンティティ。システム管理画面の「スレッドのアクション」で設定し、スペース横断で適用される。
+
+### エンティティ定義
+
+```typescript
+type ThreadAction = {
+  threadActionId: ThreadActionId;
+  actionName: ThreadActionName;          // アクション名（1-128文字）
+  destinationAppId: AppId;               // コピー先アプリ
+  fieldMappings: ThreadActionFieldMapping[]; // フィールドマッピング（1件以上必須）
+  modifierId: UserId;                    // 最終更新者
+  modifiedAt: Date;                      // 最終更新日時
+  createdAt: Date;                       // 作成日時
+};
+```
+
+### 振る舞い
+
+| メソッド | シグネチャ | 説明 |
+|----------|-----------|------|
+| rename | `rename(name: ThreadActionName): void` | アクション名を変更する |
+| setDestinationApp | `setDestinationApp(appId: AppId): void` | コピー先アプリを変更する。変更時にフィールドマッピングはクリアされる |
+| setFieldMappings | `setFieldMappings(mappings: ThreadActionFieldMapping[]): void` | フィールドマッピングを設定する（1件以上必須） |
+| updateModifier | `updateModifier(userId: UserId): void` | 最終更新者と最終更新日時を更新する |
+
+### 不変条件
+
+- `actionName` は1文字以上128文字以下
+- `fieldMappings` は1件以上
+- `fieldMappings` は最大100件
+- `destinationAppId` のアプリが存在すること（ユースケース層で検証）
+- フィールドマッピングのコピー先フィールドはコピー先アプリに存在するフィールドであること（ユースケース層で検証）
+- `createdAt <= modifiedAt`
+
+### ライフサイクル
+
+1. **作成**: システム管理者がスレッドのアクションを新規作成する
+2. **更新**: アクション名・コピー先アプリ・フィールドマッピングの変更
+3. **削除**: システム管理者がアクションを削除する
+
+---
+
+## 追加の値オブジェクト
+
+### 識別子
+
+```typescript
+type ThreadActionId = { readonly _brand: "ThreadActionId"; readonly value: string };
+```
+
+### 構造値オブジェクト
+
+#### ThreadActionName
+
+スレッドアクション名。1-128文字。
+
+```typescript
+type ThreadActionName = {
+  readonly value: string;
+};
+
+// 等価性: value が一致すれば等しい
+// バリデーション:
+//   - 空文字でないこと
+//   - 128文字以下であること
+```
+
+#### ThreadActionFieldMapping
+
+スレッドコメントのフィールドからコピー先アプリのフィールドへの対応付け。
+
+```typescript
+type ThreadActionFieldMapping = {
+  readonly sourceField: ThreadCommentField;  // スレッドコメントのフィールド（本文、投稿者、投稿日時等）
+  readonly destinationFieldCode: FieldCode;  // コピー先アプリのフィールドコード
+};
+
+// 等価性: sourceField + destinationFieldCode が一致すれば等しい
+// バリデーション:
+//   - destinationFieldCode が空文字でないこと
+```
+
+### 列挙型
+
+```typescript
+// スレッドコメントの転記元フィールド
+type ThreadCommentField =
+  | "COMMENT_TEXT"        // コメント本文
+  | "COMMENTER"           // 投稿者
+  | "COMMENT_DATETIME"    // 投稿日時
+  | "THREAD_TITLE"        // スレッドタイトル
+  | "SPACE_NAME";         // スペース名
+```
+
+---
+
+## 追加のポート
+
+### 10. ThreadActionRepository（スレッドアクションリポジトリ）
+
+```typescript
+interface ThreadActionRepository {
+  /** ID でスレッドアクションを取得する */
+  findById(threadActionId: ThreadActionId): Promise<ThreadAction | null>;
+
+  /** スレッドアクション一覧を取得する */
+  list(offset: number, limit: number): Promise<{ actions: ThreadAction[]; totalCount: number }>;
+
+  /** スレッドアクションを保存する（新規作成・更新） */
+  save(action: ThreadAction): Promise<void>;
+
+  /** スレッドアクションを削除する */
+  delete(threadActionId: ThreadActionId): Promise<void>;
+  // エラー: アクションが存在しない場合は ThreadActionNotFoundError
+}
+```
+
+---
+
+## 追加のエラー型
+
+```typescript
+// スレッドアクションエラー
+type ThreadActionNotFoundError = { kind: "ThreadActionNotFound"; threadActionId: ThreadActionId };
+type EmptyThreadActionNameError = { kind: "EmptyThreadActionName" };
+type ThreadActionNameTooLongError = { kind: "ThreadActionNameTooLong"; length: number; maxLength: 128 };
+type EmptyFieldMappingsError = { kind: "EmptyFieldMappings"; threadActionId: ThreadActionId };
+type TooManyFieldMappingsError = { kind: "TooManyFieldMappings"; count: number; maxCount: 100 };
+type InvalidDestinationAppError = { kind: "InvalidDestinationApp"; appId: AppId };
+type SpaceRestoreExpiredError = { kind: "SpaceRestoreExpired"; spaceId: SpaceId; deletedAt: Date; expiredAt: Date };
+type SpaceNotDeletedError = { kind: "SpaceNotDeleted"; spaceId: SpaceId };
+```
+
+---
+
+## 追加のユースケース（概要）
+
+### スレッドアクション管理
+
+| # | ユースケース名 | 概要 | 主要アクター |
+|---|--------------|------|-------------|
+| 31 | スレッドアクション一覧取得 | スレッドアクションの一覧を取得する | システム管理者 |
+| 32 | スレッドアクション作成 | 新しいスレッドアクションを作成する。コピー先アプリとフィールドマッピングを設定 | システム管理者 |
+| 33 | スレッドアクション更新 | スレッドアクションのアクション名・コピー先アプリ・フィールドマッピングを変更する | システム管理者 |
+| 34 | スレッドアクション削除 | スレッドアクションを削除する | システム管理者 |
+
+### スペース復旧
+
+| # | ユースケース名 | 概要 | 主要アクター |
+|---|--------------|------|-------------|
+| 35 | スペース復旧 | 削除後14日以内のスペースをスペースIDを指定して復旧する。14日超過の場合はエラー。関連するスレッド・メンバー・お知らせ等も復旧される | システム管理者 |

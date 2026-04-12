@@ -1,3 +1,4 @@
+import { SystemPermission } from "@/core/domain/access-control/entity";
 import type { UserAclContext } from "@/core/domain/access-control/valueObject";
 import { UserAclContext as UserAclContextVO } from "@/core/domain/access-control/valueObject";
 import type { UserId } from "@/core/domain/identity/valueObject";
@@ -41,11 +42,20 @@ export async function buildUserAclContext(
     }
   }
 
+  const systemPermissions = await ctx.systemPermissionRepository.findByUser(
+    user.loginName,
+    organizationCodes,
+    groupCodes,
+  );
+  const isCybozuAdmin = systemPermissions.some((p) =>
+    SystemPermission.hasRight(p, "SYSTEM_ADMIN"),
+  );
+
   return UserAclContextVO.create({
     userId: user.userId,
     userCode: user.loginName,
     organizationCodes,
     groupCodes,
-    isCybozuAdmin: false,
+    isCybozuAdmin,
   });
 }

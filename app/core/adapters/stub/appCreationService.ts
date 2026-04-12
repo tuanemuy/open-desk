@@ -3,6 +3,7 @@ import type {
   AppCreationService,
 } from "@/core/domain/app/services/appCreationService";
 import type { AppId, SpaceId } from "@/core/domain/app/valueObject";
+import { StubNotImplementedError } from "./error";
 
 export class StubAppCreationService implements AppCreationService {
   createFromTemplate(
@@ -10,7 +11,7 @@ export class StubAppCreationService implements AppCreationService {
     _name: string,
     _spaceId: SpaceId | null,
   ): Promise<AppCreationResult> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("AppCreationService");
   }
 
   createFromExcel(
@@ -18,7 +19,7 @@ export class StubAppCreationService implements AppCreationService {
     _name: string,
     _spaceId: SpaceId | null,
   ): Promise<AppCreationResult> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("AppCreationService");
   }
 
   createFromCsv(
@@ -26,7 +27,7 @@ export class StubAppCreationService implements AppCreationService {
     _name: string,
     _spaceId: SpaceId | null,
   ): Promise<AppCreationResult> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("AppCreationService");
   }
 
   duplicateApp(
@@ -34,6 +35,6 @@ export class StubAppCreationService implements AppCreationService {
     _name: string,
     _spaceId: SpaceId | null,
   ): Promise<AppCreationResult> {
-    throw new Error("Not implemented");
+    throw new StubNotImplementedError("AppCreationService");
   }
 }

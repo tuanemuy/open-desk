@@ -104,3 +104,7 @@ export type DesktopPreferenceOutput = {
   readonly desktopEnabled: boolean;
   readonly updatedAt: Date;
 };
+
+export type DeleteExpiredNotificationsOutput = {
+  readonly deletedCount: number;
+};

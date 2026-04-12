@@ -10,7 +10,7 @@ import {
 import { Link } from "react-router";
 import type { Route } from "./+types/index";
 
-export { loader } from "./loader";
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "スペース - OpenDesk" }];

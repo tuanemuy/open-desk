@@ -2119,3 +2119,151 @@ export const ThreadId = {
     return uuidv7() as _ThreadId;
   },
 };
+
+// ============================================
+// AppGroupId
+// ============================================
+
+type _AppGroupId = string & { readonly brand: "AppGroupId" };
+
+export type AppGroupId = _AppGroupId;
+
+export const AppGroupId = {
+  create: (id: string): _AppGroupId => {
+    return id as _AppGroupId;
+  },
+  generate: (): _AppGroupId => {
+    return uuidv7() as _AppGroupId;
+  },
+};
+
+// ============================================
+// AppTemplateId
+// ============================================
+
+type _AppTemplateId = string & { readonly brand: "AppTemplateId" };
+
+export type AppTemplateId = _AppTemplateId;
+
+export const AppTemplateId = {
+  create: (id: string): _AppTemplateId => {
+    return id as _AppTemplateId;
+  },
+  generate: (): _AppTemplateId => {
+    return uuidv7() as _AppTemplateId;
+  },
+};
+
+// ============================================
+// AppGroupName
+// ============================================
+
+const APP_GROUP_NAME_MAX_LENGTH = 128;
+
+type _AppGroupName = string & { readonly brand: "AppGroupName" };
+
+export type AppGroupName = _AppGroupName;
+
+export const AppGroupName = {
+  create: (value: string): _AppGroupName => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        AppErrorCode.EmptyAppGroupName,
+        "App group name cannot be empty",
+      );
+    }
+    if (value.length > APP_GROUP_NAME_MAX_LENGTH) {
+      throw new BusinessRuleError(
+        AppErrorCode.AppGroupNameTooLong,
+        `App group name exceeds maximum length of ${APP_GROUP_NAME_MAX_LENGTH} characters`,
+      );
+    }
+    return value as _AppGroupName;
+  },
+  maxLength: APP_GROUP_NAME_MAX_LENGTH,
+};
+
+// ============================================
+// AppTemplateName
+// ============================================
+
+const APP_TEMPLATE_NAME_MAX_LENGTH = 128;
+
+type _AppTemplateName = string & { readonly brand: "AppTemplateName" };
+
+export type AppTemplateName = _AppTemplateName;
+
+export const AppTemplateName = {
+  create: (value: string): _AppTemplateName => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        AppErrorCode.EmptyAppTemplateName,
+        "App template name cannot be empty",
+      );
+    }
+    if (value.length > APP_TEMPLATE_NAME_MAX_LENGTH) {
+      throw new BusinessRuleError(
+        AppErrorCode.AppTemplateNameTooLong,
+        `App template name exceeds maximum length of ${APP_TEMPLATE_NAME_MAX_LENGTH} characters`,
+      );
+    }
+    return value as _AppTemplateName;
+  },
+  maxLength: APP_TEMPLATE_NAME_MAX_LENGTH,
+};
+
+// ============================================
+// PluginName
+// ============================================
+
+const PLUGIN_NAME_MAX_LENGTH = 256;
+
+type _PluginName = string & { readonly brand: "PluginName" };
+
+export type PluginName = _PluginName;
+
+export const PluginName = {
+  create: (value: string): _PluginName => {
+    if (value.length === 0) {
+      throw new BusinessRuleError(
+        AppErrorCode.EmptyPluginName,
+        "Plugin name cannot be empty",
+      );
+    }
+    if (value.length > PLUGIN_NAME_MAX_LENGTH) {
+      throw new BusinessRuleError(
+        AppErrorCode.PluginNameTooLong,
+        `Plugin name exceeds maximum length of ${PLUGIN_NAME_MAX_LENGTH} characters`,
+      );
+    }
+    return value as _PluginName;
+  },
+  maxLength: PLUGIN_NAME_MAX_LENGTH,
+};
+
+// ============================================
+// PluginStatus
+// ============================================
+
+const PLUGIN_STATUSES = ["ACTIVE", "INACTIVE"] as const;
+
+type _PluginStatus = (typeof PLUGIN_STATUSES)[number];
+
+export type PluginStatus = _PluginStatus;
+
+export const PluginStatus = {
+  Active: "ACTIVE" as _PluginStatus,
+  Inactive: "INACTIVE" as _PluginStatus,
+  create: (value: string): _PluginStatus => {
+    if (!PLUGIN_STATUSES.includes(value as _PluginStatus)) {
+      throw new BusinessRuleError(
+        AppErrorCode.InvalidPluginStatus,
+        `Invalid plugin status: ${value}`,
+      );
+    }
+    return value as _PluginStatus;
+  },
+  isActive: (status: _PluginStatus): status is "ACTIVE" => status === "ACTIVE",
+  isInactive: (status: _PluginStatus): status is "INACTIVE" =>
+    status === "INACTIVE",
+};

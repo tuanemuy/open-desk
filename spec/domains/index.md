@@ -16,6 +16,8 @@
 | 10 | File | Generic | ファイルのアップロード・ダウンロード・保持期限管理を担う |
 | 11 | Search | Generic | 全文検索およびスコープ別検索（アプリ内・スペース内）を提供する |
 | 12 | Bookmark | Generic | ページのブックマーク（URL保存）を3カテゴリで管理する |
+| 13 | SystemSettings | Supporting | システム全体の設定（ヘッダー色、機能選択、ログインセキュリティ、アクセス制限等）の読み書きを管理する |
+| 14 | Audit | Supporting | 監査ログの記録・取得・フィルタリングとユーザーアクセス状況の追跡を管理する |
 
 ## 依存関係
 
@@ -43,6 +45,9 @@ Search ← Record（レコード検索）
 Search ← Space（スレッド検索）
 Search ← People（ピープル検索）
 Search ← Message（メッセージ検索）
+
+Identity ← Audit（監査対象ユーザーの参照）
+Identity ← SystemSettings（設定変更者の参照）
 ```
 
 **循環依存なし** — すべての依存は上位ドメインから下位ドメインへの一方向。

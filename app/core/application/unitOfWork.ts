@@ -1,27 +1,39 @@
 import type { AppAclRepository } from "@/core/domain/access-control/ports/appAclRepository";
 import type { FieldAclRepository } from "@/core/domain/access-control/ports/fieldAclRepository";
+import type { OrgAccessRuleRepository } from "@/core/domain/access-control/ports/orgAccessRuleRepository";
 import type { RecordAclRepository } from "@/core/domain/access-control/ports/recordAclRepository";
 import type { SystemPermissionRepository } from "@/core/domain/access-control/ports/systemPermissionRepository";
 import type { ApiTokenConfigRepository } from "@/core/domain/app/ports/apiTokenConfigRepository";
 import type { AppActionRepository } from "@/core/domain/app/ports/appActionRepository";
 import type { AppCategoryRepository } from "@/core/domain/app/ports/appCategoryRepository";
 import type { AppCustomizationRepository } from "@/core/domain/app/ports/appCustomizationRepository";
+import type { AppGroupRepository } from "@/core/domain/app/ports/appGroupRepository";
 import type { AppI18nConfigRepository } from "@/core/domain/app/ports/appI18nConfigRepository";
 import type { AppNotificationConfigRepository } from "@/core/domain/app/ports/appNotificationConfigRepository";
 import type { AppRepository } from "@/core/domain/app/ports/appRepository";
+import type { AppTemplateRepository } from "@/core/domain/app/ports/appTemplateRepository";
 import type { FieldRepository } from "@/core/domain/app/ports/fieldRepository";
 import type { FormLayoutRepository } from "@/core/domain/app/ports/formLayoutRepository";
 import type { PluginConfigRepository } from "@/core/domain/app/ports/pluginConfigRepository";
+import type { PluginRepository } from "@/core/domain/app/ports/pluginRepository";
 import type { ProcessDefinitionRepository } from "@/core/domain/app/ports/processDefinitionRepository";
 import type { ReportRepository } from "@/core/domain/app/ports/reportRepository";
 import type { ViewRepository } from "@/core/domain/app/ports/viewRepository";
 import type { WebhookConfigRepository } from "@/core/domain/app/ports/webhookConfigRepository";
+import type { AuditLogRepository } from "@/core/domain/audit/ports/auditLogRepository";
+import type { AuditLogSettingRepository } from "@/core/domain/audit/ports/auditLogSettingRepository";
+import type { UserAccessUsageRepository } from "@/core/domain/audit/ports/userAccessUsageRepository";
 import type { BookmarkRepository } from "@/core/domain/bookmark/ports/bookmarkRepository";
 import type { FileRepository } from "@/core/domain/file/ports/fileRepository";
+import type { ApiTokenRecordRepository } from "@/core/domain/identity/ports/apiTokenRecordRepository";
 import type { GroupRepository } from "@/core/domain/identity/ports/groupRepository";
 import type { MembershipRepository } from "@/core/domain/identity/ports/membershipRepository";
 import type { OrganizationRepository } from "@/core/domain/identity/ports/organizationRepository";
+import type { ProvisioningConfigRepository } from "@/core/domain/identity/ports/provisioningConfigRepository";
+import type { ScimExternalMappingRepository } from "@/core/domain/identity/ports/scimExternalMappingRepository";
 import type { SessionRepository } from "@/core/domain/identity/ports/sessionRepository";
+import type { TitleAssignmentRepository } from "@/core/domain/identity/ports/titleAssignmentRepository";
+import type { TitleRepository } from "@/core/domain/identity/ports/titleRepository";
 import type { UserRepository } from "@/core/domain/identity/ports/userRepository";
 import type { DirectMessageRepository } from "@/core/domain/message/ports/directMessageRepository";
 import type { MessageThreadRepository } from "@/core/domain/message/ports/messageThreadRepository";
@@ -44,14 +56,21 @@ import type { SpaceAnnouncementRepository } from "@/core/domain/space/ports/spac
 import type { SpaceMemberRepository } from "@/core/domain/space/ports/spaceMemberRepository";
 import type { SpaceRepository } from "@/core/domain/space/ports/spaceRepository";
 import type { SpaceTemplateRepository } from "@/core/domain/space/ports/spaceTemplateRepository";
+import type { ThreadActionRepository } from "@/core/domain/space/ports/threadActionRepository";
 import type { ThreadCommentRepository } from "@/core/domain/space/ports/threadCommentRepository";
 import type { ThreadFollowRepository } from "@/core/domain/space/ports/threadFollowRepository";
 import type { ThreadRepository } from "@/core/domain/space/ports/threadRepository";
+import type { SystemSettingsRepository } from "@/core/domain/system-settings/ports/systemSettingsRepository";
 
 export type Repositories = {
+  // audit
+  auditLogRepository: AuditLogRepository;
+  auditLogSettingRepository: AuditLogSettingRepository;
+  userAccessUsageRepository: UserAccessUsageRepository;
   // access-control
   appAclRepository: AppAclRepository;
   fieldAclRepository: FieldAclRepository;
+  orgAccessRuleRepository: OrgAccessRuleRepository;
   recordAclRepository: RecordAclRepository;
   systemPermissionRepository: SystemPermissionRepository;
   // app
@@ -69,15 +88,23 @@ export type Repositories = {
   reportRepository: ReportRepository;
   viewRepository: ViewRepository;
   webhookConfigRepository: WebhookConfigRepository;
+  appGroupRepository: AppGroupRepository;
+  appTemplateRepository: AppTemplateRepository;
+  pluginRepository: PluginRepository;
   // bookmark
   bookmarkRepository: BookmarkRepository;
   // file
   fileRepository: FileRepository;
   // identity
+  apiTokenRecordRepository: ApiTokenRecordRepository;
   groupRepository: GroupRepository;
   membershipRepository: MembershipRepository;
   organizationRepository: OrganizationRepository;
+  provisioningConfigRepository: ProvisioningConfigRepository;
+  scimExternalMappingRepository: ScimExternalMappingRepository;
   sessionRepository: SessionRepository;
+  titleAssignmentRepository: TitleAssignmentRepository;
+  titleRepository: TitleRepository;
   userRepository: UserRepository;
   // message
   directMessageRepository: DirectMessageRepository;
@@ -107,8 +134,11 @@ export type Repositories = {
   spaceRepository: SpaceRepository;
   spaceTemplateRepository: SpaceTemplateRepository;
   threadCommentRepository: ThreadCommentRepository;
+  threadActionRepository: ThreadActionRepository;
   threadFollowRepository: ThreadFollowRepository;
   threadRepository: ThreadRepository;
+  // system-settings
+  systemSettingsRepository: SystemSettingsRepository;
 };
 
 /**

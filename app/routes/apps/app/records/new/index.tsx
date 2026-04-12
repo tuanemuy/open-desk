@@ -7,13 +7,14 @@ import {
 } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Paperclip } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import { handlers } from "./action";
+import type { handlers } from "./action.server";
+import { createRecordSchema } from "./schemas";
 
-export { action } from "./action";
-export { loader } from "./loader";
+export { action } from "./action.server";
+export { loader } from "./loader.server";
 
 export function meta({ data }: Route.MetaArgs) {
   const appName = data?.app?.name ?? "App";
@@ -22,6 +23,7 @@ export function meta({ data }: Route.MetaArgs) {
 
 export default function NewRecordPage({ loaderData }: Route.ComponentProps) {
   const { app, rankOptions } = loaderData;
+  const navigate = useNavigate();
 
   const fetcher = useCompositeAction<typeof handlers>();
 
@@ -29,17 +31,17 @@ export default function NewRecordPage({ loaderData }: Route.ComponentProps) {
     id: "create-record-form",
     lastResult:
       fetcher.data?.intent === "createRecord" ? fetcher.data : undefined,
-    constraint: getZodConstraint(handlers.createRecord.schema),
+    constraint: getZodConstraint(createRecordSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: handlers.createRecord.schema });
+      return parseWithZod(formData, { schema: createRecordSchema });
     },
   });
 
   fetcher.register("createRecord", {
-    onSuccess: () => {
-      // Will navigate to the new record on actual implementation
+    onSuccess: (data) => {
+      navigate(`/apps/${app.id}/records/${data.data.recordId}`);
     },
   });
 

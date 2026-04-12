@@ -230,3 +230,64 @@ export type ConfigureI18nOutput = {
   translationCount: number;
   revision: number;
 };
+
+// ============================================
+// App Template DTOs
+// ============================================
+
+export type AppTemplateDto = {
+  templateId: string;
+  name: string;
+  description: string | null;
+  sourceAppId: string | null;
+  creatorId: string;
+  createdAt: Date;
+};
+
+export type AppTemplateListOutput = {
+  templates: readonly AppTemplateDto[];
+  totalCount: number;
+};
+
+export type ExportAppTemplateOutput = {
+  file: ArrayBuffer;
+  fileName: string;
+};
+
+// ============================================
+// App Group DTOs
+// ============================================
+
+export type AppGroupDto = {
+  appGroupId: string;
+  name: string;
+  isDefault: boolean;
+  appIds: readonly string[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type AppGroupListOutput = {
+  groups: readonly AppGroupDto[];
+  totalCount: number;
+};
+
+// ============================================
+// Plugin DTOs
+// ============================================
+
+export type PluginDto = {
+  pluginId: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  isPreinstalled: boolean;
+  installedAppIds: readonly string[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type PluginListOutput = {
+  plugins: readonly PluginDto[];
+  totalCount: number;
+};
