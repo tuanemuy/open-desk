@@ -570,13 +570,13 @@ export default function PortalPage({ loaderData }: Route.ComponentProps) {
               ))}
             </ul>
             <div className="border-t border-neutral-200 px-lg py-sm">
-              <button
-                type="button"
-                className="inline-flex items-center gap-xs rounded-sm border-none bg-transparent px-sm py-xs font-body text-xs font-[var(--weight-medium)] text-primary transition-[background-color,color] duration-[var(--transition-default)] hover:bg-primary-lighter hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              <Link
+                to="/spaces/new"
+                className="inline-flex items-center gap-xs rounded-sm border-none bg-transparent px-sm py-xs font-body text-xs font-[var(--weight-medium)] text-primary no-underline transition-[background-color,color] duration-[var(--transition-default)] hover:bg-primary-lighter hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 <PlusIcon />
                 Create space
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -626,13 +626,13 @@ export default function PortalPage({ loaderData }: Route.ComponentProps) {
               })}
             </ul>
             <div className="border-t border-neutral-200 px-lg py-sm">
-              <button
-                type="button"
-                className="inline-flex items-center gap-xs rounded-sm border-none bg-transparent px-sm py-xs font-body text-xs font-[var(--weight-medium)] text-primary transition-[background-color,color] duration-[var(--transition-default)] hover:bg-primary-lighter hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              <Link
+                to="/apps/store"
+                className="inline-flex items-center gap-xs rounded-sm border-none bg-transparent px-sm py-xs font-body text-xs font-[var(--weight-medium)] text-primary no-underline transition-[background-color,color] duration-[var(--transition-default)] hover:bg-primary-lighter hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 <PlusIcon />
                 Create app
-              </button>
+              </Link>
             </div>
           </div>
         </div>

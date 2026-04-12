@@ -5,9 +5,8 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import { createOrgSchema, createUserSchema } from "./schemas";
-
 import type { handlers } from "./action.server";
+import { createOrgSchema, createUserSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";

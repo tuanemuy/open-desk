@@ -2,9 +2,8 @@ import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
-import { saveMiscSchema } from "./schemas";
-
 import type { handlers } from "./action.server";
+import { saveMiscSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";
