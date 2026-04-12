@@ -365,8 +365,12 @@ async function main() {
       isUnique: false,
       properties: {
         type: "DROP_DOWN",
-        options: ["A", "B", "C", "D"],
-        defaultValue: null,
+        options: [
+          { label: "A", index: 0 },
+          { label: "B", index: 1 },
+          { label: "C", index: 2 },
+          { label: "D", index: 3 },
+        ],
       },
     },
     {
