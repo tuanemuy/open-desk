@@ -28,6 +28,7 @@ export const IdentityErrorCode = {
   InvalidPasswordExpirationDays: "IDENTITY_INVALID_PASSWORD_EXPIRATION_DAYS",
   InvalidLockoutMaxAttempts: "IDENTITY_INVALID_LOCKOUT_MAX_ATTEMPTS",
   InvalidLockoutDuration: "IDENTITY_INVALID_LOCKOUT_DURATION",
+  InconsistentLockoutPolicy: "IDENTITY_INCONSISTENT_LOCKOUT_POLICY",
   InvalidSessionTimeout: "IDENTITY_INVALID_SESSION_TIMEOUT",
   EmptyHashedPassword: "IDENTITY_EMPTY_HASHED_PASSWORD",
   EmptyApiTokenValue: "IDENTITY_EMPTY_API_TOKEN_VALUE",
