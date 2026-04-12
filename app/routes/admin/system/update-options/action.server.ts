@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
 import { updateUpdateOption } from "@/core/application/system-settings/updateUpdateOption";
 import {
@@ -10,14 +9,11 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-const schema = z.object({
-  channel: z.enum(["latest", "monthly"]),
-});
+import { updateOptionsSchema } from "./schemas";
 
 export const handlers = {
   updateOptions: defineHandler({
-    schema,
+    schema: updateOptionsSchema,
     handler: async (value, args) => {
       await requireAuth(args.request, container);
       return handleUseCase(() =>

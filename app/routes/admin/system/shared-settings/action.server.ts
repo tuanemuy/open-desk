@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
 import { updateSharedAppSettings } from "@/core/application/system-settings/updateSharedAppSettings";
 import {
@@ -10,17 +9,11 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-
-const schema = z.object({
-  prohibitEveryoneAdmin: z
-    .string()
-    .optional()
-    .transform((v) => v === "on"),
-});
+import { sharedSettingsSchema } from "./schemas";
 
 export const handlers = {
   updateSharedSettings: defineHandler({
-    schema,
+    schema: sharedSettingsSchema,
     handler: async (value, args) => {
       await requireAuth(args.request, container);
       return handleUseCase(() =>

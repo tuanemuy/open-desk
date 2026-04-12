@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { container } from "@/core/application/container/server.instance";
 import { updateJsCssCustomization } from "@/core/application/system-settings/updateJsCssCustomization";
 import type { CustomFile } from "@/core/domain/system-settings/valueObject";
@@ -11,6 +10,7 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
+import { customizeSchema } from "./schemas";
 
 const SCOPE_MAP_TO_BACKEND = {
   all: "ALL_USERS",
@@ -18,17 +18,9 @@ const SCOPE_MAP_TO_BACKEND = {
   none: "DISABLED",
 } as const;
 
-const schema = z.object({
-  scope: z.enum(["all", "admin", "none"]),
-  pcJsFiles: z.string().optional(),
-  mobileJsFiles: z.string().optional(),
-  pcCssFiles: z.string().optional(),
-  mobileCssFiles: z.string().optional(),
-});
-
 export const handlers = {
   updateCustomize: defineHandler({
-    schema,
+    schema: customizeSchema,
     handler: async (value, args) => {
       await requireAuth(args.request, container);
 

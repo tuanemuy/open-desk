@@ -1,10 +1,10 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
-import { z } from "zod";
 import { SELECT_CLASSES } from "@/lib/admin";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 import type { handlers } from "./action.server";
+import { saveSecuritySchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";
@@ -71,17 +71,6 @@ function formatComplexity(
       return "ALPHANUMERIC";
   }
 }
-
-const saveSecuritySchema = z.object({
-  samlEnabled: z.string().optional(),
-  twoFactorEnabled: z.string().optional(),
-  userPasswordMinLength: z.string(),
-  adminPasswordMinLength: z.string(),
-  complexity: z.string(),
-  lockoutAttempts: z.string(),
-  lockoutDuration: z.string(),
-  sessionTimeout: z.string(),
-});
 
 export default function LoginSecurityPage({
   loaderData,

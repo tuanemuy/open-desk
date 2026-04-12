@@ -3,11 +3,11 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import type { SystemPermissionDto } from "@/core/application/access-control/dto";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 import type { handlers } from "./action.server";
+import { addPermissionSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";
@@ -42,11 +42,6 @@ function entityDisplayName(permission: SystemPermissionDto): string {
   return permission.entity.code;
 }
 
-const addSchema = z.object({
-  entityType: z.enum(["USER", "GROUP", "ORGANIZATION"]),
-  entityCode: z.string().min(1, "コードを入力してください"),
-});
-
 export default function AclPage({ loaderData }: Route.ComponentProps) {
   const { permissions } = loaderData;
   const [showAddForm, setShowAddForm] = useState(false);
@@ -57,11 +52,11 @@ export default function AclPage({ loaderData }: Route.ComponentProps) {
     id: "add-permission-form",
     lastResult:
       fetcher.data?.intent === "addPermission" ? fetcher.data : undefined,
-    constraint: getZodConstraint(addSchema),
+    constraint: getZodConstraint(addPermissionSchema),
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: addSchema });
+      return parseWithZod(formData, { schema: addPermissionSchema });
     },
   });
 
