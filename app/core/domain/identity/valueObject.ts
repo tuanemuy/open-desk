@@ -764,6 +764,12 @@ export const LockoutPolicy = {
         "Lockout duration must be a positive integer",
       );
     }
+    if (params.maxFailedAttempts === null && params.lockoutDuration !== null) {
+      throw new BusinessRuleError(
+        IdentityErrorCode.InconsistentLockoutPolicy,
+        "lockoutDuration must be null when maxFailedAttempts is null (lockout disabled)",
+      );
+    }
     return {
       maxFailedAttempts: params.maxFailedAttempts,
       lockoutDuration: params.lockoutDuration,
