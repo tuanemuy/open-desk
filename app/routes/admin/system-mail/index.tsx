@@ -1,40 +1,13 @@
 import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
-import { data } from "react-router";
 import { toast } from "sonner";
-import { container } from "@/core/application/container/server.instance";
-import { getSystemMail } from "@/core/application/system-settings/getSystemMail";
 import { useCompositeAction } from "@/lib/compositeAction";
-import { handleUseCase } from "@/lib/handleUseCase";
-import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
 import type { handlers } from "./action.server";
 import { updateMailSettingsSchema } from "./schemas";
 
 export { action } from "./action.server";
-
-export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuth(request, container);
-
-  const result = await handleUseCase(() =>
-    getSystemMail({
-      container,
-      headers: request.headers,
-      input: undefined,
-    }),
-  ).match(
-    (result) => result,
-    (e) => {
-      throw data({ message: e.message }, { status: e.status });
-    },
-  );
-
-  return {
-    fromAddress: result.fromAddress,
-    serverType: result.serverType,
-    externalServer: result.externalServer,
-  };
-}
+export { loader } from "./loader.server";
 
 export function meta(_args: Route.MetaArgs) {
   return [{ title: "システムメール - cybozu.com共通管理 - OpenDesk" }];
