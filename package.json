@@ -12,7 +12,7 @@
     "format": "biome format --write",
     "format:check": "biome format",
     "test": "vitest run",
-    "test:domain": "vitest run app/core/application/${TEST_DOMAIN}",
+    "test:domain": "vitest run app/core/domain/${TEST_DOMAIN} app/core/application/${TEST_DOMAIN}",
     "db:generate": "drizzle-kit generate --config=./app/core/adapters/drizzleSqlite/drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config=./app/core/adapters/drizzleSqlite/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --host 0.0.0.0 --config=./app/core/adapters/drizzleSqlite/drizzle.config.ts",
