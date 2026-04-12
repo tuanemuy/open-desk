@@ -67,7 +67,11 @@ export default function NewSpacePage({ loaderData }: Route.ComponentProps) {
         {isGuest ? "Create Guest Space" : "Create Space"}
       </h2>
 
-      <fetcher.Form method="post" {...getFormProps(form)}>
+      <fetcher.Form
+        method="post"
+        action={isGuest ? "?guest=true" : undefined}
+        {...getFormProps(form)}
+      >
         <input type="hidden" name="intent" value="createSpace" />
 
         {/* Form Card */}
