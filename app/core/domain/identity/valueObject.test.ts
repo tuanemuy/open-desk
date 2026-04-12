@@ -162,4 +162,18 @@ describe("LockoutPolicy.create", () => {
       }),
     );
   });
+
+  it("should throw InvalidLockoutDuration (not InconsistentLockoutPolicy) when maxFailedAttempts is null and lockoutDuration is 0", () => {
+    expect(() =>
+      LockoutPolicy.create({
+        maxFailedAttempts: null,
+        lockoutDuration: 0,
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        name: "BusinessRuleError",
+        code: IdentityErrorCode.InvalidLockoutDuration,
+      }),
+    );
+  });
 });
