@@ -1,5 +1,5 @@
 import { container } from "@/core/application/container/server.instance";
-import { createRecord } from "@/core/application/record/createRecord";
+import { updateRecord } from "@/core/application/record/updateRecord";
 import {
   createCompositeAction,
   defineHandler,
@@ -8,31 +8,33 @@ import {
 } from "@/lib/compositeAction";
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
-import { toCreateRecordFieldValues } from "../form";
+import { toUpdateRecordFieldValues } from "../form";
 import type { Route } from "./+types/index";
-import { createRecordSchema } from "./schemas";
+import { updateRecordSchema } from "./schemas";
 
 export const handlers = {
-  createRecord: defineHandler({
-    schema: createRecordSchema,
+  updateRecord: defineHandler({
+    schema: updateRecordSchema,
     handler: async (value, args) => {
       const auth = await requireAuth(args.request, container);
 
       const appId = args.params.appId as string;
-      const fieldValues = toCreateRecordFieldValues(value);
+      const recordId = args.params.recordId as string;
 
       return handleUseCase(() =>
-        createRecord({
+        updateRecord({
           container,
           headers: args.request.headers,
           input: {
             appId,
-            fieldValues,
-            creatorId: auth.userId as string,
+            recordId,
+            fieldValues: toUpdateRecordFieldValues(value),
+            revision: value.revision,
+            modifierId: auth.userId as string,
           },
         }),
       ).match(
-        (result) => success({ recordId: result.recordId as string }),
+        () => success({ recordId }),
         (e) => error({ "": [e.message] }),
       );
     },

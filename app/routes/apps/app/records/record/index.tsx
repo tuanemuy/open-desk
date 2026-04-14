@@ -2,7 +2,7 @@ import { getFormProps, getTextareaProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 import type { handlers } from "./action.server";
@@ -34,10 +34,13 @@ function MultiLineText({ value }: { value: string }) {
 }
 
 export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
-  const { app, rows, comments, histories } = loaderData;
+  const { app, recordId, revision, rows, comments, histories } = loaderData;
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"comments" | "history">(
     "comments",
   );
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const fetcher = useCompositeAction<typeof handlers>();
 
@@ -58,8 +61,18 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
       commentForm.reset();
     },
   });
+  fetcher.register("deleteRecord", {
+    onSuccess: () => {
+      navigate(`/apps/${app.id}`);
+    },
+  });
 
   const isPendingComment = fetcher.isPending("addComment");
+  const isDeleting = fetcher.isPending("deleteRecord");
+  const deleteError =
+    fetcher.data?.intent === "deleteRecord" && fetcher.data.status === "error"
+      ? fetcher.data.error?.[""]?.[0]
+      : null;
 
   return (
     <div className="mx-auto max-w-[1400px] px-lg px-xl">
@@ -124,18 +137,18 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
         >
           Add record
         </Link>
-        <button
-          type="button"
+        <Link
+          to={`/apps/${app.id}/records/${recordId}/edit`}
           className="inline-flex h-[32px] items-center gap-xs rounded-sm border border-primary bg-primary px-md font-body text-sm font-[var(--weight-medium)] leading-tight text-on-primary transition-all duration-[var(--transition-default)] hover:border-primary-dark hover:bg-primary-dark active:border-primary-darker active:bg-primary-darker"
         >
           Edit record
-        </button>
-        <button
-          type="button"
+        </Link>
+        <Link
+          to={`/apps/${app.id}/records/new?reuseRecordId=${recordId}`}
           className="inline-flex h-[32px] items-center gap-xs rounded-sm border border-neutral-300 bg-bg-card px-md font-body text-sm font-[var(--weight-medium)] leading-tight text-neutral-700 transition-all duration-[var(--transition-default)] hover:border-neutral-400 hover:bg-neutral-100"
         >
           Reuse record
-        </button>
+        </Link>
 
         <div className="ml-auto flex items-center gap-sm">
           <Link
@@ -144,12 +157,29 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
           >
             App settings
           </Link>
-          <button
-            type="button"
-            className="inline-flex h-[32px] items-center gap-xs rounded-sm border border-neutral-300 bg-bg-card px-md font-body text-sm font-[var(--weight-medium)] leading-tight text-neutral-700 transition-all duration-[var(--transition-default)] hover:border-neutral-400 hover:bg-neutral-100"
-          >
-            Options
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              className="inline-flex h-[32px] items-center gap-xs rounded-sm border border-neutral-300 bg-bg-card px-md font-body text-sm font-[var(--weight-medium)] leading-tight text-neutral-700 transition-all duration-[var(--transition-default)] hover:border-neutral-400 hover:bg-neutral-100"
+              onClick={() => setIsOptionsOpen((prev) => !prev)}
+            >
+              Options
+            </button>
+            {isOptionsOpen && (
+              <div className="absolute right-0 z-10 mt-xs min-w-[180px] rounded-sm border border-neutral-200 bg-bg-card p-xs shadow-lg">
+                <button
+                  type="button"
+                  className="flex w-full items-center rounded-sm px-sm py-xs text-left text-sm text-error transition-colors duration-[var(--transition-default)] hover:bg-error/10"
+                  onClick={() => {
+                    setIsOptionsOpen(false);
+                    setIsDeleteDialogOpen(true);
+                  }}
+                >
+                  Delete record
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -343,6 +373,43 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
             ))}
         </div>
       </div>
+
+      {isDeleteDialogOpen && (
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-neutral-950/40 px-md">
+          <div className="w-full max-w-md rounded-md border border-neutral-200 bg-bg-card p-lg shadow-xl">
+            <h2 className="mb-sm font-heading text-lg font-[var(--weight-semibold)] text-neutral-900">
+              Delete record
+            </h2>
+            <p className="mb-md text-sm leading-relaxed text-neutral-600">
+              This action deletes the current record. You will be returned to
+              the record list after deletion.
+            </p>
+            {deleteError && (
+              <div className="mb-md rounded-sm border border-error bg-error/10 px-md py-sm text-sm text-error">
+                {deleteError}
+              </div>
+            )}
+            <fetcher.Form method="post" className="flex justify-end gap-sm">
+              <input type="hidden" name="intent" value="deleteRecord" />
+              <input type="hidden" name="revision" value={revision} />
+              <button
+                type="button"
+                className="inline-flex h-[36px] items-center rounded-sm border border-neutral-300 bg-bg-card px-lg text-sm font-[var(--weight-medium)] text-neutral-700 transition-all duration-[var(--transition-default)] hover:border-neutral-400 hover:bg-neutral-100"
+                onClick={() => setIsDeleteDialogOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isDeleting}
+                className="inline-flex h-[36px] items-center rounded-sm border border-error bg-error px-lg text-sm font-[var(--weight-medium)] text-white transition-all duration-[var(--transition-default)] hover:bg-error/90 disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </fetcher.Form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

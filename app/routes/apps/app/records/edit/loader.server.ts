@@ -1,9 +1,8 @@
 import { container } from "@/core/application/container/server.instance";
-import { reuseRecord } from "@/core/application/record/reuseRecord";
+import { getRecord } from "@/core/application/record/getRecord";
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import {
-  emptyRecordFormValues,
   loadRecordFormBaseData,
   toRecordFormValues,
   type RankOption,
@@ -12,42 +11,29 @@ import {
 } from "../form";
 import type { Route } from "./+types/index";
 
-export type NewRecordLoaderData = {
+export type EditRecordLoaderData = {
   app: RecordFormAppInfo;
+  recordId: string;
   rankOptions: RankOption[];
   defaultValue: RecordFormValues;
-  reusedFromRecordId: string | null;
+  revision: number;
 };
 
 export async function loader({
   params,
   request,
-}: Route.LoaderArgs): Promise<NewRecordLoaderData> {
-  const auth = await requireAuth(request, container);
+}: Route.LoaderArgs): Promise<EditRecordLoaderData> {
+  await requireAuth(request, container);
 
   const appId = params.appId;
+  const recordId = params.recordId;
   const { app, rankOptions } = await loadRecordFormBaseData(appId);
 
-  const reuseRecordId = new URL(request.url).searchParams.get("reuseRecordId");
-
-  if (!reuseRecordId) {
-    return {
-      app,
-      rankOptions,
-      defaultValue: emptyRecordFormValues(),
-      reusedFromRecordId: null,
-    };
-  }
-
-  const reuseResult = await handleUseCase(() =>
-    reuseRecord({
+  const recordResult = await handleUseCase(() =>
+    getRecord({
       container,
       headers: request.headers,
-      input: {
-        appId,
-        recordId: reuseRecordId,
-        creatorId: auth.userId as string,
-      },
+      input: { appId, recordId },
     }),
   ).match(
     (result) => result,
@@ -58,8 +44,9 @@ export async function loader({
 
   return {
     app,
+    recordId,
     rankOptions,
-    defaultValue: toRecordFormValues(reuseResult.fieldValues),
-    reusedFromRecordId: reuseRecordId,
+    defaultValue: toRecordFormValues(recordResult.record.fieldValues),
+    revision: recordResult.record.revision,
   };
 }

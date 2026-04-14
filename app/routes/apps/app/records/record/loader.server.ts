@@ -54,6 +54,7 @@ type HistoryItem = {
 export type RecordDetailLoaderData = {
   app: AppInfo;
   recordId: string;
+  revision: number;
   rows: RecordRow[];
   comments: CommentItem[];
   histories: HistoryItem[];
@@ -235,6 +236,7 @@ export async function loader({
   return {
     app,
     recordId,
+    revision: recordResult.record.revision,
     rows,
     comments,
     histories,

@@ -21,6 +21,10 @@ export default [
     route("apps/:appId", "routes/apps/app/index.tsx"),
     route("apps/:appId/records/new", "routes/apps/app/records/new/index.tsx"),
     route(
+      "apps/:appId/records/:recordId/edit",
+      "routes/apps/app/records/edit/index.tsx",
+    ),
+    route(
       "apps/:appId/records/:recordId",
       "routes/apps/app/records/record/index.tsx",
     ),
