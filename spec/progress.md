@@ -92,6 +92,114 @@
 - [x] Admin — 全セクション実装済み、バックエンド接続完了、JS/CSS カスタマイズ修正済み
 - [x] PersonalSettings
 
+## Manual Test 再実装バックログ (2026-04-14)
+
+`.manual-test/2026-04-14/full-matrix.md` の FAIL を、実装単位として扱いやすい Issue 粒度に再編したもの。  
+以降はこの単位で Issue を切り、完了ごとに該当 manual test を再実行する。
+
+凡例: `[ ]` 未着手 / `[-]` 一部対応 / `[x]` 完了
+
+### 推奨 Issue 分解
+
+- [ ] Issue A / #31: Record 詳細の編集・削除・再利用を実装
+  - 対応ケース: `record-crud.md` TC-006, TC-007, TC-008, TC-009
+  - 完了条件:
+    - レコード詳細から編集画面へ遷移できる
+    - 保存後に詳細へ戻り更新内容が反映される
+    - 削除確認ダイアログとキャンセル導線がある
+    - 再利用で値コピー済み新規作成画面へ遷移できる
+  - 主な対象:
+    - `app/routes/apps/app/records/record/`
+    - 必要なら `updateRecord`, `deleteRecord`, `duplicate/reuse` 系 use case / route 追加
+
+- [ ] Issue B / #32: スペース作成フローを手順書水準まで拡張
+  - 対応ケース: `space-create.md` TC-001〜TC-011 のうち TC-008, TC-010 以外
+  - 完了条件:
+    - ポータルから通常/ゲストスペース作成導線が見える
+    - 仕様相当の作成 UI を提供する
+    - 非公開、マルチスレッド、メンバー指定、カバー画像に対応する
+    - 空欄/129文字のエラー表示が期待に近い形で出る
+  - 主な対象:
+    - `app/routes/portal/index.tsx`
+    - `app/routes/spaces/new/`
+    - `app/routes/spaces/space/`
+
+- [ ] Issue C / #33: スレッド作成・投稿・フォロー機能を実装
+  - 対応ケース: `thread-post.md` TC-001〜TC-013
+  - 完了条件:
+    - スレッド作成フォームがある
+    - タイトルバリデーションがある
+    - コメント投稿が action と接続される
+    - フォロー/解除が機能する
+    - 可能なら通知付き作成、メンション、添付の対応方針も決める
+  - 主な対象:
+    - `app/routes/spaces/space/`
+    - `app/routes/spaces/space/threads/thread/`
+    - Space/Thread/Comment 系 use case, route action
+
+- [ ] Issue D / #34: アプリ向け CSV Import を実装
+  - 対応ケース: `csv-import.md` TC-001〜TC-011
+  - 完了条件:
+    - 顧客リスト等のアプリ画面から import 導線がある
+    - ファイル選択、文字コード、ヘッダー設定、マッピング、追加/更新モード、エラー時継続/中止に対応する
+    - manual test で使う CSV fixture を再現できる
+  - 主な対象:
+    - `app/routes/apps/app/` 配下に import UI/route を新設
+    - `csvImportService` / record validation / mapping 周辺
+
+- [ ] Issue E / #35: アプリ向け CSV Export を実装
+  - 対応ケース: `csv-export.md` TC-001〜TC-011
+  - 完了条件:
+    - アプリ画面から export 導線がある
+    - 文字コード、区切り、ヘッダー有無、フィールド選択に対応する
+    - 出力ファイル一覧、保持期限表示、削除に対応するか方針を決める
+  - 主な対象:
+    - `app/routes/apps/app/` 配下に export UI/route を新設
+    - CSV export service / download list UI
+
+- [ ] Issue F / #36: アプリ作成フローを手順書水準まで拡張
+  - 対応ケース: `app-create.md` TC-001〜TC-011
+  - 完了条件:
+    - ストア画面に作成方法一覧を表示する
+    - 空アプリ作成後に名前編集、フィールド追加、公開、破棄ができる
+    - 設定/一覧/グラフ/フォームのタブが機能する
+    - テンプレート追加の操作が実装される、またはテンプレート機能のスコープを明確化する
+  - 主な対象:
+    - `app/routes/apps/store/`
+    - `app/routes/apps/app/settings/`
+    - `appCreationService`, `appDeploymentService`
+
+- [ ] Issue G / #37: ポータル/手順書/UI 文言の整合を取る
+  - 対応ケース:
+    - `space-create.md` TC-007, TC-009 の期待文言差分
+    - `login.md` 空欄エラーの技術的文言
+    - `app-create.md` / `space-create.md` / `thread-post.md` のラベル差分
+  - 完了条件:
+    - 主要フォームのエラー文言が user-facing になる
+    - manual test の期待文言と大きく乖離しない
+  - 主な対象:
+    - Route schema / UI error rendering / i18n 文言
+
+### 推奨実装順
+
+1. Issue A: Record 詳細
+2. Issue C: スレッド
+3. Issue B: スペース作成
+4. Issue F: アプリ作成
+5. Issue D: CSV Import
+6. Issue E: CSV Export
+7. Issue G: 文言・最終整合
+
+### 再テスト単位
+
+- Issue A 完了後: `record-crud.md`
+- Issue B 完了後: `space-create.md`
+- Issue C 完了後: `thread-post.md`
+- Issue D 完了後: `csv-import.md`
+- Issue E 完了後: `csv-export.md`
+- Issue F 完了後: `app-create.md`
+- 最終: `spec/manual-tests/` 全件
+
 ### Admin 詳細ステータス
 
 ### 未実装残件

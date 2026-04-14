@@ -13,6 +13,7 @@
 import "dotenv/config";
 import { randomBytes, scrypt } from "node:crypto";
 import { promisify } from "node:util";
+import { eq, sql } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { getDatabaseAsync } from "./client";
 import {
@@ -21,6 +22,7 @@ import {
   formLayouts,
   groups,
   records,
+  systemSettings,
   systemPermissions,
   userGroups,
   users,
@@ -64,42 +66,72 @@ async function main() {
   // ----------------------------------------------------------------
   console.log("Inserting users...");
 
-  const adminId = uuidv7();
-  const testUserId = uuidv7();
-  const disabledUserId = uuidv7();
+  const userSeeds = [
+    {
+      id: uuidv7(),
+      loginName: "admin",
+      displayName: "Admin User",
+      email: "admin@example.com",
+      passwordHash: adminHash.value,
+      passwordAlgorithm: adminHash.algorithm,
+      isActive: true,
+    },
+    {
+      id: uuidv7(),
+      loginName: "testuser@example.cybozu.com",
+      displayName: "Test User",
+      email: "testuser@example.cybozu.com",
+      passwordHash: testUserHash.value,
+      passwordAlgorithm: testUserHash.algorithm,
+      isActive: true,
+    },
+    {
+      id: uuidv7(),
+      loginName: "disabled@example.cybozu.com",
+      displayName: "Disabled User",
+      email: "disabled@example.cybozu.com",
+      passwordHash: disabledUserHash.value,
+      passwordAlgorithm: disabledUserHash.algorithm,
+      isActive: false,
+    },
+  ] as const;
 
-  await db
-    .insert(users)
-    .values([
-      {
-        id: adminId,
-        loginName: "admin",
-        displayName: "Admin User",
-        email: "admin@example.com",
-        passwordHash: adminHash.value,
-        passwordAlgorithm: adminHash.algorithm,
-        isActive: true,
+  for (const userSeed of userSeeds) {
+    await db.insert(users).values(userSeed).onConflictDoUpdate({
+      target: users.loginName,
+      set: {
+        displayName: userSeed.displayName,
+        email: userSeed.email,
+        passwordHash: userSeed.passwordHash,
+        passwordAlgorithm: userSeed.passwordAlgorithm,
+        isActive: userSeed.isActive,
       },
-      {
-        id: testUserId,
-        loginName: "testuser@example.cybozu.com",
-        displayName: "Test User",
-        email: "testuser@example.cybozu.com",
-        passwordHash: testUserHash.value,
-        passwordAlgorithm: testUserHash.algorithm,
-        isActive: true,
-      },
-      {
-        id: disabledUserId,
-        loginName: "disabled@example.cybozu.com",
-        displayName: "Disabled User",
-        email: "disabled@example.cybozu.com",
-        passwordHash: disabledUserHash.value,
-        passwordAlgorithm: disabledUserHash.algorithm,
-        isActive: false,
-      },
-    ])
-    .onConflictDoNothing();
+    });
+  }
+
+  const [adminUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.loginName, "admin"))
+    .limit(1);
+  const [testUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.loginName, "testuser@example.cybozu.com"))
+    .limit(1);
+  const [disabledUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.loginName, "disabled@example.cybozu.com"))
+    .limit(1);
+
+  if (!adminUser || !testUser || !disabledUser) {
+    throw new Error("Failed to resolve seeded users.");
+  }
+
+  const adminId = adminUser.id;
+  const testUserId = testUser.id;
+  const disabledUserId = disabledUser.id;
 
   console.log(
     `  - admin (${adminId})\n  - testuser@example.cybozu.com (${testUserId})\n  - disabled@example.cybozu.com (${disabledUserId})`,
@@ -110,17 +142,33 @@ async function main() {
   // ----------------------------------------------------------------
   console.log("Inserting groups...");
 
-  const everyoneGroupId = uuidv7();
   await db
     .insert(groups)
     .values([
       {
-        id: everyoneGroupId,
+        id: uuidv7(),
         name: "Everyone",
         code: "everyone",
       },
     ])
-    .onConflictDoNothing();
+    .onConflictDoUpdate({
+      target: groups.code,
+      set: {
+        name: "Everyone",
+      },
+    });
+
+  const [everyoneGroup] = await db
+    .select({ id: groups.id })
+    .from(groups)
+    .where(eq(groups.code, "everyone"))
+    .limit(1);
+
+  if (!everyoneGroup) {
+    throw new Error('Failed to resolve seeded "Everyone" group.');
+  }
+
+  const everyoneGroupId = everyoneGroup.id;
 
   // Add admin and testuser to Everyone group
   await db
@@ -148,53 +196,156 @@ async function main() {
   // ----------------------------------------------------------------
   console.log("Inserting system permissions...");
 
+  const everyonePermissions = {
+    id: uuidv7(),
+    entityType: "GROUP",
+    entityCode: "everyone",
+    includeSubs: false,
+    systemAdmin: false,
+    appGroupViewable: true,
+    appGroupManageable: false,
+    appCreate: true,
+    appManage: false,
+    spaceCreate: true,
+    guestSpaceCreate: true,
+  } as const;
   await db
     .insert(systemPermissions)
-    .values([
-      {
-        id: uuidv7(),
-        entityType: "GROUP",
-        entityCode: "everyone",
-        includeSubs: false,
-        systemAdmin: false,
-        appGroupViewable: true,
-        appGroupManageable: false,
-        appCreate: true,
-        appManage: false,
-        spaceCreate: true,
-        guestSpaceCreate: true,
+    .values(everyonePermissions)
+    .onConflictDoUpdate({
+      target: [systemPermissions.entityType, systemPermissions.entityCode],
+      set: {
+        includeSubs: everyonePermissions.includeSubs,
+        systemAdmin: everyonePermissions.systemAdmin,
+        appGroupViewable: everyonePermissions.appGroupViewable,
+        appGroupManageable: everyonePermissions.appGroupManageable,
+        appCreate: everyonePermissions.appCreate,
+        appManage: everyonePermissions.appManage,
+        spaceCreate: everyonePermissions.spaceCreate,
+        guestSpaceCreate: everyonePermissions.guestSpaceCreate,
       },
-      {
-        id: uuidv7(),
-        entityType: "USER",
-        entityCode: "admin",
-        includeSubs: false,
-        systemAdmin: true,
-        appGroupViewable: true,
-        appGroupManageable: true,
-        appCreate: true,
-        appManage: true,
-        spaceCreate: true,
-        guestSpaceCreate: true,
+    });
+
+  const adminPermissions = {
+      id: uuidv7(),
+      entityType: "USER",
+      entityCode: "admin",
+      includeSubs: false,
+      systemAdmin: true,
+      appGroupViewable: true,
+      appGroupManageable: true,
+      appCreate: true,
+      appManage: true,
+      spaceCreate: true,
+      guestSpaceCreate: true,
+    } as const;
+  await db
+    .insert(systemPermissions)
+    .values(adminPermissions)
+    .onConflictDoUpdate({
+      target: [systemPermissions.entityType, systemPermissions.entityCode],
+      set: {
+        includeSubs: adminPermissions.includeSubs,
+        systemAdmin: adminPermissions.systemAdmin,
+        appGroupViewable: adminPermissions.appGroupViewable,
+        appGroupManageable: adminPermissions.appGroupManageable,
+        appCreate: adminPermissions.appCreate,
+        appManage: adminPermissions.appManage,
+        spaceCreate: adminPermissions.spaceCreate,
+        guestSpaceCreate: adminPermissions.guestSpaceCreate,
       },
-    ])
-    .onConflictDoNothing();
+    });
 
   console.log("  - Everyone: appCreate, spaceCreate, guestSpaceCreate");
   console.log("  - admin: systemAdmin + all permissions");
 
   // ----------------------------------------------------------------
-  // 5. Create 顧客リスト app
+  // 5. Seed login-related system settings
+  // ----------------------------------------------------------------
+  console.log("Seeding system settings...");
+
+  const settingsSeeds = [
+    {
+      id: uuidv7(),
+      key: "password_policy" as const,
+      value: {
+        userMinLength: 8,
+        adminMinLength: 10,
+        complexity: "ALPHANUMERIC",
+        allowSameAsLoginName: false,
+        expirationDays: 90,
+        historyCount: 3,
+        allowUserChange: true,
+        requireChangeOnNextLogin: false,
+        allowUserReset: true,
+      },
+    },
+    {
+      id: uuidv7(),
+      key: "lockout_policy" as const,
+      value: {
+        maxFailedAttempts: 5,
+        lockoutDurationMinutes: 30,
+        failedLoginMessage: { ja: "ログインに失敗しました" },
+      },
+    },
+    {
+      id: uuidv7(),
+      key: "session_policy" as const,
+      value: {
+        sessionLifetimeMinutes: 480,
+        allowAutoComplete: true,
+        allowBrowserSave: true,
+        allowAutoLogin: false,
+        autoLoginExpiration: null,
+        allowMismatchedApiAuth: false,
+      },
+    },
+    {
+      id: uuidv7(),
+      key: "saml_auth" as const,
+      value: {
+        enabled: false,
+      },
+    },
+    {
+      id: uuidv7(),
+      key: "two_factor_auth" as const,
+      value: {
+        enabled: true,
+      },
+    },
+  ];
+
+  for (const settingSeed of settingsSeeds) {
+    await db.insert(systemSettings).values(settingSeed).onConflictDoUpdate({
+      target: systemSettings.key,
+      set: {
+        value: settingSeed.value,
+      },
+    });
+  }
+
+  console.log("  - login security settings seeded");
+
+  // ----------------------------------------------------------------
+  // 6. Create 顧客リスト app
   // ----------------------------------------------------------------
   console.log("Creating 顧客リスト app...");
 
-  const customerAppId = uuidv7();
+  const [existingCustomerApp] = await db
+    .select({ id: apps.id })
+    .from(apps)
+    .where(eq(apps.name, "顧客リスト"))
+    .limit(1);
 
-  await db
-    .insert(apps)
-    .values([
+  const customerAppId = existingCustomerApp?.id ?? uuidv7();
+
+  if (!existingCustomerApp) {
+    await db.insert(apps).values([
       {
         id: customerAppId,
+        code: "manual-test-customer-list",
         name: "顧客リスト",
         description: "顧客情報を管理するアプリ",
         theme: "WHITE",
@@ -213,13 +364,13 @@ async function main() {
         creatorId: adminId,
         modifierId: adminId,
       },
-    ])
-    .onConflictDoNothing();
+    ]);
+  }
 
   console.log(`  - 顧客リスト app created (${customerAppId})`);
 
   // ----------------------------------------------------------------
-  // 6. Create fields for 顧客リスト
+  // 7. Create fields for 顧客リスト
   // ----------------------------------------------------------------
   console.log("Creating fields for 顧客リスト...");
 
@@ -405,11 +556,23 @@ async function main() {
     },
   ];
 
-  await db.insert(fields).values(fieldRows).onConflictDoNothing();
+  for (const fieldRow of fieldRows) {
+    await db.insert(fields).values(fieldRow).onConflictDoUpdate({
+      target: [fields.appId, fields.fieldCode],
+      set: {
+        label: fieldRow.label,
+        noLabel: fieldRow.noLabel,
+        fieldType: fieldRow.fieldType,
+        required: fieldRow.required,
+        isUnique: fieldRow.isUnique,
+        properties: fieldRow.properties,
+      },
+    });
+  }
   console.log("  - 10 fields created");
 
   // ----------------------------------------------------------------
-  // 7. Create form layout
+  // 8. Create form layout
   // ----------------------------------------------------------------
   console.log("Creating form layout...");
 
@@ -558,30 +721,54 @@ async function main() {
 
   await db
     .insert(formLayouts)
-    .values([
-      {
-        id: uuidv7(),
-        appId: customerAppId,
+    .values({
+      id: uuidv7(),
+      appId: customerAppId,
+      rows: layoutRows,
+      revision: 1,
+    })
+    .onConflictDoUpdate({
+      target: formLayouts.appId,
+      set: {
         rows: layoutRows,
         revision: 1,
       },
-    ])
-    .onConflictDoNothing();
+    });
 
   console.log("  - Form layout created");
 
   // ----------------------------------------------------------------
-  // 8. Create default view
+  // 9. Create default view
   // ----------------------------------------------------------------
   console.log("Creating default view...");
 
   await db
     .insert(views)
-    .values([
-      {
-        id: uuidv7(),
-        appId: customerAppId,
-        viewName: "(すべて)",
+    .values({
+      id: uuidv7(),
+      appId: customerAppId,
+      viewName: "(すべて)",
+      viewType: "LIST",
+      fields: [
+        "company_name",
+        "department",
+        "contact_name",
+        "postal_code",
+        "tel",
+        "fax",
+        "address",
+        "customer_rank",
+        "email",
+        "notes",
+      ],
+      pager: true,
+      sort: [],
+      index: 0,
+      builtinType: "ALL",
+    })
+    .onConflictDoUpdate({
+      target: [views.appId, views.viewName],
+      set: {
         viewType: "LIST",
         fields: [
           "company_name",
@@ -600,13 +787,12 @@ async function main() {
         index: 0,
         builtinType: "ALL",
       },
-    ])
-    .onConflictDoNothing();
+    });
 
   console.log("  - Default list view created");
 
   // ----------------------------------------------------------------
-  // 9. Create sample records (for CSV export tests — need 3+ records)
+  // 10. Create sample records (for CSV export tests — need 3+ records)
   // ----------------------------------------------------------------
   console.log("Creating sample records...");
 
@@ -676,8 +862,17 @@ async function main() {
     },
   ];
 
-  await db.insert(records).values(sampleRecords).onConflictDoNothing();
-  console.log("  - 3 sample records created");
+  const [{ count: existingRecordCount }] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(records)
+    .where(eq(records.appId, customerAppId));
+
+  if (Number(existingRecordCount) < 3) {
+    await db.insert(records).values(sampleRecords);
+    console.log("  - 3 sample records created");
+  } else {
+    console.log("  - sample records already exist");
+  }
 
   console.log("\nSeed completed successfully!");
   console.log("\nTest accounts:");
