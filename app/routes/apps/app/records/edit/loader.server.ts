@@ -3,12 +3,12 @@ import { getRecord } from "@/core/application/record/getRecord";
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import {
-  loadRecordFormBaseData,
-  toRecordFormValues,
   type RankOption,
   type RecordFormAppInfo,
   type RecordFormValues,
+  toRecordFormValues,
 } from "../form";
+import { loadRecordFormBaseData } from "../form.server";
 import type { Route } from "./+types/index";
 
 export type EditRecordLoaderData = {
@@ -27,20 +27,22 @@ export async function loader({
 
   const appId = params.appId;
   const recordId = params.recordId;
-  const { app, rankOptions } = await loadRecordFormBaseData(appId);
 
-  const recordResult = await handleUseCase(() =>
-    getRecord({
-      container,
-      headers: request.headers,
-      input: { appId, recordId },
-    }),
-  ).match(
-    (result) => result,
-    (e) => {
-      throw new Response(e.message, { status: e.status });
-    },
-  );
+  const [{ app, rankOptions }, recordResult] = await Promise.all([
+    loadRecordFormBaseData(appId),
+    handleUseCase(() =>
+      getRecord({
+        container,
+        headers: request.headers,
+        input: { appId, recordId },
+      }),
+    ).match(
+      (result) => result,
+      (e) => {
+        throw new Response(e.message, { status: e.status });
+      },
+    ),
+  ]);
 
   return {
     app,

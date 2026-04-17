@@ -1,9 +1,5 @@
-import { data } from "react-router";
 import { z } from "zod";
-import { container } from "@/core/application/container/server.instance";
 import type { FieldValue } from "@/core/domain/record/valueObject";
-import { AppId } from "@/core/domain/app/valueObject";
-import type { SpaceId } from "@/core/domain/space/valueObject";
 
 export const recordFormSchema = z.object({
   company: z.string().optional(),
@@ -50,72 +46,6 @@ const EMPTY_RECORD_FORM_VALUES: RecordFormValues = {
   notes: "",
 };
 
-type FieldDefinition = {
-  fieldCode: string;
-  properties: {
-    type: string;
-    options?: readonly {
-      label: string;
-    }[];
-  };
-};
-
-export async function loadRecordFormBaseData(
-  appId: string,
-): Promise<{
-  app: RecordFormAppInfo;
-  rankOptions: RankOption[];
-}> {
-  const { appEntity, fields } = await container.unitOfWorkProvider.transaction(
-    async (ctx) => {
-      const found = await ctx.appRepository.findById(AppId.create(appId));
-      const fieldList = await ctx.fieldRepository.findByAppId(
-        AppId.create(appId),
-      );
-      return {
-        appEntity: found,
-        fields: fieldList as readonly FieldDefinition[],
-      };
-    },
-  );
-
-  if (!appEntity) {
-    throw data({ message: "App not found" }, { status: 404 });
-  }
-
-  let spaceName = "";
-  if (appEntity.spaceId) {
-    const space = await container.unitOfWorkProvider.transaction(async (ctx) =>
-      ctx.spaceRepository.findById(appEntity.spaceId as unknown as SpaceId),
-    );
-    if (space) {
-      spaceName = space.name as string;
-    }
-  }
-
-  const rankOptions: RankOption[] = [{ value: "", label: "-----" }];
-  for (const field of fields) {
-    if (
-      field.properties.type === "DROP_DOWN" &&
-      field.fieldCode === "customer_rank"
-    ) {
-      for (const option of field.properties.options ?? []) {
-        rankOptions.push({ value: option.label, label: option.label });
-      }
-    }
-  }
-
-  return {
-    app: {
-      id: appEntity.appId as string,
-      name: appEntity.name as string,
-      spaceName,
-      spaceId: (appEntity.spaceId as string) ?? "",
-    },
-    rankOptions,
-  };
-}
-
 export function emptyRecordFormValues(): RecordFormValues {
   return { ...EMPTY_RECORD_FORM_VALUES };
 }
@@ -141,6 +71,11 @@ export function toCreateRecordFieldValues(value: RecordFormValues) {
   return toRecordFieldValues(value, false);
 }
 
+/**
+ * Update は画面に載っている全フィールドを常に送り返す（ダーティ追跡なし）。
+ * 空入力は空文字として上書きされるため、ロード時に `toRecordFormValues` で
+ * 現在値を `defaultValue` に入れておく前提が崩れるとバグ化する点に注意。
+ */
 export function toUpdateRecordFieldValues(value: RecordFormValues) {
   return toRecordFieldValues(value, true);
 }
@@ -179,8 +114,20 @@ function toRecordFieldValues(
     value.postalCode,
     includeEmpty,
   );
-  setFieldValue(fieldValues, "tel", "SINGLE_LINE_TEXT", value.tel, includeEmpty);
-  setFieldValue(fieldValues, "fax", "SINGLE_LINE_TEXT", value.fax, includeEmpty);
+  setFieldValue(
+    fieldValues,
+    "tel",
+    "SINGLE_LINE_TEXT",
+    value.tel,
+    includeEmpty,
+  );
+  setFieldValue(
+    fieldValues,
+    "fax",
+    "SINGLE_LINE_TEXT",
+    value.fax,
+    includeEmpty,
+  );
   setFieldValue(
     fieldValues,
     "address",
@@ -239,11 +186,19 @@ function getStringValue(
       continue;
     }
 
-    if (Array.isArray(value.value)) {
-      return value.value.join(", ");
+    if (value.value == null) {
+      return "";
     }
 
-    return String(value.value ?? "");
+    if (Array.isArray(value.value)) {
+      return value.value.filter((v) => typeof v === "string").join(", ");
+    }
+
+    if (typeof value.value !== "string" && typeof value.value !== "number") {
+      return "";
+    }
+
+    return String(value.value);
   }
 
   return "";

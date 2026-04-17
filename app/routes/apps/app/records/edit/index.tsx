@@ -152,7 +152,7 @@ export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
               />
               {fields.company.errors && (
                 <div className="mt-xs text-xs text-error">
-                  {fields.company.errors}
+                  {fields.company.errors[0]}
                 </div>
               )}
             </div>
@@ -169,7 +169,7 @@ export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
               />
               {fields.department.errors && (
                 <div className="mt-xs text-xs text-error">
-                  {fields.department.errors}
+                  {fields.department.errors[0]}
                 </div>
               )}
             </div>
@@ -186,7 +186,7 @@ export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
               />
               {fields.person.errors && (
                 <div className="mt-xs text-xs text-error">
-                  {fields.person.errors}
+                  {fields.person.errors[0]}
                 </div>
               )}
             </div>
@@ -212,7 +212,7 @@ export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
               </div>
               {fields.postalCode.errors && (
                 <div className="mt-xs text-xs text-error">
-                  {fields.postalCode.errors}
+                  {fields.postalCode.errors[0]}
                 </div>
               )}
             </div>
@@ -230,7 +230,7 @@ export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
               />
               {fields.tel.errors && (
                 <div className="mt-xs text-xs text-error">
-                  {fields.tel.errors}
+                  {fields.tel.errors[0]}
                 </div>
               )}
             </div>
@@ -248,7 +248,7 @@ export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
               />
               {fields.fax.errors && (
                 <div className="mt-xs text-xs text-error">
-                  {fields.fax.errors}
+                  {fields.fax.errors[0]}
                 </div>
               )}
             </div>
@@ -269,7 +269,7 @@ export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
               />
               {fields.address.errors && (
                 <div className="mt-xs text-xs text-error">
-                  {fields.address.errors}
+                  {fields.address.errors[0]}
                 </div>
               )}
             </div>
@@ -292,7 +292,7 @@ export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
               </select>
               {fields.rank.errors && (
                 <div className="mt-xs text-xs text-error">
-                  {fields.rank.errors}
+                  {fields.rank.errors[0]}
                 </div>
               )}
             </div>
@@ -313,7 +313,7 @@ export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
               />
               {fields.email.errors && (
                 <div className="mt-xs text-xs text-error">
-                  {fields.email.errors}
+                  {fields.email.errors[0]}
                 </div>
               )}
             </div>
@@ -358,7 +358,7 @@ export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
               />
               {fields.notes.errors && (
                 <div className="mt-xs text-xs text-error">
-                  {fields.notes.errors}
+                  {fields.notes.errors[0]}
                 </div>
               )}
             </div>

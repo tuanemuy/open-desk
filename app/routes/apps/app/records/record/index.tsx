@@ -1,7 +1,7 @@
 import { getFormProps, getTextareaProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
@@ -41,6 +41,55 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
   );
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const optionsTriggerRef = useRef<HTMLButtonElement>(null);
+  const optionsMenuRef = useRef<HTMLDivElement>(null);
+  const deleteCancelRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isOptionsOpen) return;
+
+    function handleMouseDown(event: MouseEvent) {
+      const target = event.target as Node;
+      if (
+        optionsMenuRef.current?.contains(target) ||
+        optionsTriggerRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setIsOptionsOpen(false);
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOptionsOpen(false);
+        optionsTriggerRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOptionsOpen]);
+
+  useEffect(() => {
+    if (!isDeleteDialogOpen) return;
+
+    deleteCancelRef.current?.focus();
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsDeleteDialogOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isDeleteDialogOpen]);
 
   const fetcher = useCompositeAction<typeof handlers>();
 
@@ -63,6 +112,7 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
   });
   fetcher.register("deleteRecord", {
     onSuccess: () => {
+      setIsDeleteDialogOpen(false);
       navigate(`/apps/${app.id}`);
     },
   });
@@ -159,16 +209,24 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
           </Link>
           <div className="relative">
             <button
+              ref={optionsTriggerRef}
               type="button"
+              aria-haspopup="menu"
+              aria-expanded={isOptionsOpen}
               className="inline-flex h-[32px] items-center gap-xs rounded-sm border border-neutral-300 bg-bg-card px-md font-body text-sm font-[var(--weight-medium)] leading-tight text-neutral-700 transition-all duration-[var(--transition-default)] hover:border-neutral-400 hover:bg-neutral-100"
               onClick={() => setIsOptionsOpen((prev) => !prev)}
             >
               Options
             </button>
             {isOptionsOpen && (
-              <div className="absolute right-0 z-10 mt-xs min-w-[180px] rounded-sm border border-neutral-200 bg-bg-card p-xs shadow-lg">
+              <div
+                ref={optionsMenuRef}
+                role="menu"
+                className="absolute right-0 z-10 mt-xs min-w-[180px] rounded-sm border border-neutral-200 bg-bg-card p-xs shadow-lg"
+              >
                 <button
                   type="button"
+                  role="menuitem"
                   className="flex w-full items-center rounded-sm px-sm py-xs text-left text-sm text-error transition-colors duration-[var(--transition-default)] hover:bg-error/10"
                   onClick={() => {
                     setIsOptionsOpen(false);
@@ -306,7 +364,7 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
                     />
                     {commentFields.comment.errors && (
                       <div className="mt-xs text-xs text-error">
-                        {commentFields.comment.errors}
+                        {commentFields.comment.errors[0]}
                       </div>
                     )}
                     <div className="mt-sm flex justify-end">
@@ -375,9 +433,23 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
       </div>
 
       {isDeleteDialogOpen && (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-neutral-950/40 px-md">
-          <div className="w-full max-w-md rounded-md border border-neutral-200 bg-bg-card p-lg shadow-xl">
-            <h2 className="mb-sm font-heading text-lg font-[var(--weight-semibold)] text-neutral-900">
+        <div className="fixed inset-0 z-20 flex items-center justify-center px-md">
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop overlay for dismissing modal */}
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: Escape key handled by parent dialog */}
+          <div
+            className="absolute inset-0 bg-neutral-950/40"
+            onClick={() => setIsDeleteDialogOpen(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-record-title"
+            className="relative z-10 w-full max-w-md rounded-md border border-neutral-200 bg-bg-card p-lg shadow-xl"
+          >
+            <h2
+              id="delete-record-title"
+              className="mb-sm font-heading text-lg font-[var(--weight-semibold)] text-neutral-900"
+            >
               Delete record
             </h2>
             <p className="mb-md text-sm leading-relaxed text-neutral-600">
@@ -393,6 +465,7 @@ export default function RecordDetailPage({ loaderData }: Route.ComponentProps) {
               <input type="hidden" name="intent" value="deleteRecord" />
               <input type="hidden" name="revision" value={revision} />
               <button
+                ref={deleteCancelRef}
                 type="button"
                 className="inline-flex h-[36px] items-center rounded-sm border border-neutral-300 bg-bg-card px-lg text-sm font-[var(--weight-medium)] text-neutral-700 transition-all duration-[var(--transition-default)] hover:border-neutral-400 hover:bg-neutral-100"
                 onClick={() => setIsDeleteDialogOpen(false)}
