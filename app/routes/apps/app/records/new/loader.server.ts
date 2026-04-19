@@ -1,77 +1,66 @@
-import { data } from "react-router";
 import { container } from "@/core/application/container/server.instance";
-import { AppId } from "@/core/domain/app/valueObject";
-import type { SpaceId } from "@/core/domain/space/valueObject";
+import { reuseRecord } from "@/core/application/record/reuseRecord";
+import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
+import {
+  emptyRecordFormValues,
+  type RankOption,
+  type RecordFormAppInfo,
+  type RecordFormValues,
+  toRecordFormValues,
+} from "../form";
+import { loadRecordFormBaseData } from "../form.server";
 import type { Route } from "./+types/index";
 
-type AppInfo = {
-  id: string;
-  name: string;
-  spaceName: string;
-  spaceId: string;
-};
-
-type RankOption = {
-  value: string;
-  label: string;
-};
-
 export type NewRecordLoaderData = {
-  app: AppInfo;
+  app: RecordFormAppInfo;
   rankOptions: RankOption[];
+  defaultValue: RecordFormValues;
 };
 
 export async function loader({
   params,
   request,
 }: Route.LoaderArgs): Promise<NewRecordLoaderData> {
-  await requireAuth(request, container);
+  const auth = await requireAuth(request, container);
 
   const appId = params.appId;
+  const reuseRecordId = new URL(request.url).searchParams.get("reuseRecordId");
 
-  const { appEntity, fields } = await container.unitOfWorkProvider.transaction(
-    async (ctx) => {
-      const found = await ctx.appRepository.findById(AppId.create(appId));
-      const fieldList = await ctx.fieldRepository.findByAppId(
-        AppId.create(appId),
-      );
-      return { appEntity: found, fields: fieldList };
-    },
-  );
+  const baseDataPromise = loadRecordFormBaseData(appId);
 
-  if (!appEntity) {
-    throw data({ message: "App not found" }, { status: 404 });
+  if (!reuseRecordId) {
+    const { app, rankOptions } = await baseDataPromise;
+    return {
+      app,
+      rankOptions,
+      defaultValue: emptyRecordFormValues(),
+    };
   }
 
-  let spaceName = "";
-  if (appEntity.spaceId) {
-    const space = await container.unitOfWorkProvider.transaction(async (ctx) =>
-      ctx.spaceRepository.findById(appEntity.spaceId as unknown as SpaceId),
-    );
-    if (space) {
-      spaceName = space.name as string;
-    }
-  }
+  const [{ app, rankOptions }, reuseResult] = await Promise.all([
+    baseDataPromise,
+    handleUseCase(() =>
+      reuseRecord({
+        container,
+        headers: request.headers,
+        input: {
+          appId,
+          recordId: reuseRecordId,
+          creatorId: auth.userId as string,
+        },
+      }),
+    ).match(
+      (result) => result,
+      (e) => {
+        throw new Response(e.message, { status: e.status });
+      },
+    ),
+  ]);
 
-  const app: AppInfo = {
-    id: appEntity.appId as string,
-    name: appEntity.name as string,
-    spaceName,
-    spaceId: (appEntity.spaceId as string) ?? "",
+  return {
+    app,
+    rankOptions,
+    defaultValue: toRecordFormValues(reuseResult.fieldValues),
   };
-
-  const rankOptions: RankOption[] = [{ value: "", label: "-----" }];
-  for (const field of fields) {
-    if (
-      field.properties.type === "DROP_DOWN" &&
-      field.fieldCode === "customer_rank"
-    ) {
-      for (const opt of field.properties.options) {
-        rankOptions.push({ value: opt.label, label: opt.label });
-      }
-    }
-  }
-
-  return { app, rankOptions };
 }

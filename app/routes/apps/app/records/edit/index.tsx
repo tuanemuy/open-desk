@@ -11,42 +11,42 @@ import { Link, useNavigate } from "react-router";
 import { useCompositeAction } from "@/lib/compositeAction";
 import type { Route } from "./+types/index";
 import type { handlers } from "./action.server";
-import { createRecordSchema } from "./schemas";
+import { updateRecordSchema } from "./schemas";
 
 export { action } from "./action.server";
 export { loader } from "./loader.server";
 
 export function meta({ data }: Route.MetaArgs) {
   const appName = data?.app?.name ?? "App";
-  return [{ title: `Add Record - ${appName} - OpenDesk` }];
+  return [{ title: `Edit Record - ${appName} - OpenDesk` }];
 }
 
-export default function NewRecordPage({ loaderData }: Route.ComponentProps) {
-  const { app, rankOptions, defaultValue } = loaderData;
+export default function EditRecordPage({ loaderData }: Route.ComponentProps) {
+  const { app, recordId, rankOptions, defaultValue, revision } = loaderData;
   const navigate = useNavigate();
 
   const fetcher = useCompositeAction<typeof handlers>();
 
   const [form, fields] = useForm({
-    id: "create-record-form",
+    id: "update-record-form",
     lastResult:
-      fetcher.data?.intent === "createRecord" ? fetcher.data : undefined,
-    constraint: getZodConstraint(createRecordSchema),
+      fetcher.data?.intent === "updateRecord" ? fetcher.data : undefined,
+    constraint: getZodConstraint(updateRecordSchema),
     defaultValue,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: createRecordSchema });
+      return parseWithZod(formData, { schema: updateRecordSchema });
     },
   });
 
-  fetcher.register("createRecord", {
+  fetcher.register("updateRecord", {
     onSuccess: (data) => {
       navigate(`/apps/${app.id}/records/${data.data.recordId}`);
     },
   });
 
-  const isPending = fetcher.isPending("createRecord");
+  const isPending = fetcher.isPending("updateRecord");
 
   const inputClasses =
     "w-full rounded-sm border border-neutral-300 bg-bg-card px-md py-sm font-body text-base leading-normal text-neutral-800 outline-none transition-[border-color] duration-[var(--transition-default)] placeholder:text-neutral-400 hover:not-focus:border-neutral-400 focus:border-primary";
@@ -86,12 +86,13 @@ export default function NewRecordPage({ loaderData }: Route.ComponentProps) {
             </Link>
           </li>
           <li className="text-xs text-neutral-400">&gt;</li>
-          <li>Add Record</li>
+          <li>Edit Record</li>
         </ol>
       </nav>
 
       <fetcher.Form method="post" {...getFormProps(form)}>
-        <input type="hidden" name="intent" value="createRecord" />
+        <input type="hidden" name="intent" value="updateRecord" />
+        <input type="hidden" name="revision" value={revision} />
 
         {/* Top Action Bar */}
         <div className="mb-lg flex items-center gap-sm">
@@ -103,7 +104,7 @@ export default function NewRecordPage({ loaderData }: Route.ComponentProps) {
             {isPending ? "Saving..." : "Save"}
           </button>
           <Link
-            to={`/apps/${app.id}`}
+            to={`/apps/${app.id}/records/${recordId}`}
             className="inline-flex h-[36px] items-center gap-xs rounded-sm border border-neutral-300 bg-bg-card px-lg font-body text-base font-[var(--weight-medium)] text-neutral-700 no-underline transition-all duration-[var(--transition-default)] hover:border-neutral-400 hover:bg-neutral-100"
           >
             Cancel
@@ -124,10 +125,10 @@ export default function NewRecordPage({ loaderData }: Route.ComponentProps) {
           <div className="mb-lg flex gap-lg">
             <div className="min-w-0 flex-1">
               <label className="mb-xs block text-sm font-[var(--weight-medium)] text-neutral-600">
-                Record No. <span className="ml-[2px] text-error">*</span>
+                Record No.
                 <input
                   type="text"
-                  value="(Auto-generated)"
+                  value="(Existing record)"
                   readOnly
                   tabIndex={-1}
                   className="mt-xs block w-full cursor-not-allowed rounded-sm border border-neutral-200 bg-bg-section px-md py-sm font-body text-base leading-normal font-[var(--weight-normal)] text-neutral-500 outline-none"
@@ -374,7 +375,7 @@ export default function NewRecordPage({ loaderData }: Route.ComponentProps) {
             {isPending ? "Saving..." : "Save"}
           </button>
           <Link
-            to={`/apps/${app.id}`}
+            to={`/apps/${app.id}/records/${recordId}`}
             className="inline-flex h-[36px] items-center gap-xs rounded-sm border border-neutral-300 bg-bg-card px-lg font-body text-base font-[var(--weight-medium)] text-neutral-700 no-underline transition-all duration-[var(--transition-default)] hover:border-neutral-400 hover:bg-neutral-100"
           >
             Cancel

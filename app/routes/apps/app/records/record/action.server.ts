@@ -1,4 +1,5 @@
 import { container } from "@/core/application/container/server.instance";
+import { deleteRecords } from "@/core/application/record/deleteRecords";
 import { postComment } from "@/core/application/record/postComment";
 import {
   createCompositeAction,
@@ -9,7 +10,7 @@ import {
 import { handleUseCase } from "@/lib/handleUseCase";
 import { requireAuth } from "@/lib/session.server";
 import type { Route } from "./+types/index";
-import { addCommentSchema } from "./schemas";
+import { addCommentSchema, deleteRecordSchema } from "./schemas";
 
 export const handlers = {
   addComment: defineHandler({
@@ -29,6 +30,30 @@ export const handlers = {
             recordId,
             text: value.comment,
             creatorId: auth.userId as string,
+          },
+        }),
+      ).match(
+        () => success(),
+        (e) => error({ "": [e.message] }),
+      );
+    },
+  }),
+  deleteRecord: defineHandler({
+    schema: deleteRecordSchema,
+    handler: async (value, args) => {
+      await requireAuth(args.request, container);
+
+      const appId = args.params.appId as string;
+      const recordId = args.params.recordId as string;
+
+      return handleUseCase(() =>
+        deleteRecords({
+          container,
+          headers: args.request.headers,
+          input: {
+            appId,
+            recordIds: [recordId],
+            revisions: new Map([[recordId, value.revision]]),
           },
         }),
       ).match(
