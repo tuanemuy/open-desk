@@ -22,8 +22,8 @@ import {
   formLayouts,
   groups,
   records,
-  systemSettings,
   systemPermissions,
+  systemSettings,
   userGroups,
   users,
   views,
@@ -97,16 +97,19 @@ async function main() {
   ] as const;
 
   for (const userSeed of userSeeds) {
-    await db.insert(users).values(userSeed).onConflictDoUpdate({
-      target: users.loginName,
-      set: {
-        displayName: userSeed.displayName,
-        email: userSeed.email,
-        passwordHash: userSeed.passwordHash,
-        passwordAlgorithm: userSeed.passwordAlgorithm,
-        isActive: userSeed.isActive,
-      },
-    });
+    await db
+      .insert(users)
+      .values(userSeed)
+      .onConflictDoUpdate({
+        target: users.loginName,
+        set: {
+          displayName: userSeed.displayName,
+          email: userSeed.email,
+          passwordHash: userSeed.passwordHash,
+          passwordAlgorithm: userSeed.passwordAlgorithm,
+          isActive: userSeed.isActive,
+        },
+      });
   }
 
   const [adminUser] = await db
@@ -227,18 +230,18 @@ async function main() {
     });
 
   const adminPermissions = {
-      id: uuidv7(),
-      entityType: "USER",
-      entityCode: "admin",
-      includeSubs: false,
-      systemAdmin: true,
-      appGroupViewable: true,
-      appGroupManageable: true,
-      appCreate: true,
-      appManage: true,
-      spaceCreate: true,
-      guestSpaceCreate: true,
-    } as const;
+    id: uuidv7(),
+    entityType: "USER",
+    entityCode: "admin",
+    includeSubs: false,
+    systemAdmin: true,
+    appGroupViewable: true,
+    appGroupManageable: true,
+    appCreate: true,
+    appManage: true,
+    spaceCreate: true,
+    guestSpaceCreate: true,
+  } as const;
   await db
     .insert(systemPermissions)
     .values(adminPermissions)
@@ -318,12 +321,15 @@ async function main() {
   ];
 
   for (const settingSeed of settingsSeeds) {
-    await db.insert(systemSettings).values(settingSeed).onConflictDoUpdate({
-      target: systemSettings.key,
-      set: {
-        value: settingSeed.value,
-      },
-    });
+    await db
+      .insert(systemSettings)
+      .values(settingSeed)
+      .onConflictDoUpdate({
+        target: systemSettings.key,
+        set: {
+          value: settingSeed.value,
+        },
+      });
   }
 
   console.log("  - login security settings seeded");
@@ -557,17 +563,20 @@ async function main() {
   ];
 
   for (const fieldRow of fieldRows) {
-    await db.insert(fields).values(fieldRow).onConflictDoUpdate({
-      target: [fields.appId, fields.fieldCode],
-      set: {
-        label: fieldRow.label,
-        noLabel: fieldRow.noLabel,
-        fieldType: fieldRow.fieldType,
-        required: fieldRow.required,
-        isUnique: fieldRow.isUnique,
-        properties: fieldRow.properties,
-      },
-    });
+    await db
+      .insert(fields)
+      .values(fieldRow)
+      .onConflictDoUpdate({
+        target: [fields.appId, fields.fieldCode],
+        set: {
+          label: fieldRow.label,
+          noLabel: fieldRow.noLabel,
+          fieldType: fieldRow.fieldType,
+          required: fieldRow.required,
+          isUnique: fieldRow.isUnique,
+          properties: fieldRow.properties,
+        },
+      });
   }
   console.log("  - 10 fields created");
 
